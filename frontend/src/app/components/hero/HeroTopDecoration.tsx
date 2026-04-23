@@ -8,7 +8,7 @@ export default function HeroTopDecoration() {
       <div
         className="relative right-[calc(50%-11rem)] aspect-[1155/678] w-[36rem] 
                    translate-x-1/2 rotate-[30deg] bg-gradient-to-tr 
-                   from-[#fbbf24] to-[#f97316] opacity-30 
+                   from-[#93c5fd] to-[#3b82f6] opacity-20 
                    sm:right-[calc(50%-30rem)] sm:w-[72rem]"
         style={{
           clipPath:

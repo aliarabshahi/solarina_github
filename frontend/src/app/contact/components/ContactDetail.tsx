@@ -4,7 +4,7 @@ import { FaPhone, FaEnvelope, FaInstagram, FaTelegram, FaWhatsapp } from "react-
 export default function ContactDetail() {
   return (
     <div
-      className="w-full bg-gradient-to-r from-orange-500 to-yellow-400
+      className="w-full bg-gradient-to-r from-blue-600 to-cyan-500
                  rounded-xl shadow-lg
                  p-5 sm:p-6 mt-8 text-center text-white"
     >
@@ -24,15 +24,9 @@ export default function ContactDetail() {
 
         {/* شبکه‌ها */}
         <div className="flex gap-5 justify-center">
-          <a href="https://instagram.com/yourpage" className="hover:opacity-80 transition">
-            <FaInstagram className="text-2xl" />
-          </a>
-          <a href="https://t.me/yourpage" className="hover:opacity-80 transition">
-            <FaTelegram className="text-2xl" />
-          </a>
-          <a href="https://wa.me/989123456789" className="hover:opacity-80 transition">
-            <FaWhatsapp className="text-2xl" />
-          </a>
+          <a href="https://instagram.com/yourpage" className="hover:opacity-80 transition"><FaInstagram className="text-2xl" /></a>
+          <a href="https://t.me/yourpage" className="hover:opacity-80 transition"><FaTelegram className="text-2xl" /></a>
+          <a href="https://wa.me/989123456789" className="hover:opacity-80 transition"><FaWhatsapp className="text-2xl" /></a>
         </div>
       </div>
     </div>

@@ -12,7 +12,7 @@ export default function NavbarMenu() {
     <ul className="flex flex-col md:flex-row gap-3 md:gap-6 text-gray-700 text-sm md:text-base">
       {navbarLinks.map((item) => (
         <li key={item.href}>
-          <Link href={item.href} className="hover:text-orange-500 transition-colors">
+          <Link href={item.href} className="hover:text-blue-600 transition-colors">
             {item.label}
           </Link>
         </li>
