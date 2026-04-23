@@ -1,46 +1,29 @@
-import { FaHandsHelping, FaRocket, FaUserGraduate } from "react-icons/fa";
+import { FaCheckCircle } from "react-icons/fa";
 
-/**
- * AboutFeatures — displays 3 feature cards (learning, projects, community)
- */
+const features = [
+  "پنل‌های خورشیدی با کیفیت بالا و طول عمر ۱۰+ سال",
+  "بدون نیاز به باتری داخلی — کمتر خرابی، کمتر هزینه",
+  "مناسب برای کمپینگ، سفر، خودرو و مواقع اضطراری",
+  "شارژ مستقیم موبایل، پاوربانک و دستگاه‌های USB",
+  "پشتیبانی کامل و مشاوره رایگان قبل از خرید",
+];
+
 export default function AboutFeatures() {
   return (
-    <div className="grid gap-10 md:grid-cols-3 text-center text-gray-700">
-      {/* Feature 1 — Learning */}
-      <div className="p-6 bg-gradient-to-br from-[#1f9ece08] to-[#f477b810] rounded-xl shadow-sm border border-gray-100">
-        <FaUserGraduate className="mx-auto text-[#1F9ECE] text-3xl mb-4" />
-        <h3 className="text-base sm:text-lg font-semibold mb-2">
-          آموزش تخصصی
-        </h3>
-        <p className="text-sm sm:text-base leading-6">
-          دسترسی به <strong>محتوای آموزشی باکیفیت</strong> در حوزه داده، هوش مصنوعی و
-          فناوری‌های نو، همراه با تمرین‌ها و نمونه‌های واقعی.
-        </p>
-      </div>
-
-      {/* Feature 2 — Projects */}
-      <div className="p-6 bg-gradient-to-br from-[#1f9ece08] to-[#f477b810] rounded-xl shadow-sm border border-gray-100">
-        <FaRocket className="mx-auto text-[#1F9ECE] text-3xl mb-4" />
-        <h3 className="text-base sm:text-lg font-semibold mb-2">
-          پروژه‌های واقعی
-        </h3>
-        <p className="text-sm sm:text-base leading-6">
-          از ایده تا اجرا در پروژه‌های کاربردی شرکت کنید؛ تجربه‌ای واقعی از
-          <strong>حل مسائل صنعتی</strong> و ساخت سیستم‌های داده‌محور.
-        </p>
-      </div>
-
-      {/* Feature 3 — Community */}
-      <div className="p-6 bg-gradient-to-br from-[#1f9ece08] to-[#f477b810] rounded-xl shadow-sm border border-gray-100">
-        <FaHandsHelping className="mx-auto text-[#1F9ECE] text-3xl mb-4" />
-        <h3 className="text-base sm:text-lg font-semibold mb-2">
-          جامعه حرفه‌ای
-        </h3>
-        <p className="text-sm sm:text-base leading-6">
-          عضویت در <strong>جامعه‌ای از متخصصان و علاقه‌مندان</strong> به فناوری و داده برای
-          یادگیری جمعی و همکاری در پروژه‌های مشترک.
-        </p>
-      </div>
-    </div>
+    <section className="bg-orange-50 rounded-2xl p-8 space-y-6" dir="rtl">
+      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center">
+        ویژگی‌های محصولات ما
+      </h2>
+      <ul className="space-y-4 max-w-2xl mx-auto">
+        {features.map((feature, i) => (
+          <li key={i} className="flex items-start gap-3">
+            <FaCheckCircle className="text-orange-500 text-xl mt-0.5 shrink-0" />
+            <span className="text-gray-700 text-sm sm:text-base leading-relaxed">
+              {feature}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

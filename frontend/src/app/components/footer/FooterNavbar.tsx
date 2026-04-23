@@ -1,28 +1,24 @@
 import Link from "next/link";
 
-/** Navigation groups and their Persian labels/links (generalized but same structure) */
 const navItems = [
   {
     title: "شرکت",
     links: [
       { text: "درباره ما", href: "/about" },
       { text: "تماس با ما", href: "/contact" },
-      { text: "وبلاگ", href: "/blog" },
       { text: "سؤالات متداول", href: "/faq" },
     ],
   },
   {
-    title: "خدمات",
+    title: "محصولات",
     links: [
-      { text: "خدمت ۱", href: "/service-1" },
-      { text: "خدمت ۲", href: "/service-2" },
-      { text: "خدمت ۳", href: "/service-3" },
-      { text: "خدمت ۴", href: "/service-4" },
+      { text: "پنل ۱۰ واتی", href: "/#products" },
+      { text: "پنل ۲۰ واتی", href: "/#products" },
+      { text: "پنل ماشین", href: "/#products" },
     ],
   },
 ];
 
-/** Footer navigation section with grouped Persian menu links */
 export default function FooterNavbar() {
   return (
     <div className="flex justify-between gap-8">
@@ -36,7 +32,7 @@ export default function FooterNavbar() {
               <Link
                 key={linkIndex}
                 href={link.href}
-                className="text-sm text-gray-500 hover:text-gray-400 transition-colors whitespace-nowrap"
+                className="text-sm text-gray-500 hover:text-orange-500 transition-colors whitespace-nowrap"
               >
                 {link.text}
               </Link>

@@ -1,32 +1,31 @@
-/**
- * AboutCTA — final call-to-action section
- */
+import Link from "next/link";
+
 export default function AboutCTA() {
   return (
-    <div className="text-center">
-      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
-        آماده‌ای با ما رشد کنی؟
+    <section className="text-center space-y-6 py-10" dir="rtl">
+      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
+        آماده شروع هستید؟
       </h2>
-      <p className="text-sm sm:text-base text-gray-600 mb-6">
-        چه برای <strong>یادگیری مهارت‌های تخصصی</strong> و چه برای{" "}
-        <strong>ساخت پروژه‌های نوآورانه</strong>، ما کنارت هستیم تا بهترین نتیجه رو بگیری.
+      <p className="text-gray-600 text-base max-w-xl mx-auto">
+        همین حالا سفارش خود را ثبت کنید یا برای مشاوره رایگان با ما تماس بگیرید.
       </p>
-
-      <div className="flex flex-col sm:flex-row justify-center gap-4">
-        <a
-          href="/courses"
-          className="bg-[#1F9ED0] hover:bg-[#147aa9] text-white font-medium py-2.5 sm:py-3 px-5 sm:px-6 rounded-lg transition-colors shadow-sm hover:shadow-md text-sm sm:text-base"
+      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <Link
+          href="/#order"
+          className="rounded-md bg-orange-500 px-6 py-3 text-base font-semibold text-white shadow-sm 
+                     hover:bg-orange-600 transition-all"
         >
-          شروع یادگیری
-        </a>
-
-        <a
+          ثبت سفارش
+        </Link>
+        <Link
           href="/contact"
-          className="bg-white border border-[#1F9ED0] text-[#1F9ED0] font-medium py-2.5 sm:py-3 px-5 sm:px-6 rounded-lg transition-colors hover:bg-[#1F9ED0]/5 shadow-sm text-sm sm:text-base"
+          className="rounded-md bg-white border-2 border-orange-500 px-6 py-3 text-base font-semibold 
+                     text-orange-500 hover:bg-orange-50 transition-all"
         >
-          ارتباط با تیم ما
-        </a>
+          تماس با ما
+        </Link>
       </div>
-    </div>
+    </section>
   );
 }
+

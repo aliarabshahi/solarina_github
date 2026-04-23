@@ -16,7 +16,7 @@ export default function HeroVideoModal({ onClose }: { onClose: () => void }) {
           <iframe
             className="w-full h-[400px] sm:h-[500px]"
             src="https://www.youtube.com/embed/your-video-id"
-            title="ویدیوی معرفی Example Project"
+            title="ویدیوی عملکرد و تست سرعت شارژر خورشیدی"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen

@@ -1,6 +1,3 @@
-// app/components/hero/HeroTopDecoration.tsx
-
-/** Top blurred shape decoration for Hero section */
 export default function HeroTopDecoration() {
   return (
     <div
@@ -11,7 +8,7 @@ export default function HeroTopDecoration() {
       <div
         className="relative right-[calc(50%-11rem)] aspect-[1155/678] w-[36rem] 
                    translate-x-1/2 rotate-[30deg] bg-gradient-to-tr 
-                   from-[#ff80b5] to-[#9089fc] opacity-30 
+                   from-[#fbbf24] to-[#f97316] opacity-30 
                    sm:right-[calc(50%-30rem)] sm:w-[72rem]"
         style={{
           clipPath:
