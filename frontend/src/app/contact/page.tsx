@@ -7,7 +7,8 @@ import ContactDetail from "./components/ContactDetail";
 
 function ContactFormSkeleton() {
   return (
-    <div className="w-full h-[400px] bg-[#E9D7EB]/30 rounded-xl animate-pulse mb-6" />
+    // تغییر رنگ اسکلتون به آبی روشن
+    <div className="w-full h-[400px] bg-blue-100/30 rounded-xl animate-pulse mb-6" />
   );
 }
 
@@ -19,7 +20,8 @@ export default function ContactPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#FFFBFD] py-8 sm:py-10 px-6 sm:px-10 lg:px-20">
+    // تغییر پس‌زمینه به bg-slate-50 و افزودن dir="rtl" برای هماهنگی
+    <div className="min-h-screen bg-slate-50 py-8 sm:py-10 px-6 sm:px-10 lg:px-20" dir="rtl">
       <div className="max-w-5xl mx-auto">
         <div className="flex flex-col lg:flex-row items-start gap-10">
 
