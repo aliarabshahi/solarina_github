@@ -1,0 +1,37 @@
+#### For Server Deployment with Docker Compose ####
+# NEXT_PUBLIC_API_BASE_URL=https://solarina.ir/solarina/api/
+# NEXT_PUBLIC_MEDIA_STATIC_BASE_URL=https://solarina.ir/solarina/
+# NEXT_PUBLIC_HEALTHCHECK_URL=https://solarina.ir/solarina/api/health/
+# NEXT_PUBLIC_SITE_URL=https://solarina.ir
+# NEXT_PUBLIC_SITE_FALLBACK=https://solarina.ir
+
+# NEXT_PUBLIC_API_BASE_URL=http://185.204.168.255/solarina/api/
+# NEXT_PUBLIC_MEDIA_STATIC_BASE_URL=http://185.204.168.255/solarina/
+# NEXT_PUBLIC_HEALTHCHECK_URL=http://185.204.168.255/solarina/api/health/
+# NEXT_PUBLIC_SITE_URL=http://185.204.168.255
+# NEXT_PUBLIC_SITE_FALLBACK=http://185.204.168.255
+
+#### For Local Development with Docker Compose ####
+# NEXT_PUBLIC_API_BASE_URL=http://nginx/solarina/api/
+# NEXT_PUBLIC_MEDIA_STATIC_BASE_URL=http://nginx/solarina/
+# NEXT_PUBLIC_HEALTHCHECK_URL=https://localhost/solarina/api/health/
+# NEXT_PUBLIC_SITE_URL=http://localhost:3000
+# NEXT_PUBLIC_SITE_FALLBACK=http://localhost:3000
+
+
+#### For Local Development with `npm run dev` (frontend/src) ####
+# NEXT_PUBLIC_API_BASE_URL=http://localhost/solarina/api/
+# NEXT_PUBLIC_MEDIA_STATIC_BASE_URL=http://localhost/solarina/
+# NEXT_PUBLIC_HEALTHCHECK_URL=http://localhost/solarina/api/health/
+# NEXT_PUBLIC_SITE_URL=http://localhost:3000
+# NEXT_PUBLIC_SITE_FALLBACK=http://localhost:3000
+
+
+#### Backend API Token ####
+NEXT_PUBLIC_API_TOKEN=7ea807796f921d469e55cc1ab75a200d57043bd0
+
+
+
+
+
+

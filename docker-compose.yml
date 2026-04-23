@@ -1,0 +1,70 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: docker.arvancloud.ir/postgres:15
+    container_name: solarina_database
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_NAME}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - network_solarina_project
+
+  web:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: solarina_web
+    env_file:
+      - .env
+    volumes:
+      - ./backend/src/media:/opt/solarina/src/media
+      - ./backend/src:/opt/solarina/src
+    command: bash -c "python manage.py collectstatic --noinput && gunicorn --config /opt/solarina/gunicorn.py core.wsgi:application"
+    restart: always
+    depends_on:
+      - postgres
+    networks:
+      - network_solarina_project
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: solarina_frontend
+    env_file:
+      - ./frontend/src/.env
+    restart: always
+    networks:
+      - network_solarina_project
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: solarina_nginx
+    volumes:
+      - ./backend/src/static:/opt/solarina/static/:ro
+      - ./backend/src/media:/opt/solarina/src/media:ro
+    depends_on:
+      - web
+      - frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    networks:
+      - network_solarina_project
+
+volumes:
+  pg_data:
+
+networks:
+  network_solarina_project:
+    name: network_solarina_project

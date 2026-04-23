@@ -1,0 +1,46 @@
+variables:
+  GIT_DEPTH: "1"
+  GIT_STRATEGY: "clone"
+
+stages:
+  - build
+
+build-job:
+  stage: build
+  tags:
+    - arvan-docker
+  image: python_with_ansible_and_docker:3.9
+  when: manual
+  
+  before_script:
+    - chmod +x ./cicd/*.sh
+    - $CI_PROJECT_DIR/cicd/pre_runner.sh
+
+  script:
+    - VERSION=${CI_COMMIT_TAG:-"${CI_COMMIT_BRANCH}_${CI_COMMIT_SHORT_SHA}"}
+    - echo "[INFO] VERSION=$VERSION"
+    - cp "$BACKEND_ENV_FILE" ./.env
+    - cp "$FRONTEND_ENV_FILE" ./frontend/src/.env
+    - docker build -t solarina_web:latest -f backend/Dockerfile backend
+    - docker build -t solarina_frontend:latest -f frontend/Dockerfile frontend
+    - docker build -t solarina_nginx_prod:latest -f nginx/Dockerfile_prod nginx
+    - docker save solarina_web:latest -o solarina_web_${VERSION}.tar
+    - docker save solarina_frontend:latest -o solarina_frontend_${VERSION}.tar
+    - docker save solarina_nginx_prod:latest -o solarina_nginx_prod_${VERSION}.tar
+    - chmod 755 solarina_*_${VERSION}.tar
+    - DIR=/opt/solarina
+    - scp -o StrictHostKeyChecking=no -r solarina_web_${VERSION}.tar solarina_frontend_${VERSION}.tar solarina_nginx_prod_${VERSION}.tar backend/etc/ docker-compose-prod.yml arad:$DIR
+    - ssh -tt arad "cd $DIR && docker compose -f docker-compose-prod.yml down || true"
+    - ssh -tt arad "docker load -i $DIR/solarina_web_${VERSION}.tar && docker load -i $DIR/solarina_frontend_${VERSION}.tar && docker load -i $DIR/solarina_nginx_prod_${VERSION}.tar"
+    - ssh -tt arad "docker tag solarina_web:latest solarina_web:${VERSION} && docker tag solarina_frontend:latest solarina_frontend:${VERSION} && docker tag solarina_nginx_prod:latest solarina_nginx_prod:${VERSION}"
+    - ssh -tt arad "docker compose -f $DIR/docker-compose-prod.yml up -d"
+    - echo "✅ Deployment complete for $VERSION"
+
+
+
+  after_script:
+    - $CI_PROJECT_DIR/cicd/post_runner.sh
+    - docker images | grep '<none>' | sed 's/ * / /g' | cut -d ' ' -f 3 | xargs docker rmi -f
+    - ssh -tt arad "docker images | grep '<none>' | sed 's/ * / /g' | cut -d ' ' -f 3 | xargs docker rmi -f"
+    - ssh -tt arad "docker system prune -af --volumes"
+    

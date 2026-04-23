@@ -1,0 +1,149 @@
+# =============================================================================
+# COMBINED .gitignore FOR FULLSTACK MONOREPO (Next.js + Django)
+# =============================================================================
+
+# --------------------
+# Node / Next.js
+# --------------------
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/install-state.gz
+.pnp
+.pnp.js
+
+# Next.js build outputs
+.next/
+out/
+dist/
+.turbo/
+.cache/
+.next/cache/
+
+# Local debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Package manager lock files (optional, if not committed intentionally)
+# package-lock.json
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Dependencies inside nested frontend paths
+frontend/src/node_modules/
+**/node_modules/
+
+# --------------------
+# Python / Django
+# --------------------
+# Bytecode / cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*$py.class
+*.pdb
+*.tmp
+*.mo
+
+# Django-specific files
+*.pot
+*.sqlite3
+db.sqlite3
+
+# Django migrations
+*/migrations/*.py
+*/migrations/*.pyc
+*/migrations/__pycache__/
+!*/migrations/__init__.py
+
+# Secrets & local settings
+backend/src/core/settings_local.py
+backend/src/core/.env
+.env
+*.env
+.env.*
+
+# Virtual environments
+venv/
+env/
+ENV/
+.Python
+pip-log.txt
+
+# --------------------
+# Media / Static (Generated)
+# --------------------
+# ⚙️  collectstatic output and uploads are ignored,
+# ⚙️  but keep folders themselves via internal .gitignore files.
+backend/src/media/*
+backend/src/static/*
+media/*
+staticfiles/*
+!backend/src/media/.gitignore
+!backend/src/static/.gitignore
+!media/.gitignore
+!staticfiles/.gitignore
+
+# --------------------
+# Docker
+# --------------------
+volumes/
+docker-compose.override.yml
+**/.docker-cache
+*.pid
+*.tar
+*.bak
+*.orig
+*.swp
+
+# --------------------
+# VSCode / JetBrains / Editor junk
+# --------------------
+.vscode/
+.history/
+.idea/
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# --------------------
+# OS-specific
+# --------------------
+.DS_Store
+Thumbs.db
+
+# --------------------
+# Testing / Coverage
+# --------------------
+coverage/
+/coverage
+*.cover
+.coverage*
+coverage.xml
+htmlcov/
+.pytest_cache/
+.cache/
+junit.xml
+
+# --------------------
+# MyPy / Pyre
+# --------------------
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+
+# --------------------
+# Build / distribution artifacts
+# --------------------
+build/
+dist/
+*.egg-info/
+.eggs/
+tmp/

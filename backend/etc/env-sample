@@ -1,0 +1,12 @@
+DEBUG=true
+LOG_LEVEL=INFO
+POSTGRES_ENGINE=django.db.backends.postgresql_psycopg2
+POSTGRES_NAME=project
+POSTGRES_USER=admin
+POSTGRES_PASSWORD=
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+EMAIL_HOST_USER=myproject@gmail.com                 # https://myaccount.google.com/apppasswords
+EMAIL_HOST_PASSWORD=                              # https://myaccount.google.com/apppasswords
+DEFAULT_FROM_EMAIL=PROJECT <myproject@gmail.com>
+ADMIN_EMAIL=your@gmail.com
