@@ -11,7 +11,7 @@ export default function AboutCTA() {
       </p>
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <Link
-          href="/#order"
+          href="/order"
           className="rounded-md bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-sm 
                      hover:bg-blue-700 transition-all"
         >

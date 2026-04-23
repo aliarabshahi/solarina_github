@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { IoPlayCircleSharp } from "react-icons/io5";
 import { FaBolt, FaShieldAlt, FaWeightHanging } from "react-icons/fa";
 
@@ -41,15 +42,15 @@ export default function HeroMainContent({
 
         {/* دکمه‌های اقدام */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
-          <a
-            href="#order"
+          <Link
+            href="/order"
             className="w-full sm:w-auto rounded-md bg-blue-600 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-semibold text-white shadow-sm 
                        hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 
                        focus-visible:outline-offset-2 focus-visible:outline-blue-600 
                        transition-all duration-300 hover:shadow-lg text-center"
           >
             ثبت سفارش
-          </a>
+          </Link>
           <a
             href="#products"
             className="w-full sm:w-auto rounded-md bg-orange-500 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-semibold 
