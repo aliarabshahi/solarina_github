@@ -4,7 +4,7 @@ export default function AboutIntro() {
   return (
     <section className="text-center space-y-6" dir="rtl">
       <div className="flex justify-center mb-4">
-        <FaSun className="text-5xl text-yellow-400" />
+        <FaSun className="text-5xl text-orange-500" />
       </div>
       <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
         درباره ما

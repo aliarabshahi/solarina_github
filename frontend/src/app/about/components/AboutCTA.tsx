@@ -12,8 +12,8 @@ export default function AboutCTA() {
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <Link
           href="/#order"
-          className="rounded-md bg-orange-500 px-6 py-3 text-base font-semibold text-white shadow-sm 
-                     hover:bg-orange-600 transition-all"
+          className="rounded-md bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-sm 
+                     hover:bg-blue-700 transition-all"
         >
           ثبت سفارش
         </Link>
@@ -28,4 +28,3 @@ export default function AboutCTA() {
     </section>
   );
 }
-

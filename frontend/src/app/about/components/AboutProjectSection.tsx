@@ -7,12 +7,12 @@ const highlights = [
     desc: "با پنل‌های خورشیدی پرتابل، دیگر نگران قطعی برق نباشید.",
   },
   {
-    icon: <FaLeaf className="text-3xl text-green-500" />,
+    icon: <FaLeaf className="text-3xl text-cyan-500" />,
     title: "سازگار با محیط زیست",
     desc: "انرژی پاک و تجدیدپذیر، بدون آلودگی و هزینه برق.",
   },
   {
-    icon: <FaHandHoldingUsd className="text-3xl text-blue-500" />,
+    icon: <FaHandHoldingUsd className="text-3xl text-blue-600" />,
     title: "مقرون به صرفه",
     desc: "سرمایه‌گذاری یک‌باره، استفاده چندین ساله بدون هزینه اضافی.",
   },
