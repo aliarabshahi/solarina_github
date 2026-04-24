@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import SimpleRouter
 
-from .views import ContactUsViewSet, ExampleModelViewSet, health_check
+from .views import ContactUsViewSet, ExampleModelViewSet, health_check, ProductModelViewSet, ProductCategoryModelViewSet
 
 
 # ---------------------------------------------------------------------
@@ -14,6 +14,10 @@ router.register(r'example-items', ExampleModelViewSet, basename='example-items')
 
 # Forms & User Input APIs
 router.register(r'contact-us', ContactUsViewSet, basename='contact-us')
+
+# Products
+router.register(r'product-categories', ProductCategoryModelViewSet, basename='product-categories')
+router.register(r'products', ProductModelViewSet, basename='products')
 
 # ---------------------------------------------------------------------
 # URL Patterns

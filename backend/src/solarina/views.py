@@ -16,8 +16,8 @@ import threading
 # ---------------------------------------------------------------------
 # Models & Serializers
 # ---------------------------------------------------------------------
-from .models import ContactUsModel, ExampleModel
-from .serializers import ContactUsSerializer, ExampleModelSerializer
+from .models import ContactUsModel, ExampleModel, ProductModel, ProductCategoryModel
+from .serializers import ContactUsSerializer, ExampleModelSerializer, ProductModelSerializer, ProductCategoryModelSerializer
 
 
 # ---------------------------------------------------------------------
@@ -143,3 +143,46 @@ class ContactUsViewSet(viewsets.ModelViewSet):
         # Return the normal success response (unchanged)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+# ---------------------------------------------------------------------
+# Product Category ViewSet
+# ---------------------------------------------------------------------
+class ProductCategoryModelViewSet(viewsets.ModelViewSet):
+    """
+    Manage Product Categories.
+    Public GET
+    Authenticated write operations
+    """
+    queryset = ProductCategoryModel.objects.all()
+    serializer_class = ProductCategoryModelSerializer
+    pagination_class = DashboardPagination
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+
+    def get_permissions(self):
+        if self.request.method in ["GET"]:
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
+
+# ---------------------------------------------------------------------
+# Product ViewSet
+# ---------------------------------------------------------------------
+class ProductModelViewSet(viewsets.ModelViewSet):
+    """
+    Manage Products.
+    Public GET
+    Authenticated write operations
+    """
+    queryset = ProductModel.objects.filter(is_active=True)
+    serializer_class = ProductModelSerializer
+    pagination_class = DashboardPagination
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ["price", "created_at"]
+    ordering = ["-created_at"]
+
+    def get_permissions(self):
+        if self.request.method in ["GET"]:
+            return [AllowAny()]
+        return [IsAuthenticated()]

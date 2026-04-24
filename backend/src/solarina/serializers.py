@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ContactUsModel, ExampleModel
+from .models import ContactUsModel, ExampleModel, ProductModel, ProductCategoryModel
 
 
 # ---------------------------------------------------------------------
@@ -21,3 +21,30 @@ class ContactUsSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactUsModel
         fields = '__all__'
+
+
+
+# ---------------------------------------------------------------------
+# Product Category Serializer
+# ---------------------------------------------------------------------
+class ProductCategoryModelSerializer(serializers.ModelSerializer):
+    """Serializer for ProductCategoryModel."""
+
+    class Meta:
+        model = ProductCategoryModel
+        fields = '__all__'
+
+
+# ---------------------------------------------------------------------
+# Product Serializer
+# ---------------------------------------------------------------------
+class ProductModelSerializer(serializers.ModelSerializer):
+    """Serializer for ProductModel."""
+
+    category_name = serializers.CharField(source="category.name", read_only=True)
+
+    class Meta:
+        model = ProductModel
+        fields = '__all__'
+
+

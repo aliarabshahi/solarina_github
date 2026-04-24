@@ -41,3 +41,49 @@ class ContactUsModel(models.Model):
 
     def __str__(self):
         return self.full_name
+
+
+
+class ProductCategoryModel(models.Model):
+    name = models.CharField(max_length=120)
+    slug = models.SlugField(unique=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Product Category"
+        verbose_name_plural = "Product Categories"
+
+    def __str__(self):
+        return self.name
+
+
+class ProductModel(models.Model):
+    category = models.ForeignKey(
+        ProductCategoryModel,
+        on_delete=models.CASCADE,
+        related_name="products"
+    )
+
+    name = models.CharField(max_length=150)
+    slug = models.SlugField(unique=True, blank=True)
+
+    short_description = models.CharField(max_length=255, blank=True)
+    description = models.TextField(blank=True)
+
+    price = models.PositiveIntegerField(help_text="Price in Rial")
+    stock = models.PositiveIntegerField(default=0)
+
+    is_active = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Product"
+        verbose_name_plural = "Products"
+
+    def __str__(self):
+        return self.name
