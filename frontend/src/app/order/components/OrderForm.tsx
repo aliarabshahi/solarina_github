@@ -1,50 +1,121 @@
 "use client";
-import { useState } from "react";
-import { FaUser, FaPhone, FaMapMarkerAlt, FaPaperPlane, FaCheckCircle, FaSolarPanel, FaBox, FaMailBulk, FaEnvelope, FaCommentDots } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import {
+  FaUser,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaMailBulk,
+  FaCheckCircle,
+  FaMinusCircle, // simple minimal sign for remove
+} from "react-icons/fa";
 import { motion } from "framer-motion";
+import { getApiData } from "@/app/services/receive_data/apiServerFetch";
 
-type OrderFormData = { 
-  full_name: string; 
-  phone_number: string; 
+type OrderFormData = {
+  full_name: string;
+  phone_number: string;
   email: string;
-  product: string; 
-  quantity: string;
   address: string;
   postal_code: string;
   notes: string;
 };
 
+type Product = {
+  id: number;
+  name: string;
+  price: number;
+};
+
+type SelectedProduct = {
+  product: string;  // product id as string
+  quantity: string; // keep as string for easier binding
+};
+
 export default function OrderForm() {
-  const [order, setOrder] = useState<OrderFormData>({ 
-    full_name: "", 
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([
+    { product: "", quantity: "1" },
+  ]);
+
+  const [order, setOrder] = useState<OrderFormData>({
+    full_name: "",
     phone_number: "",
     email: "",
-    product: "", 
-    quantity: "1",
     address: "",
     postal_code: "",
     notes: "",
   });
+
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  /* ---------------- FETCH PRODUCTS ---------------- */
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await getApiData("/products/?page_size=100");
+        if (res?.data) {
+          setProducts(res.data);
+        }
+      } catch (err) {
+        console.error("Error fetching products", err);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  /* ---------------- FORM HANDLERS ---------------- */
   const handleChange = (field: keyof OrderFormData, value: string) => {
-    setOrder({ ...order, [field]: value });
+    setOrder((prev) => ({ ...prev, [field]: value }));
   };
 
+  const updateProductRow = (
+    index: number,
+    field: "product" | "quantity",
+    value: string
+  ) => {
+    setSelectedProducts((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
+
+  const addProductRow = () => {
+    setSelectedProducts((prev) => [...prev, { product: "", quantity: "1" }]);
+  };
+
+  const removeProductRow = (index: number) => {
+    if (selectedProducts.length === 1) return;
+    setSelectedProducts((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  /* ---------------- TOTAL PRICE ---------------- */
+  const totalPrice = selectedProducts.reduce((sum, row) => {
+    const product = products.find((p) => String(p.id) === row.product);
+    if (!product) return sum;
+    const qty = Number(row.quantity) || 0;
+    return sum + product.price * qty;
+  }, 0);
+
+  /* ---------------- SUBMIT (dummy) ---------------- */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // TODO: ارسال به Django backend
+    setMessage("");
+
+    // TODO: replace with real POST to /orders/
     await new Promise((resolve) => setTimeout(resolve, 1000));
+
     setLoading(false);
-    setMessage("سفارش شما با موفقیت ثبت شد. به زودی با شما تماس می‌گیریم.");
-    setOrder({ 
-      full_name: "", 
-      phone_number: "", 
+    setMessage("سفارش شما با موفقیت ثبت شد ✅");
+
+    // reset
+    setSelectedProducts([{ product: "", quantity: "1" }]);
+    setOrder({
+      full_name: "",
+      phone_number: "",
       email: "",
-      product: "", 
-      quantity: "1", 
       address: "",
       postal_code: "",
       notes: "",
@@ -56,141 +127,214 @@ export default function OrderForm() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white/70 backdrop-blur-md p-5 sm:p-7 md:p-8 rounded-xl shadow-lg border border-blue-500/15 w-full"
+      className="bg-white/70 backdrop-blur-md p-6 rounded-xl shadow-lg border border-blue-500/15 w-full"
     >
-      <div className="mb-6 sm:mb-8 text-center">
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-600 mb-2">ثبت سفارش</h2>
-        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">اطلاعات خود را وارد کنید تا محصول برای شما ارسال شود</p>
-      </div>
+      <h2 className="text-2xl font-bold text-blue-600 mb-6 text-center">
+        ثبت سفارش
+      </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6" method="post" dir="rtl">
-        {/* Name */}
+      <form onSubmit={handleSubmit} className="space-y-6" dir="rtl">
+        {/* NAME */}
+        <InputField
+          label="نام کامل"
+          icon={<FaUser />}
+          required
+          value={order.full_name}
+          onChange={(v) => handleChange("full_name", v)}
+        />
+
+        {/* PHONE */}
+        <InputField
+          label="شماره موبایل"
+          icon={<FaPhone />}
+          required
+          value={order.phone_number}
+          onChange={(v) => handleChange("phone_number", v)}
+        />
+
+        {/* EMAIL (optional but kept for layout consistency) */}
+        <InputField
+          label="ایمیل"
+          icon={<FaMailBulk />}
+          value={order.email}
+          onChange={(v) => handleChange("email", v)}
+        />
+
+        {/* PRODUCTS SECTION */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-gray-700">
+              محصولات مورد نظر
+            </span>
+            <button
+              type="button"
+              onClick={addProductRow}
+              className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+            >
+              + افزودن محصول دیگر
+            </button>
+          </div>
+
+          {selectedProducts.map((row, index) => {
+            const canRemove = selectedProducts.length > 1;
+
+            return (
+              <div
+                key={index}
+                className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end"
+              >
+                {/* PRODUCT SELECT */}
+                <div className="sm:col-span-7">
+                  <label className="block text-sm mb-2 text-gray-700">
+                    محصول *
+                  </label>
+                  <select
+                    required
+                    value={row.product}
+                    onChange={(e) =>
+                      updateProductRow(index, "product", e.target.value)
+                    }
+                    className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 text-sm"
+                  >
+                    <option value="">انتخاب کنید...</option>
+                    {products.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name} — {p.price.toLocaleString()} تومان
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* QUANTITY */}
+                <div className="sm:col-span-3">
+                  <label className="block text-sm mb-2 text-gray-700">
+                    تعداد *
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    required
+                    value={row.quantity}
+                    onChange={(e) =>
+                      updateProductRow(index, "quantity", e.target.value)
+                    }
+                    className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 text-sm"
+                  />
+                </div>
+
+                {/* MINIMAL REMOVE ICON */}
+                <div className="sm:col-span-2 flex justify-center sm:justify-end pb-1">
+                  <button
+                    type="button"
+                    aria-label="حذف سطر"
+                    disabled={!canRemove}
+                    onClick={() => canRemove && removeProductRow(index)}
+                    className={`flex items-center justify-center h-10 w-10 rounded-full border text-xs transition
+                      ${
+                        canRemove
+                          ? "border-red-200 text-red-400 hover:border-red-400 hover:text-red-600 hover:bg-red-50"
+                          : "border-gray-200 text-gray-300 cursor-default"
+                      }`}
+                  >
+                    <FaMinusCircle className="text-base" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* TOTAL */}
+        <div className="flex justify-between items-center pt-2">
+          <span className="text-sm text-gray-600">مجموع سفارش:</span>
+          <span className="font-semibold text-blue-700">
+            {totalPrice.toLocaleString()} تومان
+          </span>
+        </div>
+
+        {/* ADDRESS */}
+        <InputField
+          label="آدرس دقیق"
+          icon={<FaMapMarkerAlt />}
+          required
+          value={order.address}
+          onChange={(v) => handleChange("address", v)}
+        />
+
+        {/* POSTAL CODE */}
+        <InputField
+          label="کد پستی"
+          icon={<FaMailBulk />}
+          required
+          value={order.postal_code}
+          onChange={(v) => handleChange("postal_code", v)}
+        />
+
+        {/* NOTES */}
         <div>
-          <label htmlFor="full_name" className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
-            نام کامل <span className="text-red-500">*</span>
+          <label className="block text-sm mb-2 text-gray-700">
+            توضیحات تکمیلی
           </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-blue-500"><FaUser /></div>
-            <input id="full_name" type="text" placeholder="نام و نام خانوادگی تحویل گیرنده" required
-              className="w-full bg-white/60 border border-blue-500/20 text-gray-800 text-sm sm:text-base rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 pr-10 placeholder-gray-400 transition"
-              value={order.full_name} onChange={(e) => handleChange("full_name", e.target.value)} />
-          </div>
+          <textarea
+            value={order.notes}
+            onChange={(e) => handleChange("notes", e.target.value)}
+            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 text-sm"
+            rows={3}
+          />
         </div>
 
-        {/* Phone & Email */}
-        <div className="flex flex-col sm:flex-row gap-6">
-          <div className="w-full sm:w-1/2">
-            <label htmlFor="phone_number" className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
-              شماره موبایل <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-blue-500"><FaPhone /></div>
-              <input id="phone_number" type="tel" placeholder="۰۹۱۲۳۴۵۶۷۸۹" required pattern="^0.*$" maxLength={12}
-                className="w-full bg-white/60 border border-blue-500/20 text-gray-800 text-sm sm:text-base rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 pr-10 placeholder-gray-400 transition"
-                value={order.phone_number} onChange={(e) => handleChange("phone_number", e.target.value)} />
-            </div>
-          </div>
-
-          <div className="w-full sm:w-1/2">
-            <label htmlFor="email" className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
-              ایمیل <span className="text-gray-400 text-xs">(اختیاری)</span>
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-blue-500"><FaEnvelope /></div>
-              <input id="email" type="email" placeholder="example@email.com"
-                className="w-full bg-white/60 border border-blue-500/20 text-gray-800 text-sm sm:text-base rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 pr-10 placeholder-gray-400 transition"
-                value={order.email} onChange={(e) => handleChange("email", e.target.value)} />
-            </div>
-          </div>
-        </div>
-
-        {/* Product & Quantity */}
-        <div className="flex flex-col sm:flex-row gap-6">
-          <div className="w-full sm:w-2/3">
-            <label htmlFor="product" className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
-              انتخاب محصول <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-blue-500"><FaSolarPanel /></div>
-              <select id="product" required
-                className="w-full bg-white/60 border border-blue-500/20 text-gray-800 text-sm sm:text-base rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 pr-10 appearance-none transition"
-                value={order.product} onChange={(e) => handleChange("product", e.target.value)}>
-                <option value="" disabled>انتخاب کنید...</option>
-                <option value="panel-60w">پنل خورشیدی تاشو ۶۰ وات</option>
-                <option value="panel-120w">پنل خورشیدی تاشو ۱۲۰ وات</option>
-                <option value="panel-200w">پنل خورشیدی تاشو ۲۰۰ وات</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="w-full sm:w-1/3">
-            <label htmlFor="quantity" className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
-              تعداد <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-blue-500"><FaBox /></div>
-              <input id="quantity" type="number" min="1" max="50" required
-                className="w-full bg-white/60 border border-blue-500/20 text-gray-800 text-sm sm:text-base rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 pr-10 transition"
-                value={order.quantity} onChange={(e) => handleChange("quantity", e.target.value)} />
-            </div>
-          </div>
-        </div>
-
-        {/* Address */}
-        <div>
-          <label htmlFor="address" className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
-            آدرس دقیق پستی <span className="text-red-500">*</span>
-          </label>
-          <div className="relative">
-            <div className="absolute top-3 right-3 text-blue-500"><FaMapMarkerAlt /></div>
-            <textarea id="address" placeholder="استان، شهر، خیابان، کوچه، پلاک، واحد..." required
-              className="w-full bg-white/60 border border-blue-500/20 text-gray-800 text-sm sm:text-base rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 pr-10 h-24 placeholder-gray-400 transition resize-none"
-              value={order.address} onChange={(e) => handleChange("address", e.target.value)} />
-          </div>
-        </div>
-
-        {/* Postal Code */}
-        <div>
-          <label htmlFor="postal_code" className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
-            کد پستی <span className="text-red-500">*</span>
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3 text-blue-500"><FaMailBulk /></div>
-            <input id="postal_code" type="text" placeholder="۱۲۳۴۵۶۷۸۹۰" required 
-              pattern="[0-9]{10}" maxLength={10}
-              className="w-full bg-white/60 border border-blue-500/20 text-gray-800 text-sm sm:text-base rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 pr-10 placeholder-gray-400 transition"
-              value={order.postal_code} onChange={(e) => handleChange("postal_code", e.target.value)} />
-          </div>
-          <p className="text-xs text-gray-500 mt-1 mr-1">کد پستی ۱۰ رقمی بدون خط تیره</p>
-        </div>
-
-        {/* Notes */}
-        <div>
-          <label htmlFor="notes" className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
-            توضیحات تکمیلی <span className="text-gray-400 text-xs">(اختیاری)</span>
-          </label>
-          <div className="relative">
-            <div className="absolute top-3 right-3 text-blue-500"><FaCommentDots /></div>
-            <textarea id="notes" placeholder="هر توضیح اضافی که لازم است..."
-              className="w-full bg-white/60 border border-blue-500/20 text-gray-800 text-sm sm:text-base rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 p-3 pr-10 h-20 placeholder-gray-400 transition resize-none"
-              value={order.notes} onChange={(e) => handleChange("notes", e.target.value)} />
-          </div>
-        </div>
-
-        {/* Submit Button */}
-        <button type="submit" disabled={loading}
-          className="w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-medium text-sm sm:text-base py-2.5 sm:py-3 px-6 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        {/* SUBMIT BUTTON */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-lg transition flex items-center justify-center gap-2 text-sm font-medium"
         >
-          {loading ? <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> : <FaPaperPlane className="text-sm" />}
           {loading ? "در حال ثبت..." : "ثبت سفارش"}
         </button>
 
+        {/* MESSAGE */}
         {message && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 rounded-lg text-xs sm:text-sm flex items-center gap-2 bg-green-100 text-green-800">
-            <FaCheckCircle className="flex-shrink-0" />{message}
-          </motion.div>
+          <div className="bg-green-100 text-green-800 p-3 rounded-lg text-sm flex items-center gap-2 mt-2">
+            <FaCheckCircle />
+            {message}
+          </div>
         )}
       </form>
     </motion.section>
+  );
+}
+
+/* ---------------- REUSABLE INPUT COMPONENT ---------------- */
+
+function InputField({
+  label,
+  icon,
+  value,
+  onChange,
+  required = false,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  value: string;
+  onChange: (value: string) => void;
+  required?: boolean;
+}) {
+  return (
+    <div>
+      <label className="block text-sm mb-2 text-gray-700">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <div className="relative">
+        <div className="absolute right-3 top-3 text-blue-500">
+          {icon}
+        </div>
+        <input
+          required={required}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full border rounded-lg p-3 pr-10 focus:ring-2 focus:ring-blue-500 text-sm"
+        />
+      </div>
+    </div>
   );
 }

@@ -33,7 +33,7 @@ export default function OrderPage() {
           {/* فرم + جزئیات پشتیبانی */}
           <div className="w-full lg:w-1/2 order-2 lg:order-2">
             {loading ? <OrderFormSkeleton /> : <OrderForm />}
-            <OrderSupport />
+            {/* <OrderSupport /> */}
           </div>
 
         </div>
