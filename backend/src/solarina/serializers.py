@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ContactUsModel, ExampleModel, ProductModel, ProductCategoryModel
+from .models import ContactUsModel, ExampleModel, ProductModel, ProductCategoryModel, OrderPaymentModel, OrderModel
 
 
 # ---------------------------------------------------------------------
@@ -47,4 +47,21 @@ class ProductModelSerializer(serializers.ModelSerializer):
         model = ProductModel
         fields = '__all__'
 
+# ---------------------------------------------------------------------
+# Order Serializer
+# ---------------------------------------------------------------------
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderModel
+        fields = "__all__"
+        read_only_fields = ["status", "created_at", "updated_at"]
 
+
+# ---------------------------------------------------------------------
+# OrderPayment Serializer
+# ---------------------------------------------------------------------
+class OrderPaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderPaymentModel
+        fields = "__all__"
+        read_only_fields = ["status", "created_at", "updated_at"]

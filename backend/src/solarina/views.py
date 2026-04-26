@@ -12,12 +12,12 @@ from django.db import connections
 import os
 import logging
 import threading
-
+from .utils import CountBasedPaymentHandler
 # ---------------------------------------------------------------------
 # Models & Serializers
 # ---------------------------------------------------------------------
-from .models import ContactUsModel, ExampleModel, ProductModel, ProductCategoryModel
-from .serializers import ContactUsSerializer, ExampleModelSerializer, ProductModelSerializer, ProductCategoryModelSerializer
+from .models import ContactUsModel, ExampleModel, ProductModel, ProductCategoryModel, OrderModel, OrderPaymentModel
+from .serializers import ContactUsSerializer, ExampleModelSerializer, ProductModelSerializer, ProductCategoryModelSerializer, OrderPaymentSerializer, OrderSerializer
 
 
 # ---------------------------------------------------------------------
@@ -104,6 +104,18 @@ class ExampleModelViewSet(viewsets.ModelViewSet):
     """
 
 
+
+# ---------------------------------------------------------------------
+# order_payment_handler 
+# ---------------------------------------------------------------------
+MERCHANT_ID = "0e0c03db-1197-471d-a058-0d7565bd4103"   #os.getenv("MMERCHANT_ID")
+
+order_payment_handler = CountBasedPaymentHandler(
+    merchant_id=MERCHANT_ID,
+    model=OrderPaymentModel,
+    description="Solarina Website Purchase",
+)
+
 # ---------------------------------------------------------------------
 # Contact Model ViewSet
 # ---------------------------------------------------------------------
@@ -186,3 +198,74 @@ class ProductModelViewSet(viewsets.ModelViewSet):
         if self.request.method in ["GET"]:
             return [AllowAny()]
         return [IsAuthenticated()]
+
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def create_order_view(request):
+    serializer = OrderSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    order = serializer.save(status="pending")
+    return Response({"order_id": order.id}, status=201)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def create_order_payment_view(request):
+    order_id = request.data.get("order_id")
+
+    try:
+        order = OrderModel.objects.get(id=order_id)
+    except OrderModel.DoesNotExist:
+        return Response({"error": "Order not found"}, status=404)
+
+    callback_url = "http://easytg.ir/order/verify/"
+
+    payment_url, authority = order_payment_handler.send_request(
+        order.total_price, order_id, callback_url
+    )
+
+    if payment_url and authority:
+        order_payment_handler.save_transaction(
+            authority=authority,
+            amount=order.total_price,
+            user_id=order_id,
+            user_name=order.full_name,
+            bot_key="web:order"
+        )
+        return Response({"payment_url": payment_url})
+
+    return Response({"error": "Payment request failed"}, status=500)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def verify_order_payment(request):
+    status_param = request.GET.get("Status")
+    authority = request.GET.get("Authority")
+
+    if not status_param or not authority:
+        return Response({"status": "error", "message": "Missing params"})
+
+    transaction = order_payment_handler.get_transaction(authority)
+
+    if not transaction:
+        return Response({"status": "not_found"})
+
+    result = order_payment_handler.verify_payment(authority, transaction.amount)
+
+    order = OrderModel.objects.get(id=transaction.user_id)
+
+    if result["status"] == "success":
+        order_payment_handler.update_transaction_status(authority, "successful")
+        order.status = "paid"
+        order.save()
+        return Response({"status": "success"})
+
+    order_payment_handler.update_transaction_status(authority, "failed")
+    order.status = "failed"
+    order.save()
+
+    return Response({"status": "failed"})

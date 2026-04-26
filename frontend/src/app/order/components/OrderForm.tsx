@@ -98,29 +98,65 @@ export default function OrderForm() {
     return sum + product.price * qty;
   }, 0);
 
-  /* ---------------- SUBMIT (dummy) ---------------- */
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
+/* ---------------- REAL SUBMIT HANDLER ---------------- */
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setMessage("");
 
-    // TODO: replace with real POST to /orders/
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    setLoading(false);
-    setMessage("سفارش شما با موفقیت ثبت شد ✅");
-
-    // reset
-    setSelectedProducts([{ product: "", quantity: "1" }]);
-    setOrder({
-      full_name: "",
-      phone_number: "",
-      email: "",
-      address: "",
-      postal_code: "",
-      notes: "",
+  try {
+    // 1️⃣ Create order (POST)
+    const orderRes = await fetch("/api/proxy/orders/create/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...order,
+        products: selectedProducts.map((row) => ({
+          product_id: Number(row.product),
+          quantity: Number(row.quantity),
+        })),
+        total_price: totalPrice,
+      }),
     });
-  };
+
+    const orderData = await orderRes.json();
+    const orderId = orderData.order_id;
+
+    if (!orderId) {
+      setLoading(false);
+      setMessage("خطا در ثبت سفارش");
+      return;
+    }
+
+    // 2️⃣ Create payment request
+    const payRes = await fetch("/api/proxy/orders/payment/create/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ order_id: orderId }),
+    });
+
+    const payData = await payRes.json();
+
+    if (!payData.payment_url) {
+      setLoading(false);
+      setMessage("خطا در ساخت لینک پرداخت");
+      return;
+    }
+
+    // 3️⃣ Redirect to Zarinpal
+    window.location.href = payData.payment_url;
+
+  } catch (error) {
+    console.error("Error submitting order:", error);
+    setMessage("خطا! لطفاً دوباره تلاش کنید.");
+    setLoading(false);
+  }
+};
+
 
   return (
     <motion.section

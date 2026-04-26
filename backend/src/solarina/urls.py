@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import SimpleRouter
 
-from .views import ContactUsViewSet, ExampleModelViewSet, health_check, ProductModelViewSet, ProductCategoryModelViewSet
+from .views import ContactUsViewSet, ExampleModelViewSet, create_order_payment_view, create_order_view, health_check, ProductModelViewSet, ProductCategoryModelViewSet, verify_order_payment
 
 
 # ---------------------------------------------------------------------
@@ -25,4 +25,7 @@ router.register(r'products', ProductModelViewSet, basename='products')
 urlpatterns = [
     path('health/', health_check),   # Health check endpoint
     path('', include(router.urls)),  # REST endpoints for ExampleModel
+    path("orders/create/", create_order_view),
+    path("orders/payment/create/", create_order_payment_view),
+    path("orders/payment/verify/", verify_order_payment),
 ]

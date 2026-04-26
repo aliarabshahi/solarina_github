@@ -87,3 +87,45 @@ class ProductModel(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class OrderModel(models.Model):
+    """
+    Stores order information before payment.
+    """
+    full_name = models.CharField(max_length=150)
+    phone_number = models.CharField(max_length=20)
+    email = models.EmailField(blank=True, null=True)
+
+    address = models.TextField()
+    postal_code = models.CharField(max_length=20)
+    notes = models.TextField(blank=True, null=True)
+
+    # Products stored as JSON (list of {product_id, quantity})
+    products = models.JSONField(default=list)
+
+    total_price = models.PositiveIntegerField()
+    status = models.CharField(
+        max_length=20,
+        default="pending",   # pending / paid / failed
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Order #{self.id} - {self.full_name}"
+
+
+class OrderPaymentModel(models.Model):
+    order = models.ForeignKey(OrderModel, on_delete=models.CASCADE)
+
+    authority = models.CharField(max_length=50, unique=True)
+    amount = models.PositiveIntegerField()
+    status = models.CharField(max_length=20, default="pending")  # pending/successful/failed
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Payment {self.authority} - {self.status}"

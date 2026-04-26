@@ -1,6 +1,6 @@
 from django.contrib import admin
 from rest_framework.authtoken.models import Token
-from .models import ContactUsModel, ExampleModel, ProductModel, ProductCategoryModel
+from .models import ContactUsModel, ExampleModel, ProductModel, ProductCategoryModel, OrderModel, OrderPaymentModel
 
 
 
@@ -58,6 +58,17 @@ class ProductModelAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     list_per_page = 20
 
+# ---------------------------------------------------------------------
+# Orders Admin Configuration
+# ---------------------------------------------------------------------
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ("id", "full_name", "total_price", "status", "created_at")
+    readonly_fields = ("created_at", "updated_at")
+
+class OrderPaymentAdmin(admin.ModelAdmin):
+    list_display = ("authority", "amount", "status", "created_at")
+    readonly_fields = ("created_at", "updated_at")
+
 
 # ---------------------------------------------------------------------
 # Model Registration
@@ -67,3 +78,5 @@ admin.site.register(ContactUsModel, ContactUsAdmin)
 admin.site.register(ProductCategoryModel, ProductCategoryModelAdmin)
 admin.site.register(ProductModel, ProductModelAdmin)
 admin.site.register(Token)
+admin.site.register(OrderModel, OrderAdmin)
+admin.site.register(OrderPaymentModel, OrderPaymentAdmin)
