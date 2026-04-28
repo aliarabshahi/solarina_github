@@ -23,7 +23,8 @@ services:
       - .env
     volumes:
       - ./backend/src/media:/opt/solarina/src/media
-      - ./backend/src:/opt/solarina/src
+#      - ./backend/src:/opt/solarina/src
+      - ./backend/src/static:/opt/solarina/src/static
     command: bash -c "python manage.py collectstatic --noinput && gunicorn --config /opt/solarina/gunicorn.py core.wsgi:application"
     restart: always
     depends_on:
