@@ -14,19 +14,19 @@ export default function OrderSupport() {
         <div className="space-y-3 text-sm sm:text-base" dir="rtl">
           <div className="flex items-center justify-center sm:justify-start">
             <FaPhone className="text-base sm:text-lg ml-2" />
-            <span className="tracking-wide">۰۹۱۲۳۴۵۶۷۸۹</span>
+            <span className="tracking-wide">۰۹۳۷۴۱۵۲۰۹۵</span>
           </div>
           <div className="flex items-center justify-center sm:justify-start">
             <FaEnvelope className="text-base sm:text-lg ml-2" />
-            <span className="tracking-wide">sales@solarpanel.ir</span>
+            <span className="tracking-wide">info@solarina.ir</span>
           </div>
         </div>
 
         {/* شبکه‌ها */}
         <div className="flex gap-5 justify-center" dir="ltr">
-          <a href="https://instagram.com/yourpage" className="hover:opacity-80 transition"><FaInstagram className="text-2xl" /></a>
-          <a href="https://t.me/yourpage" className="hover:opacity-80 transition"><FaTelegram className="text-2xl" /></a>
-          <a href="https://wa.me/989123456789" className="hover:opacity-80 transition"><FaWhatsapp className="text-2xl" /></a>
+          <a href="https://instagram.com/solarina" className="hover:opacity-80 transition"><FaInstagram className="text-2xl" /></a>
+          <a href="https://t.me/solarina" className="hover:opacity-80 transition"><FaTelegram className="text-2xl" /></a>
+          <a href="https://wa.me/9899374152095" className="hover:opacity-80 transition"><FaWhatsapp className="text-2xl" /></a>
         </div>
       </div>
     </div>

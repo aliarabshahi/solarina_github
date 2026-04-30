@@ -17,7 +17,7 @@ export default function HeroVideoModal({ onClose }: { onClose: () => void }) {
         <div className="w-full h-full flex justify-center items-center">
           <video
             className="w-full max-h-[80vh] object-contain rounded-xl"
-            src="/videos/introduction.mp4"
+            src="/videos/solarina.mp4"
             controls
             autoPlay
             playsInline

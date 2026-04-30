@@ -4,17 +4,17 @@ import { FaInstagram, FaTelegramPlane, FaWhatsapp, FaSun } from "react-icons/fa"
 const socialLinks = [
   {
     name: "اینستاگرام",
-    href: "https://instagram.com/yourpagee",
+    href: "https://instagram.com/solarina",
     icon: <FaInstagram className="text-[#E4405F] text-2xl sm:text-[26px]" />,
   },
   {
     name: "تلگرام",
-    href: "https://t.me/yourpage",
+    href: "https://t.me/solarina",
     icon: <FaTelegramPlane className="text-[#0088cc] text-2xl sm:text-[26px]" />,
   },
   {
     name: "واتساپ",
-    href: "https://wa.me/989123456789",
+    href: "https://wa.me/989374152095",
     icon: <FaWhatsapp className="text-[#25D366] text-2xl sm:text-[26px]" />,
   },
 ];

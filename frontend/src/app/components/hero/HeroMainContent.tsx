@@ -1,6 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
 import { IoPlayCircleSharp } from "react-icons/io5";
-import { FaBolt, FaShieldAlt, FaWeightHanging } from "react-icons/fa";
 
 export default function HeroMainContent({
   onVideoOpen,
@@ -9,96 +9,147 @@ export default function HeroMainContent({
 }) {
   return (
     <div className="mx-auto max-w-4xl pt-12 sm:pt-16 lg:pt-20 pb-6 sm:pb-10 lg:pb-12 px-4 sm:px-6">
+
       {/* دکمه ویدیو */}
       <div className="hidden sm:mb-8 sm:flex sm:justify-center">
         <button
           onClick={onVideoOpen}
           className="group flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium leading-6 
                      text-gray-700 ring-1 ring-gray-900/10 transition-all duration-300 ease-out
-                     hover:ring-2 hover:ring-blue-600"
+                     hover:ring-2 hover:ring-blue-600 bg-white/50 backdrop-blur-sm"
         >
           <IoPlayCircleSharp
-            className="text-xl text-gray-500 transition-all duration-100 group-hover:text-blue-600
-                         group-hover:scale-110"
+            className="text-xl text-blue-500 transition-all duration-100 group-hover:scale-110"
           />
-          <span>مشاهده ویدیوی معرفی</span>
+          <span>ببین چطور کار می‌کنه!</span>
         </button>
       </div>
 
-      {/* متن اصلی و شعار */}
+      {/* متن اصلی */}
       <div className="text-center space-y-6 sm:space-y-8">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight text-gray-900 leading-tight sm:leading-tight">
-          انرژی خورشید،{" "}
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight text-gray-900 leading-tight">
+          خورشید تو جیبته،{" "}
           <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-            همیشه در دسترس
+            هرجا که باشی!
           </span>
         </h1>
 
         <p className="text-base sm:text-lg lg:text-xl leading-7 sm:leading-8 text-gray-600 max-w-2xl mx-auto">
-          پنل‌های خورشیدی پرتابل ما به شما امکان می‌دهند در هر مکانی — کمپینگ،
-          ماشین، یا هنگام قطعی برق — موبایل و وسایل دیجیتال خود را شارژ کنید.
-          بدون نیاز به برق شهری.
+          دیگه نگران تموم شدن شارژ گوشی تو دل طبیعت یا قطعی برق نباش. با پنل‌های خورشیدی پرتابل ما، هر جا نور هست، برق هم هست. ساده، سبک و همیشه آماده!
         </p>
 
-        {/* دکمه‌های اقدام */}
+        {/* دکمه‌ها */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
           <Link
             href="/order"
-            className="w-full sm:w-auto rounded-md bg-blue-600 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-semibold text-white shadow-sm 
-                       hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 
-                       focus-visible:outline-offset-2 focus-visible:outline-blue-600 
-                       transition-all duration-300 hover:shadow-lg text-center"
+            className="w-full sm:w-auto rounded-xl bg-blue-600 px-8 py-4 text-sm sm:text-base font-bold text-white shadow-lg 
+                       hover:bg-blue-700 hover:-translate-y-0.5 transition-all duration-300 text-center"
           >
-            ثبت سفارش
+            می‌خوام بخرم
           </Link>
+
           <a
-            href="#products"
-            className="w-full sm:w-auto rounded-md bg-orange-500 px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-semibold 
-                       text-white shadow-sm hover:bg-orange-600 hover:shadow-lg transition-all duration-300 text-center"
+            href="products"
+            className="w-full sm:w-auto rounded-xl bg-gray-100 px-8 py-4 text-sm sm:text-base font-semibold 
+                       text-gray-900 hover:bg-gray-200 transition-all duration-300 text-center"
           >
-            مشاهده محصولات
+            بررسی مشخصات فنی
           </a>
         </div>
       </div>
 
-      {/* بخش جدید: ویژگی‌های کلیدی برای پربارتر شدن صفحه */}
-      <div className="mt-16 pt-8 border-t border-gray-200/60 sm:mt-24">
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
-          {/* ویژگی ۱ */}
-          <div className="flex flex-col items-center text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 mb-4 shadow-sm">
-              <FaBolt className="text-2xl" />
-            </div>
-            <h3 className="text-base md:text-lg font-bold text-gray-900">شارژ سریع و هوشمند</h3>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              پشتیبانی از فناوری فست شارژ برای پر کردن سریع باتری موبایل و پاوربانک.
-            </p>
-          </div>
+      {/* بخش ویژگی‌ها */}
+      <div className="mt-24 max-w-5xl mx-auto space-y-16 px-4 sm:px-0">
 
-          {/* ویژگی ۲ */}
-          <div className="flex flex-col items-center text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100 text-orange-500 mb-4 shadow-sm">
-              <FaWeightHanging className="text-2xl" />
-            </div>
-            <h3 className="text-base md:text-lg font-bold text-gray-900">طراحی تاشو و سبک</h3>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              به راحتی جمع می‌شود و در کوله‌پشتی یا داشبورد ماشین جای می‌گیرد.
-            </p>
-          </div>
-
-          {/* ویژگی ۳ */}
-          <div className="flex flex-col items-center text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-600 mb-4 shadow-sm">
-              <FaShieldAlt className="text-2xl" />
-            </div>
-            <h3 className="text-base md:text-lg font-bold text-gray-900">مقاوم در برابر آب</h3>
-            <p className="mt-2 text-sm text-gray-600 leading-relaxed">
-              ساخته شده با متریال ضد آب و ضد گرد و غبار، ایده‌آل برای طبیعت‌گردی.
-            </p>
-          </div>
+        <div className="text-center space-y-4">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900">
+            یه نیروگاه کوچیک، همیشه همراهته
+          </h2>
+          <p className="max-w-2xl mx-auto text-gray-600 text-lg leading-relaxed">
+            فرقی نمی‌کنه وسط کویر باشی یا روی بالکن خونه؛ این پنل جوری طراحی شده که بدون دردسر، انرژی پاک خورشید رو مستقیم به گوشی و پاوربانکت برسونه.
+          </p>
         </div>
+
+        {/* کارت‌های ویژگی‌ها */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+
+          {/* کارت ۱ */}
+          <div className="group rounded-3xl overflow-hidden bg-white shadow-md border border-gray-100 transition-all duration-300 hover:shadow-xl">
+            <div className="overflow-hidden aspect-video">
+              <Image
+                src="/images/solar/solar1.png"
+                alt="شارژ چند دستگاه"
+                width={800}
+                height={450}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+            </div>
+            <div className="p-6 text-center">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">همزمان شارژ کن</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                گوشی، هندزفری و پاوربانک رو همزمان بهش وصل کن و بذار خورشید کارش رو انجام بده.
+              </p>
+            </div>
+          </div>
+
+          {/* کارت ۲ */}
+          <div className="group rounded-3xl overflow-hidden bg-white shadow-md border border-gray-100 transition-all duration-300 hover:shadow-xl">
+            <div className="overflow-hidden aspect-video">
+              <Image
+                src="/images/solar/solar2.png"
+                alt="سفر با پنل خورشیدی"
+                width={800}
+                height={450}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+            </div>
+            <div className="p-6 text-center">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">رفیقِ فابریکِ جاده ها</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                توی ماشین یا کمپ، نگران دور بودن از پریز برق نباش. این پنل برای شرایط سخت طراحی شده.
+              </p>
+            </div>
+          </div>
+
+          {/* کارت ۳ */}
+          <div className="group rounded-3xl overflow-hidden bg-white shadow-md border border-gray-100 transition-all duration-300 hover:shadow-xl">
+            <div className="overflow-hidden aspect-video">
+              <Image
+                src="/images/solar/solar3.png"
+                alt="طبیعت‌گردی"
+                width={800}
+                height={450}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+            </div>
+            <div className="p-6 text-center">
+              <h3 className="text-xl font-bold text-gray-900 mb-2">سبک و تاشو</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                اندازه‌اش جوریه که راحت توی کوله‌پشتی جا می‌شه و وزنش رو اصلاً حس نمی‌کنی.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        {/* CTA پایانی */}
+        <div className="mt-20 bg-gray-900 rounded-[2.5rem] p-8 sm:p-14 text-center shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-600/20 to-transparent pointer-events-none"></div>
+          <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4 relative z-10">
+            آماده‌ای از شر سیم و پریز خلاص بشی؟
+          </h3>
+          <p className="text-gray-300 max-w-xl mx-auto mb-10 leading-relaxed relative z-10">
+            همین حالا سفارش بده و اولین قدم رو برای داشتن انرژی رایگان و بی‌پایان بردار. خورشید منتظره!
+          </p>
+          <Link
+            href="/order"
+            className="inline-block bg-blue-600 text-white font-bold text-lg px-12 py-4 rounded-2xl shadow-lg hover:bg-blue-500 hover:scale-105 transition-all relative z-10"
+          >
+             سفارش می‌دم
+          </Link>
+        </div>
+
       </div>
-      
     </div>
   );
 }

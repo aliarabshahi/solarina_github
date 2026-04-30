@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const navbarLinks = [
   { label: "خانه", href: "/" },
-  { label: "محصولات", href: "/#products" },
+  { label: "محصولات", href: "/products" },
   { label: "ثبت سفارش", href: "/order" },
   { label: "درباره ما", href: "/about" },
   { label: "تماس با ما", href: "/contact" },

@@ -29,8 +29,11 @@ export const metadata: Metadata = {
   description:
     "نام برند؛ معرفی کوتاه از حوزه فعالیت و خدمات اصلی شما. توضیحاتی درباره آموزش، توسعه یا مشاوره در زمینه‌های تخصصی شرکت یا گروه.",
   icons: {
-    icon: "/images/favicon.ico",
-    apple: "/images/logo-icon.png",
+    icon: [
+      { url: "/images/icon.png", type: "image/png" },
+      { url: "/images/icon.webp", type: "image/webp" },
+    ],
+    apple: "/images/logo-icon.png", // Keep this if you have an Apple touch icon
   },
 
   keywords: [
