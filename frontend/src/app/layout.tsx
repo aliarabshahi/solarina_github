@@ -23,36 +23,37 @@ const vazir = localFont({
   variable: "--font-vazir",
 });
 
-/** Application metadata (generic boilerplate version) */
+/** Application metadata customized for Solarina — Portable Solar Devices */
 export const metadata: Metadata = {
-  title: "نام برند | درباره خدمات اصلی",
+  title: "Solarina | شارژر خورشیدی قابل‌حمل و انرژی خورشیدی همیشه همراه",
   description:
-    "نام برند؛ معرفی کوتاه از حوزه فعالیت و خدمات اصلی شما. توضیحاتی درباره آموزش، توسعه یا مشاوره در زمینه‌های تخصصی شرکت یا گروه.",
+    "Solarina جاییه که خورشید به برق تبدیل میشه! شارژر خورشیدی قابل‌حمل برای شارژ موبایل، پاوربانک و وسایل الکترونیکی هرجا که نور باشه. سبک، تاشو و همیشه آماده سفر.",
   icons: {
     icon: [
       { url: "/images/icon.png", type: "image/png" },
       { url: "/images/icon.webp", type: "image/webp" },
     ],
-    apple: "/images/logo-icon.png", // Keep this if you have an Apple touch icon
+    apple: "/images/logo-icon.png",
   },
 
   keywords: [
-    "خدمات آموزشی",
-    "مشاوره فناوری",
-    "پروژه‌های داده",
-    "هوش مصنوعی",
-    "تحلیل داده",
-    "آموزش تخصصی",
-    "شرکت فناوری اطلاعات",
-    "Data Engineering",
-    "AI Consulting",
-    "Projects",
-    "Education",
+    "شارژر خورشیدی",
+    "پنل خورشیدی قابل حمل",
+    "انرژی خورشیدی",
+    "پاوربانک خورشیدی",
+    "تجهیزات خورشیدی",
+    "شارژ با نور خورشید",
+    "سفر و طبیعت‌گردی",
+    "کمپینگ",
+    "Solar charger",
+    "Portable solar panel",
+    "Clean energy",
+    "Renewable power",
   ].join(","),
-  authors: [{ name: "تیم نام برند" }],
-  creator: "توسعه‌دهنده اصلی",
-  publisher: "نام برند",
-  category: "Education, Technology, Consulting",
+  authors: [{ name: "تیم Solarina" }],
+  creator: "Ali Arabshahi",
+  publisher: "Solarina",
+  category: "Energy, Solar Products, Technology",
 
   formatDetection: {
     email: false,
@@ -60,23 +61,23 @@ export const metadata: Metadata = {
     telephone: false,
   },
 
-  metadataBase: new URL("https://domain-url.ir"),
-  alternates: { canonical: "https://domain-url.ir" },
+  metadataBase: new URL("https://solarina.ir"),
+  alternates: { canonical: "https://solarina.ir" },
 
   openGraph: {
-    title: "نام برند | درباره خدمات اصلی",
+    title: "Solarina | شارژر خورشیدی قابل‌حمل و انرژی همیشه در دسترس",
     description:
-      "نام برند؛ معرفی کوتاه از حوزه فعالیت و خدمات اصلی شما. توضیحاتی درباره آموزش، توسعه یا مشاوره در زمینه‌های تخصصی شرکت یا گروه.",
-    url: "https://domain-url.ir",
-    siteName: "نام برند",
+      "با Solarina نور خورشید رو به برق تبدیل کن! شارژر خورشیدی قابل‌حمل برای موبایل، دوربین و وسایل سفری — مناسب طبیعت‌گردی، کوه، ساحل یا هرجایی که نور هست.",
+    url: "https://solarina.ir",
+    siteName: "Solarina",
     locale: "fa_IR",
     type: "website",
     images: [
       {
-        url: "https://domain-url.ir/images/logo-social.png",
+        url: "https://solarina.ir/images/logo-social.png",
         width: 1200,
         height: 630,
-        alt: "نام برند - معرفی خدمات تخصصی",
+        alt: "Solarina - تجهیزات و شارژر خورشیدی قابل‌حمل",
       },
     ],
   },
@@ -103,26 +104,26 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl" className={vazir.variable}>
       <head>
-        {/* JSON-LD Schema — generic example */}
+        {/* JSON-LD Schema — Solarina organization info */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": ["Organization", "ProfessionalService"],
-              name: "نام برند",
-              url: "https://domain-url.ir",
-              logo: "https://domain-url.ir/images/logo-square.png",
+              "@type": ["Organization", "Store"],
+              name: "Solarina",
+              url: "https://solarina.ir",
+              logo: "https://solarina.ir/images/logo-social.png",
               description:
-                "نام برند؛ شرح کوتاهی از حوزه و مأموریت شرکت در زمینه خدمات اصلی.",
+                "Solarina تولیدکننده و عرضه‌کننده شارژرهای خورشیدی قابل‌حمل و تجهیزات انرژی خورشیدی برای سفر و طبیعت‌گردی.",
               sameAs: [
-                "https://linkedin.com/company/sample",
-                "https://github.com/sample-org",
+                "https://linkedin.com/solarina",
+                "https://instagram.com/solarina",
               ],
               contactPoint: [
                 {
                   "@type": "ContactPoint",
-                  telephone: "+98-900-0000000",
+                  telephone: "+989374152095",
                   contactType: "customer service",
                   areaServed: "IR",
                 },
@@ -136,7 +137,6 @@ export default function RootLayout({
         className={`${vazir.className} bg-main-bg min-h-screen flex flex-col`}
       >
         <Navbar />
-        {/* Render main content directly — downtime wrapper removed */}
         <main className="flex-grow">{children}</main>
         <Footer />
       </body>
