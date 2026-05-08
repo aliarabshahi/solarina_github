@@ -221,7 +221,7 @@ def create_order_payment_view(request):
     except OrderModel.DoesNotExist:
         return Response({"error": "Order not found"}, status=404)
 
-    callback_url = "http://easytg.ir/order/verify/"
+    callback_url = "http://solarina.ir/order/verify/"
 
     payment_url, authority = order_payment_handler.send_request(
         order.total_price, order_id, callback_url
