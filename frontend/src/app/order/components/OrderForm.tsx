@@ -6,7 +6,7 @@ import {
   FaMapMarkerAlt,
   FaMailBulk,
   FaCheckCircle,
-  FaMinusCircle, // simple minimal sign for remove
+  FaMinusCircle,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { getApiData } from "@/app/services/receive_data/apiServerFetch";
@@ -27,8 +27,8 @@ type Product = {
 };
 
 type SelectedProduct = {
-  product: string;  // product id as string
-  quantity: string; // keep as string for easier binding
+  product: string;
+  quantity: string;
 };
 
 export default function OrderForm() {
@@ -98,65 +98,60 @@ export default function OrderForm() {
     return sum + product.price * qty;
   }, 0);
 
-/* ---------------- REAL SUBMIT HANDLER ---------------- */
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
-  setMessage("");
+  /* ---------------- REAL SUBMIT HANDLER ---------------- */
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage("");
 
-  try {
-    // 1️⃣ Create order (POST)
-    const orderRes = await fetch("/api/proxy/orders/create/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ...order,
-        products: selectedProducts.map((row) => ({
-          product_id: Number(row.product),
-          quantity: Number(row.quantity),
-        })),
-        total_price: totalPrice,
-      }),
-    });
+    try {
+      const orderRes = await fetch("/api/proxy/orders/create/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...order,
+          products: selectedProducts.map((row) => ({
+            product_id: Number(row.product),
+            quantity: Number(row.quantity),
+          })),
+          total_price: totalPrice,
+        }),
+      });
 
-    const orderData = await orderRes.json();
-    const orderId = orderData.order_id;
+      const orderData = await orderRes.json();
+      const orderId = orderData.order_id;
 
-    if (!orderId) {
+      if (!orderId) {
+        setLoading(false);
+        setMessage("خطا در ثبت سفارش");
+        return;
+      }
+
+      const payRes = await fetch("/api/proxy/orders/payment/create/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ order_id: orderId }),
+      });
+
+      const payData = await payRes.json();
+
+      if (!payData.payment_url) {
+        setLoading(false);
+        setMessage("خطا در ساخت لینک پرداخت");
+        return;
+      }
+
+      window.location.href = payData.payment_url;
+    } catch (error) {
+      console.error("Error submitting order:", error);
+      setMessage("خطا! لطفاً دوباره تلاش کنید.");
       setLoading(false);
-      setMessage("خطا در ثبت سفارش");
-      return;
     }
-
-    // 2️⃣ Create payment request
-    const payRes = await fetch("/api/proxy/orders/payment/create/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ order_id: orderId }),
-    });
-
-    const payData = await payRes.json();
-
-    if (!payData.payment_url) {
-      setLoading(false);
-      setMessage("خطا در ساخت لینک پرداخت");
-      return;
-    }
-
-    // 3️⃣ Redirect to Zarinpal
-    window.location.href = payData.payment_url;
-
-  } catch (error) {
-    console.error("Error submitting order:", error);
-    setMessage("خطا! لطفاً دوباره تلاش کنید.");
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
     <motion.section
@@ -170,30 +165,36 @@ const handleSubmit = async (e: React.FormEvent) => {
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-6" dir="rtl">
-        {/* NAME */}
         <InputField
           label="نام کامل"
           icon={<FaUser />}
           required
+          name="full_name"
+          autoComplete="name"
+          type="text"
           value={order.full_name}
-          onChange={(v) => handleChange("full_name", v)}
+          onChange={(v: string) => handleChange("full_name", v)}
         />
 
-        {/* PHONE */}
         <InputField
           label="شماره موبایل"
           icon={<FaPhone />}
           required
+          name="phone"
+          autoComplete="tel"
+          type="tel"
           value={order.phone_number}
-          onChange={(v) => handleChange("phone_number", v)}
+          onChange={(v: string) => handleChange("phone_number", v)}
         />
 
-        {/* EMAIL (optional but kept for layout consistency) */}
         <InputField
           label="ایمیل"
           icon={<FaMailBulk />}
+          name="email"
+          autoComplete="email"
+          type="email"
           value={order.email}
-          onChange={(v) => handleChange("email", v)}
+          onChange={(v: string) => handleChange("email", v)}
         />
 
         {/* PRODUCTS SECTION */}
@@ -219,7 +220,6 @@ const handleSubmit = async (e: React.FormEvent) => {
                 key={index}
                 className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end"
               >
-                {/* PRODUCT SELECT */}
                 <div className="sm:col-span-7">
                   <label className="block text-sm mb-2 text-gray-700">
                     محصول *
@@ -241,7 +241,6 @@ const handleSubmit = async (e: React.FormEvent) => {
                   </select>
                 </div>
 
-                {/* QUANTITY */}
                 <div className="sm:col-span-3">
                   <label className="block text-sm mb-2 text-gray-700">
                     تعداد *
@@ -258,7 +257,6 @@ const handleSubmit = async (e: React.FormEvent) => {
                   />
                 </div>
 
-                {/* MINIMAL REMOVE ICON */}
                 <div className="sm:col-span-2 flex justify-center sm:justify-end pb-1">
                   <button
                     type="button"
@@ -280,7 +278,6 @@ const handleSubmit = async (e: React.FormEvent) => {
           })}
         </div>
 
-        {/* TOTAL */}
         <div className="flex justify-between items-center pt-2">
           <span className="text-sm text-gray-600">مجموع سفارش:</span>
           <span className="font-semibold text-blue-700">
@@ -288,30 +285,34 @@ const handleSubmit = async (e: React.FormEvent) => {
           </span>
         </div>
 
-        {/* ADDRESS */}
         <InputField
           label="آدرس دقیق"
           icon={<FaMapMarkerAlt />}
           required
+          name="address"
+          autoComplete="street-address"
+          type="text"
           value={order.address}
-          onChange={(v) => handleChange("address", v)}
+          onChange={(v: string) => handleChange("address", v)}
         />
 
-        {/* POSTAL CODE */}
         <InputField
           label="کد پستی"
           icon={<FaMailBulk />}
           required
+          name="postal_code"
+          autoComplete="postal-code"
+          type="text"
           value={order.postal_code}
-          onChange={(v) => handleChange("postal_code", v)}
+          onChange={(v: string) => handleChange("postal_code", v)}
         />
 
-        {/* NOTES */}
         <div>
           <label className="block text-sm mb-2 text-gray-700">
             توضیحات تکمیلی
           </label>
           <textarea
+            name="notes"
             value={order.notes}
             onChange={(e) => handleChange("notes", e.target.value)}
             className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 text-sm"
@@ -319,7 +320,6 @@ const handleSubmit = async (e: React.FormEvent) => {
           />
         </div>
 
-        {/* SUBMIT BUTTON */}
         <button
           type="submit"
           disabled={loading}
@@ -328,7 +328,6 @@ const handleSubmit = async (e: React.FormEvent) => {
           {loading ? "در حال ثبت..." : "ثبت سفارش"}
         </button>
 
-        {/* MESSAGE */}
         {message && (
           <div className="bg-green-100 text-green-800 p-3 rounded-lg text-sm flex items-center gap-2 mt-2">
             <FaCheckCircle />
@@ -340,7 +339,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   );
 }
 
-/* ---------------- REUSABLE INPUT COMPONENT ---------------- */
+/* ---------------- INPUT COMPONENT ---------------- */
 
 function InputField({
   label,
@@ -348,12 +347,18 @@ function InputField({
   value,
   onChange,
   required = false,
+  name,
+  autoComplete,
+  type = "text",
 }: {
   label: string;
   icon: React.ReactNode;
   value: string;
   onChange: (value: string) => void;
   required?: boolean;
+  name?: string;
+  autoComplete?: string;
+  type?: string;
 }) {
   return (
     <div>
@@ -361,10 +366,11 @@ function InputField({
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <div className="relative">
-        <div className="absolute right-3 top-3 text-blue-500">
-          {icon}
-        </div>
+        <div className="absolute right-3 top-3 text-blue-500">{icon}</div>
         <input
+          name={name}
+          autoComplete={autoComplete}
+          type={type}
           required={required}
           value={value}
           onChange={(e) => onChange(e.target.value)}
