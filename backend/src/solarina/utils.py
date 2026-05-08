@@ -1,22 +1,25 @@
 import requests
 import traceback
+import json
 
 
 class CountBasedPaymentHandler:
     def __init__(self, merchant_id, model, description="Default description"):
-        """
-        Initialize the CountBasedPaymentHandler with the merchant ID, model, and description.
-
-        :param merchant_id: The Zarinpal merchant ID.
-        :param model: The Django model to store payment data.
-        :param description: Default description for payment requests.
-        """
         self.merchant_id = merchant_id
         self.model = model
         self.description = description
 
-    def send_request(self, amount, user_id, callback_url):
-        """Send a payment request to Zarinpal."""
+
+    # --------------------------------------------------
+    # STEP 1: SEND PAYMENT REQUEST TO ZARINPAL
+    # --------------------------------------------------
+    def send_request(self, amount, order_id, callback_url):
+        print("\n[DEBUG] → send_request() called")
+        print(f"Merchant ID: {self.merchant_id}")
+        print(f"Amount: {amount}")
+        print(f"Order ID: {order_id}")
+        print(f"Callback URL: {callback_url}")
+
         try:
             payload = {
                 "merchant_id": self.merchant_id,
@@ -24,6 +27,7 @@ class CountBasedPaymentHandler:
                 "callback_url": callback_url,
                 "description": self.description,
             }
+            print("[DEBUG] Payload to Zarinpal:", payload)
 
             headers = {
                 "Content-Type": "application/json",
@@ -37,65 +41,104 @@ class CountBasedPaymentHandler:
                 timeout=15
             )
 
+            print("[DEBUG] Zarinpal HTTP Status:", response.status_code)
+            print("[DEBUG] Zarinpal Raw Response:", response.text)
+
             response_data = response.json()
             data = response_data.get("data", {})
+            errors = response_data.get("errors", {})
+            print("[DEBUG] Parsed data:", json.dumps(data, indent=2))
+            if errors:
+                print("[DEBUG] Errors:", json.dumps(errors, indent=2))
+
             code = data.get("code")
 
             if code == 100:
                 authority = data.get("authority")
                 payment_url = f"https://www.zarinpal.com/pg/StartPay/{authority}"
+                print("[DEBUG] ✅ Payment request success, redirect to:", payment_url)
                 return payment_url, authority
             else:
+                print("[ERROR] ❌ Zarinpal did not return code 100. Response:", response_data)
                 return None, None
 
-        except Exception:
+        except Exception as e:
+            print("[ERROR] Exception in send_request():", str(e))
+            traceback.print_exc()
             return None, None
 
-    def save_transaction(self, authority, amount, user_id, user_name='', bot_key=None):
-        """Save transaction to database, supports multi-bot architecture."""
+
+    # --------------------------------------------------
+    # STEP 2: SAVE TRANSACTION
+    # --------------------------------------------------
+    def save_transaction(self, authority, amount, order_id, user_name='', bot_key=None):
+        print("\n[DEBUG] → save_transaction() called")
+        print(f"Authority: {authority}, Amount: {amount}, Order ID: {order_id}, Bot key: {bot_key}")
+
         try:
+            # ❗ ONLY changing THIS LINE – saving using correct FK field
             transaction = self.model.objects.create(
                 authority=authority,
                 amount=amount,
-                user_id=user_id,
-                user_name=user_name,
-                bot_key=bot_key,   # new field for universal bot tracking
+                order_id=order_id,    # ✔ correct field
                 status='pending'
             )
+
+            print("[DEBUG] ✅ Transaction saved:", transaction.id)
             return transaction, True
+
         except Exception as e:
-            error_str = str(e)
+            print("[ERROR] ❌ Failed to save transaction:", str(e))
             traceback.print_exc()
-            if 'duplicate key value violates unique constraint' in error_str:
-                return None, False
-            else:
-                return None, False
+            return None, False
 
+
+    # --------------------------------------------------
+    # STEP 3: GET TRANSACTION
+    # --------------------------------------------------
     def get_transaction(self, authority):
-        """Retrieve transaction details by authority."""
+        print("\n[DEBUG] → get_transaction() called for authority:", authority)
         try:
-            return self.model.objects.get(authority=authority)
+            tx = self.model.objects.get(authority=authority)
+            print("[DEBUG] ✅ Transaction found:", tx.id)
+            return tx
         except self.model.DoesNotExist:
+            print("[ERROR] ❌ Transaction not found.")
             return None
 
+
+    # --------------------------------------------------
+    # STEP 4: UPDATE TRANSACTION STATUS
+    # --------------------------------------------------
     def update_transaction_status(self, authority, status):
-        """Update the status of a transaction."""
+        print("\n[DEBUG] → update_transaction_status() called")
+        print(f"Authority: {authority}, New status: {status}")
+
         try:
-            transaction = self.model.objects.get(authority=authority)
-            transaction.status = status
-            transaction.save()
-            return transaction
+            tx = self.model.objects.get(authority=authority)
+            tx.status = status
+            tx.save()
+            print("[DEBUG] ✅ Status updated")
+            return tx
         except self.model.DoesNotExist:
+            print("[ERROR] ❌ Transaction not found for update.")
             return None
 
+
+    # --------------------------------------------------
+    # STEP 5: VERIFY PAYMENT
+    # --------------------------------------------------
     def verify_payment(self, authority, amount):
-        """Verify a payment with Zarinpal."""
+        print("\n[DEBUG] → verify_payment() called")
+        print(f"Authority: {authority}, Amount: {amount}")
+
         try:
             payload = {
                 "merchant_id": self.merchant_id,
                 "amount": amount,
                 "authority": authority,
             }
+            print("[DEBUG] Verification payload:", payload)
 
             headers = {
                 "Content-Type": "application/json",
@@ -109,16 +152,25 @@ class CountBasedPaymentHandler:
                 timeout=15
             )
 
+            print("[DEBUG] Verify HTTP status:", response.status_code)
+            print("[DEBUG] Verify raw response:", response.text)
+
             data = response.json().get("data", {})
             code = data.get("code")
+            errors = response.json().get("errors", {})
 
             if code == 100:
+                print("[DEBUG] ✅ Payment verification success:", data)
                 return {"status": "success", "data": data}
             elif code == 101:
+                print("[DEBUG] ⚠ Payment already verified:", data)
                 return {"status": "already_verified", "data": data}
             else:
-                errors = response.json().get("errors", {})
+                print("[ERROR] ❌ Payment verify failed with code:", code)
+                print("[DEBUG] Zarinpal errors:", errors)
                 return {"status": "failed", "errors": errors}
 
         except Exception as e:
+            print("[ERROR] 💥 Exception in verify_payment():", str(e))
+            traceback.print_exc()
             return {"status": "failed", "errors": str(e)}

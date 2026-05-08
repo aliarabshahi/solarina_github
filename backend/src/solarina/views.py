@@ -108,7 +108,7 @@ class ExampleModelViewSet(viewsets.ModelViewSet):
 # ---------------------------------------------------------------------
 # order_payment_handler 
 # ---------------------------------------------------------------------
-MERCHANT_ID = "0e0c03db-1197-471d-a058-0d7565bd4103"   #os.getenv("MMERCHANT_ID")
+MERCHANT_ID = "970073f1-6fd6-4690-8a31-27b74e30e4e3"   #os.getenv("MMERCHANT_ID")
 
 order_payment_handler = CountBasedPaymentHandler(
     merchant_id=MERCHANT_ID,
@@ -231,7 +231,7 @@ def create_order_payment_view(request):
         order_payment_handler.save_transaction(
             authority=authority,
             amount=order.total_price,
-            user_id=order_id,
+            order_id=order_id,
             user_name=order.full_name,
             bot_key="web:order"
         )
@@ -239,33 +239,60 @@ def create_order_payment_view(request):
 
     return Response({"error": "Payment request failed"}, status=500)
 
-
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def verify_order_payment(request):
+    print("\n" + "=" * 40)
+    print("[DEBUG] → verify_order_payment called")
+    print("=" * 40)
+
     status_param = request.GET.get("Status")
     authority = request.GET.get("Authority")
 
-    if not status_param or not authority:
-        return Response({"status": "error", "message": "Missing params"})
+    print(f"[DEBUG] Callback Params => Status: {status_param}, Authority: {authority}")
 
+    if not status_param or not authority:
+        print("[ERROR] ❌ Missing parameters in callback URL")
+        return Response({"status": "error", "message": "Missing params"}, status=400)
+
+    # 1️⃣ Get the transaction object based on the Authority code
     transaction = order_payment_handler.get_transaction(authority)
 
     if not transaction:
-        return Response({"status": "not_found"})
+        print("[ERROR] ❌ Transaction not found for authority:", authority)
+        return Response({"status": "not_found"}, status=404)
 
+    print(f"[DEBUG] Transaction found ID={transaction.id}, amount={transaction.amount}")
+
+    # 2️⃣ Verify payment with Zarinpal
     result = order_payment_handler.verify_payment(authority, transaction.amount)
+    print(f"[DEBUG] Verification result: {result}")
 
-    order = OrderModel.objects.get(id=transaction.user_id)
+    # 3️⃣ Get the related order object (fix: use ForeignKey field)
+    order = transaction.order
+    print(f"[DEBUG] Linked Order Found => ID={order.id}, Status={order.status}")
 
-    if result["status"] == "success":
+    # 4️⃣ Handle verification result and update models
+    if result["status"] in ["success", "already_verified"]:
+        print("[DEBUG] ✅ Verification succeeded (either new or already verified).")
         order_payment_handler.update_transaction_status(authority, "successful")
+
         order.status = "paid"
         order.save()
-        return Response({"status": "success"})
+        print(f"[DEBUG] ✅ Order {order.id} marked as paid")
 
-    order_payment_handler.update_transaction_status(authority, "failed")
-    order.status = "failed"
-    order.save()
+        return Response({
+            "status": "success",
+            "ref_id": result.get("data", {}).get("ref_id"),
+            "order_id": order.id
+        })
 
-    return Response({"status": "failed"})
+    else:
+        print("[ERROR] ❌ Verification failed, updating statuses to failed")
+        order_payment_handler.update_transaction_status(authority, "failed")
+
+        order.status = "failed"
+        order.save()
+        print(f"[DEBUG] ❌ Order {order.id} marked as failed")
+
+        return Response({"status": "failed"})
