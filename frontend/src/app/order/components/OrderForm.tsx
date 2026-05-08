@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { getApiData } from "@/app/services/receive_data/apiServerFetch";
+import { useRouter } from "next/navigation";
 
 type OrderFormData = {
   full_name: string;
@@ -48,6 +49,7 @@ export default function OrderForm() {
 
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   /* ---------------- FETCH PRODUCTS ---------------- */
   useEffect(() => {
@@ -99,59 +101,23 @@ export default function OrderForm() {
   }, 0);
 
   /* ---------------- REAL SUBMIT HANDLER ---------------- */
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    try {
-      const orderRes = await fetch("/api/proxy/orders/create/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...order,
-          products: selectedProducts.map((row) => ({
-            product_id: Number(row.product),
-            quantity: Number(row.quantity),
-          })),
-          total_price: totalPrice,
-        }),
-      });
-
-      const orderData = await orderRes.json();
-      const orderId = orderData.order_id;
-
-      if (!orderId) {
-        setLoading(false);
-        setMessage("خطا در ثبت سفارش");
-        return;
-      }
-
-      const payRes = await fetch("/api/proxy/orders/payment/create/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ order_id: orderId }),
-      });
-
-      const payData = await payRes.json();
-
-      if (!payData.payment_url) {
-        setLoading(false);
-        setMessage("خطا در ساخت لینک پرداخت");
-        return;
-      }
-
-      window.location.href = payData.payment_url;
-    } catch (error) {
-      console.error("Error submitting order:", error);
-      setMessage("خطا! لطفاً دوباره تلاش کنید.");
-      setLoading(false);
-    }
+  const orderData = {
+    ...order,
+    products: selectedProducts.map((row) => ({
+      product_id: Number(row.product),
+      quantity: Number(row.quantity),
+    })),
+    total_price: totalPrice,
   };
+
+  const encoded = encodeURIComponent(JSON.stringify(orderData));
+
+  router.push(`/order/review?data=${encoded}`);
+};
+
 
   return (
     <motion.section
