@@ -61,7 +61,11 @@ class OrderSerializer(serializers.ModelSerializer):
 # OrderPayment Serializer
 # ---------------------------------------------------------------------
 class OrderPaymentSerializer(serializers.ModelSerializer):
+    # Include the full nested order detail (read-only)
+    order_detail = OrderSerializer(source='order', read_only=True)
+
     class Meta:
         model = OrderPaymentModel
         fields = "__all__"
         read_only_fields = ["status", "created_at", "updated_at"]
+

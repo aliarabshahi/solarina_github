@@ -296,3 +296,43 @@ def verify_order_payment(request):
         print(f"[DEBUG] ❌ Order {order.id} marked as failed")
 
         return Response({"status": "failed"})
+
+# ---------------------------------------------------------------------
+# Order ViewSet
+# ---------------------------------------------------------------------
+class OrderViewSet(viewsets.ModelViewSet):
+    """
+    Manage OrderModel instances.
+    """
+    queryset = OrderModel.objects.all()
+    serializer_class = OrderSerializer
+    pagination_class = DashboardPagination
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+
+# ---------------------------------------------------------------------
+# Order Payment ViewSet
+# ---------------------------------------------------------------------
+class OrderPaymentViewSet(viewsets.ModelViewSet):
+    """
+    Manage OrderPaymentModel instances.
+    - Supports filtering by ?authority=
+    - Response includes full order details
+    """
+    # Use select_related to prevent N+1 query issues when fetching order details
+    queryset = OrderPaymentModel.objects.select_related('order').all()
+    serializer_class = OrderPaymentSerializer
+    pagination_class = DashboardPagination
+    authentication_classes = [SessionAuthentication, TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    # 🔎 Filter based on authority parameter in GET
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        authority = self.request.query_params.get("authority")
+
+        if authority:
+            queryset = queryset.filter(authority=authority)
+
+        return queryset

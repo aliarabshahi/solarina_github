@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import SimpleRouter
 
-from .views import ContactUsViewSet, ExampleModelViewSet, create_order_payment_view, create_order_view, health_check, ProductModelViewSet, ProductCategoryModelViewSet, verify_order_payment
+from .views import ContactUsViewSet, ExampleModelViewSet, OrderPaymentViewSet, OrderViewSet, create_order_payment_view, create_order_view, health_check, ProductModelViewSet, ProductCategoryModelViewSet, verify_order_payment
 
 
 # ---------------------------------------------------------------------
@@ -18,6 +18,10 @@ router.register(r'contact-us', ContactUsViewSet, basename='contact-us')
 # Products
 router.register(r'product-categories', ProductCategoryModelViewSet, basename='product-categories')
 router.register(r'products', ProductModelViewSet, basename='products')
+
+# Orders
+router.register(r'orders', OrderViewSet, basename='orders')
+router.register(r'order-payments', OrderPaymentViewSet, basename='order-payments')
 
 # ---------------------------------------------------------------------
 # URL Patterns
