@@ -80,7 +80,8 @@ export default async function VerifyOrderPage({ searchParams }: PageProps) {
                 پرداخت با موفقیت انجام شد
               </h2>
               <p className="text-gray-500 text-sm max-w-md">
-                سفارش شما ثبت و پرداخت شد. تیم ما به زودی با شما تماس خواهد گرفت.
+سفارش شما با موفقیت ثبت شد و در حال پردازش است. لطفاً کد رهگیری خود را یادداشت یا ذخیره کنید.
+
               </p>
             </div>
 
