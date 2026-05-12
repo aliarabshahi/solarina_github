@@ -10,9 +10,13 @@ import { getApiData } from "@/app/services/receive_data/apiServerFetch";
 import { ReactNode } from "react";
 
 // --- Types ---
+// ✅ UPDATED: Added unit_price and other fields to match the API response
 interface OrderedProduct {
+  name: string;
   quantity: number;
   product_id: number;
+  unit_price: number;
+  total_price: number;
   product_name: string;
 }
 
@@ -23,7 +27,7 @@ interface OrderDetail {
   phone_number: string;
   address: string;
   total_price: number | string;
-  products: OrderedProduct[]; // ✅ added
+  products: OrderedProduct[];
 }
 
 interface OrderPayment {
@@ -126,7 +130,7 @@ export default async function VerifyOrderPage({ searchParams }: PageProps) {
                   </span>
                 </div>
 
-                {/* ✅ PRODUCT LIST */}
+                {/* --- START OF CHANGES --- */}
                 {order.products && order.products.length > 0 && (
                   <div className="pt-4 mt-4 border-t space-y-3">
                     <div className="flex items-center gap-2 text-sm font-semibold text-gray-800">
@@ -139,17 +143,23 @@ export default async function VerifyOrderPage({ searchParams }: PageProps) {
                         key={i}
                         className="flex justify-between items-center bg-white border border-slate-200 rounded-lg p-3 text-sm"
                       >
-                        <span className="font-medium text-gray-700">
-                          {p.product_name}
+                        <span className="font-medium text-gray-700 whitespace-nowrap">
+                          {p.name}
                         </span>
 
-                        <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
+                        <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
+                          قیمت واحد: {formatToman(p.unit_price)} تومان
+                        </span>
+
+                        <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
                           تعداد: {p.quantity}
                         </span>
                       </div>
                     ))}
                   </div>
                 )}
+                {/* --- END OF CHANGES --- */}
+
 
                 {/* PRICE */}
                 <div className="flex justify-between items-center pt-4 mt-4 border-t">

@@ -20,6 +20,8 @@ interface ProductItem {
   product_id: number;
   product_name: string;
   quantity: number;
+  // ✅ ADDED: unit_price to the ProductItem interface
+  unit_price: number;
 }
 
 interface Order {
@@ -40,6 +42,9 @@ interface PageProps {
   };
 }
 // -----------------------
+
+// Helper function for formatting Toman (moved outside components for reusability)
+const formatToman = (r: number | string) => (Number(r) / 10).toLocaleString();
 
 export default async function OrderTrackPage({ searchParams }: PageProps) {
   const trackingCode = searchParams.code?.trim();
@@ -131,8 +136,6 @@ function OrderResult({ order }: { order: Order }) {
     "0"
   )}`;
 
-  const formatToman = (r: number | string) => (Number(r) / 10).toLocaleString();
-
   return (
     <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100 space-y-6">
       {/* Header */}
@@ -153,7 +156,6 @@ function OrderResult({ order }: { order: Order }) {
 
       {/* Customer Info */}
       <div className="border-t pt-6 space-y-4 text-sm text-gray-700">
-        {/* ✅ UPDATED: Added text-base class for consistent font size */}
         <h3 className="text-base font-semibold text-gray-800 flex items-center gap-2">
           <FaUserCircle className="text-blue-500 w-5 h-5" />
           اطلاعات تحویل گیرنده:{" "}
@@ -262,7 +264,6 @@ function ProductList({ items }: { items: ProductItem[] }) {
 
   return (
     <div className="border-t pt-6 space-y-4">
-      {/* ✅ UPDATED: Added text-base class for consistent font size */}
       <h3 className="text-base font-semibold text-gray-800 flex items-center gap-2">
         <FaShoppingBag className="text-blue-500 w-5 h-5" />
         محصولات سفارش
@@ -273,10 +274,15 @@ function ProductList({ items }: { items: ProductItem[] }) {
             key={item.product_id}
             className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-200"
           >
-            <span className="font-medium text-gray-800">
+            <span className="font-medium text-gray-800 whitespace-nowrap">
               {item.product_name}
             </span>
-            <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
+            {/* ✅ ADDED: Unit Price badge with green styling */}
+            <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
+              قیمت واحد: {formatToman(item.unit_price)} تومان
+            </span>
+            {/* Quantity badge remains */}
+            <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap">
               تعداد: {item.quantity}
             </span>
           </li>

@@ -21,8 +21,13 @@ export default function OrderReviewPage() {
 
   /* ---------------- PRICE FORMAT ---------------- */
   const formatToman = (rial: number) => {
+    // Check if the input is a valid number
+    if (typeof rial !== 'number' || isNaN(rial)) {
+        return '0'; // Return a default value or handle as an error
+    }
     return (rial / 10).toLocaleString();
   };
+
 
   // -----------------------------------------
   // Load order data from search params
@@ -50,12 +55,8 @@ export default function OrderReviewPage() {
     setMessage("");
 
     try {
-      // --- START OF CHANGES ---
       // The `order` object is already in the correct format.
-      // We no longer need to remap the products array.
-      // The buggy `map` function has been removed.
       const payload = { ...order };
-      // --- END OF CHANGES ---
 
       const orderRes = await fetch("/api/proxy/orders/create/", {
         method: "POST",
@@ -196,21 +197,26 @@ export default function OrderReviewPage() {
               اقلام سفارش
             </h2>
 
+            {/* --- START OF CHANGES --- */}
             {order.products.map((p: any, i: number) => (
               <div
                 key={i}
                 className="flex justify-between items-center bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm"
               >
-                <span className="font-medium text-gray-700">
-                  {/* CHANGED: from p.product_name to p.name */}
+                <span className="font-medium text-gray-700 whitespace-nowrap">
                   {p.name}
                 </span>
 
-                <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
+                <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
+                  قیمت واحد: {formatToman(p.unit_price)} تومان
+                </span>
+
+                <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
                   تعداد: {p.quantity}
                 </span>
               </div>
             ))}
+            {/* --- END OF CHANGES --- */}
           </div>
 
           {/* ---------------------- Total Price ---------------------- */}
