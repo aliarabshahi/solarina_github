@@ -29,81 +29,98 @@ interface PageProps {
 export default async function VerifyOrderPage({ searchParams }: PageProps) {
   const { Status, Authority } = searchParams;
 
-  // 1. If parameters are missing, immediately show failed state
   if (!Status || !Authority) {
     return <FailedPayment />;
   }
 
   try {
-    // 2. Verify the payment status
     const verifyRes = await getApiData(
       `/orders/payment/verify/?Status=${Status}&Authority=${Authority}`
     );
 
-    // Look inside verifyRes.data based on your getApiData structure
     const verifyData = verifyRes?.data;
-    const isSuccess = verifyData?.status === "success" || verifyData?.status === "already_verified";
+    const isSuccess =
+      verifyData?.status === "success" ||
+      verifyData?.status === "already_verified";
 
     if (!isSuccess) {
       return <FailedPayment />;
     }
 
-    // 3. Fetch the specific Order details
     const detailRes = await getApiData(`/order-payments/?authority=${Authority}`);
-    
-    // Look inside detailRes.data
+
     const detailData = detailRes?.data;
-    
-    // Handle DRF pagination structure (inside .results) or direct array
     const items = detailData?.results || detailData || [];
-    const paymentData: OrderPayment | null = Array.isArray(items) && items.length > 0 ? items[0] : null;
+    const paymentData: OrderPayment | null =
+      Array.isArray(items) && items.length > 0 ? items[0] : null;
     const order = paymentData?.order_detail;
 
-    // 4. Render Success UI
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-6 py-12" dir="rtl">
-        <div className="bg-white p-8 rounded-2xl shadow-lg border border-green-100 max-w-lg w-full text-center">
-          <FaCheckCircle className="text-6xl text-green-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-green-600 mb-2">
-            پرداخت با موفقیت انجام شد
-          </h2>
-          <p className="text-gray-600 mb-8">
-            سفارش شما ثبت و پرداخت شد. تیم ما به زودی با شما تماس خواهد گرفت.
-          </p>
+      <div
+        className="min-h-screen bg-slate-50 py-10 sm:py-16 px-6"
+        dir="rtl"
+      >
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100 text-center space-y-6">
 
-          {order && paymentData ? (
-            <div className="bg-slate-50 rounded-xl p-5 text-right space-y-4 border border-slate-100">
-              <h3 className="font-bold text-gray-800 border-b pb-2 mb-3 text-center">
-                خلاصه سفارش شما
-              </h3>
-              
-              <div className="flex items-center gap-3 text-sm text-gray-700">
-                <FaReceipt className="text-blue-500" />
-                <span><strong className="text-gray-900">شماره سفارش:</strong> {order.id}</span>
-              </div>
-              
-              <div className="flex items-center gap-3 text-sm text-gray-700">
-                <FaUser className="text-blue-500" />
-                <span><strong className="text-gray-900">نام:</strong> {order.full_name}</span>
-              </div>
-
-              <div className="flex items-center gap-3 text-sm text-gray-700">
-                <FaMapMarkerAlt className="text-blue-500" />
-                <span><strong className="text-gray-900">آدرس:</strong> {order.address}</span>
-              </div>
-
-              <div className="flex items-center justify-between pt-3 mt-3 border-t">
-                <span className="font-semibold text-gray-700">مبلغ پرداختی:</span>
-                <span className="font-bold text-blue-700">
-                  {Number(paymentData.amount).toLocaleString()} تومان
-                </span>
-              </div>
+            <div className="flex flex-col items-center">
+              <FaCheckCircle className="text-6xl text-green-500 mb-3" />
+              <h2 className="text-2xl font-bold text-green-600 mb-2">
+                پرداخت با موفقیت انجام شد
+              </h2>
+              <p className="text-gray-500 text-sm max-w-md">
+                سفارش شما ثبت و پرداخت شد. تیم ما به زودی با شما تماس خواهد گرفت.
+              </p>
             </div>
-          ) : (
-            <div className="text-sm text-gray-500 bg-gray-100 p-3 rounded">
-              جزئیات سفارش در حال حاضر در دسترس نیست، اما پرداخت شما تایید شده است.
-            </div>
-          )}
+
+            {order && paymentData ? (
+              <div className="bg-slate-50 rounded-lg p-5 text-right space-y-4 border border-slate-200">
+
+                <h3 className="font-semibold text-gray-800 text-base border-b pb-3 mb-2 text-center">
+                  خلاصه سفارش شما
+                </h3>
+
+                <div className="flex items-center gap-3 text-sm text-gray-700">
+                  <FaReceipt className="text-blue-500 w-4 h-4" />
+                  <span>
+                    <strong className="text-gray-900">شماره سفارش:</strong>{" "}
+                    {order.id}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3 text-sm text-gray-700">
+                  <FaUser className="text-blue-500 w-4 h-4" />
+                  <span>
+                    <strong className="text-gray-900">نام:</strong>{" "}
+                    {order.full_name}
+                  </span>
+                </div>
+
+                <div className="flex items-start gap-3 text-sm text-gray-700">
+                  <FaMapMarkerAlt className="text-blue-500 w-4 h-4 mt-1" />
+                  <span className="flex flex-col">
+                    <strong className="text-gray-900">آدرس:</strong>
+                    <span className="text-gray-600 leading-relaxed">
+                      {order.address}
+                    </span>
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center pt-4 mt-4 border-t">
+                  <span className="font-semibold text-gray-700">
+                    مبلغ پرداختی:
+                  </span>
+                  <span className="font-bold text-blue-700 text-lg">
+                    {Number(paymentData.amount).toLocaleString()} تومان
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="text-sm text-gray-500 bg-gray-100 p-3 rounded-lg border border-gray-200">
+                جزئیات سفارش در حال حاضر در دسترس نیست، اما پرداخت شما تایید شده است.
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -113,13 +130,15 @@ export default async function VerifyOrderPage({ searchParams }: PageProps) {
   }
 }
 
-// --- Helper Component for Failed State ---
 function FailedPayment() {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-6" dir="rtl">
-      <div className="bg-white p-8 rounded-2xl shadow-lg border border-red-100 max-w-md w-full text-center">
-        <FaTimesCircle className="text-6xl text-red-500 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-red-600 mb-2">
+    <div
+      className="min-h-screen bg-slate-50 py-10 sm:py-16 px-6 flex items-center justify-center"
+      dir="rtl"
+    >
+      <div className="max-w-md w-full bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100 text-center space-y-4">
+        <FaTimesCircle className="text-6xl text-red-500 mx-auto" />
+        <h2 className="text-2xl font-bold text-red-600">
           پرداخت ناموفق بود
         </h2>
         <p className="text-gray-600 text-sm leading-relaxed">
