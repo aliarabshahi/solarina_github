@@ -25,7 +25,7 @@ type OrderFormData = {
 type Product = {
   id: number;
   name: string;
-  price: number; // backend price in rial
+  price: number;
 };
 
 type SelectedProduct = {
@@ -49,7 +49,7 @@ export default function OrderForm() {
   });
 
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const router = useRouter();
 
   /* ---------------- FETCH PRODUCTS ---------------- */
@@ -103,20 +103,25 @@ export default function OrderForm() {
     const product = products.find((p) => String(p.id) === row.product);
     if (!product) return sum;
     const qty = Number(row.quantity) || 0;
-    return sum + product.price * qty; // still in rial
+    return sum + product.price * qty;
   }, 0);
 
-  /* ---------------- REAL SUBMIT HANDLER ---------------- */
+  /* ---------------- SUBMIT HANDLER ---------------- */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const orderData = {
       ...order,
-      products: selectedProducts.map((row) => ({
-        product_id: Number(row.product),
-        quantity: Number(row.quantity),
-      })),
-      total_price: totalPrice, // keep in rial
+      products: selectedProducts.map((row) => {
+        const product = products.find((p) => String(p.id) === row.product);
+
+        return {
+          product_id: Number(row.product),
+          product_name: product?.name || "",
+          quantity: Number(row.quantity),
+        };
+      }),
+      total_price: totalPrice,
     };
 
     const encoded = encodeURIComponent(JSON.stringify(orderData));
@@ -167,7 +172,7 @@ export default function OrderForm() {
           onChange={(v: string) => handleChange("email", v)}
         />
 
-        {/* PRODUCTS SECTION */}
+        {/* PRODUCTS */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-gray-700">
@@ -230,16 +235,15 @@ export default function OrderForm() {
                 <div className="sm:col-span-2 flex justify-center sm:justify-end pb-1">
                   <button
                     type="button"
-                    aria-label="حذف سطر"
                     disabled={!canRemove}
                     onClick={() => canRemove && removeProductRow(index)}
-                    className={`flex items-center justify-center h-10 w-10 rounded-full border text-xs transition ${
+                    className={`flex items-center justify-center h-10 w-10 rounded-full border ${
                       canRemove
                         ? "border-red-200 text-red-400 hover:border-red-400 hover:text-red-600 hover:bg-red-50"
-                        : "border-gray-200 text-gray-300 cursor-default"
+                        : "border-gray-200 text-gray-300"
                     }`}
                   >
-                    <FaMinusCircle className="text-base" />
+                    <FaMinusCircle />
                   </button>
                 </div>
               </div>
@@ -281,7 +285,6 @@ export default function OrderForm() {
             توضیحات تکمیلی
           </label>
           <textarea
-            name="notes"
             value={order.notes}
             onChange={(e) => handleChange("notes", e.target.value)}
             className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 text-sm"
@@ -292,13 +295,13 @@ export default function OrderForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-lg transition flex items-center justify-center gap-2 text-lg font-medium"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg flex items-center justify-center gap-2 text-lg font-medium"
         >
-          {loading ? "در حال ثبت..." : "ثبت سفارش"}
+          ثبت سفارش
         </button>
 
         {message && (
-          <div className="bg-green-100 text-green-800 p-3 rounded-lg text-sm flex items-center gap-2 mt-2">
+          <div className="bg-green-100 text-green-800 p-3 rounded-lg text-sm flex items-center gap-2">
             <FaCheckCircle />
             {message}
           </div>
@@ -308,7 +311,7 @@ export default function OrderForm() {
   );
 }
 
-/* ---------------- INPUT COMPONENT ---------------- */
+/* INPUT COMPONENT */
 
 function InputField({
   label,

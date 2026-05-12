@@ -56,6 +56,31 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["tracking_code", "status", "created_at", "updated_at"]
 
+    def to_representation(self, instance):
+        # Get the standard serialization
+        representation = super().to_representation(instance)
+        
+        # Get the products JSON list
+        products = representation.get('products', [])
+        
+        # Extract product_ids to query them all at once (prevents N+1 queries per order)
+        product_ids = [item.get('product_id') for item in products if item.get('product_id')]
+        
+        if product_ids:
+            # Query the database for these products
+            found_products = ProductModel.objects.filter(id__in=product_ids)
+            
+            # Create a dictionary mapping product ID to product Name
+            product_map = {product.id: product.name for product in found_products}
+            
+            # Inject the product_name back into the representation
+            for item in products:
+                p_id = item.get('product_id')
+                # Add the name, or a default string if the product was deleted
+                item['product_name'] = product_map.get(p_id, "Product not found")
+
+        representation['products'] = products
+        return representation
 
 # ---------------------------------------------------------------------
 # OrderPayment Serializer

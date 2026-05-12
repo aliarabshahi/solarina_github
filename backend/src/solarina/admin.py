@@ -1,6 +1,8 @@
+import json
 from django.contrib import admin
 from rest_framework.authtoken.models import Token
 from .models import ContactUsModel, ExampleModel, ProductModel, ProductCategoryModel, OrderModel, OrderPaymentModel
+from django.utils.safestring import mark_safe
 
 
 
@@ -61,9 +63,55 @@ class ProductModelAdmin(admin.ModelAdmin):
 # ---------------------------------------------------------------------
 # Orders Admin Configuration
 # ---------------------------------------------------------------------
+
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ("id", "tracking_code", "full_name", "total_price", "status", "created_at")
-    readonly_fields = ("tracking_code", "created_at", "updated_at")
+    list_display = (
+        "id", 
+        "tracking_code", 
+        "full_name",
+        "phone_number",  # Added phone number here
+        "total_price", 
+        "status", 
+        "display_products", 
+        "created_at"
+    )
+    
+    # Added phone number to search capabilities
+    search_fields = ("tracking_code", "full_name", "phone_number")
+    
+    # Filtering capabilities on the right sidebar
+    list_filter = ("status", "created_at", "updated_at")
+    
+    readonly_fields = ("tracking_code", "created_at", "updated_at", "display_products")
+
+    def display_products(self, obj):
+        if not obj.products:
+            return "[]"
+            
+        # Extract product IDs
+        product_ids = [item.get('product_id') for item in obj.products if item.get('product_id')]
+        
+        # Fetch related products efficiently
+        found_products = ProductModel.objects.filter(id__in=product_ids)
+        product_map = {p.id: p.name for p in found_products}
+        
+        # Create a new list to hold the enriched JSON objects
+        enriched_products = []
+        for item in obj.products:
+            product_data = dict(item) 
+            p_id = product_data.get('product_id')
+            # Add the product name to the JSON object
+            product_data['product_name'] = product_map.get(p_id, "Unknown Product")
+            enriched_products.append(product_data)
+            
+        # Convert the Python list back to a formatted JSON string
+        json_string = json.dumps(enriched_products, ensure_ascii=False, indent=2)
+        
+        # Wrap in a <pre> tag to maintain formatting
+        return mark_safe(f'<pre style="text-align: left; direction: ltr; margin: 0;">{json_string}</pre>')
+
+    display_products.short_description = "Products Details"
+
 
 class OrderPaymentAdmin(admin.ModelAdmin):
     list_display = ("authority", "amount", "status", "created_at")

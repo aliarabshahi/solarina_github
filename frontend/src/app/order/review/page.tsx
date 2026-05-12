@@ -55,7 +55,7 @@ export default function OrderReviewPage() {
         total_price: Number(order.total_price), // keep rial
         products:
           order.products?.map((p: any) => ({
-            product_id: Number(p.product_id),
+            product_name: Number(p.product_name),
             quantity: Number(p.quantity),
           })) || [],
       };
@@ -123,7 +123,7 @@ export default function OrderReviewPage() {
 
           {/* Page Header */}
           <header className="text-center">
-            <h1 className="text-2xl font-bold text-blue-600">
+            <h1 className="text-2xl  font-bold text-blue-600">
               بررسی نهایی سفارش
             </h1>
             <p className="text-sm text-gray-500 mt-2">
@@ -208,7 +208,7 @@ export default function OrderReviewPage() {
                 className="flex justify-between items-center bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm"
               >
                 <span className="font-medium text-gray-700">
-                  محصول کد {p.product_id}
+                    {p.product_name}
                 </span>
 
                 <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">

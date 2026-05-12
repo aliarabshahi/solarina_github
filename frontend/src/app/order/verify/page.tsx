@@ -4,11 +4,18 @@ import {
   FaUser,
   FaMapMarkerAlt,
   FaReceipt,
+  FaShoppingBag,
 } from "react-icons/fa";
 import { getApiData } from "@/app/services/receive_data/apiServerFetch";
 import { ReactNode } from "react";
 
 // --- Types ---
+interface OrderedProduct {
+  quantity: number;
+  product_id: number;
+  product_name: string;
+}
+
 interface OrderDetail {
   tracking_code: ReactNode;
   id: number;
@@ -16,12 +23,13 @@ interface OrderDetail {
   phone_number: string;
   address: string;
   total_price: number | string;
+  products: OrderedProduct[]; // ✅ added
 }
 
 interface OrderPayment {
   id: number;
   authority: string;
-  amount: number | string; // comes as rial
+  amount: number | string; // rial
   status: string;
   order_detail: OrderDetail;
   tracking_code: string;
@@ -38,7 +46,6 @@ interface PageProps {
 export default async function VerifyOrderPage({ searchParams }: PageProps) {
   const { Status, Authority } = searchParams;
 
-  // Convert rial → toman
   const formatToman = (r: number | string) =>
     (Number(r) / 10).toLocaleString();
 
@@ -68,6 +75,7 @@ export default async function VerifyOrderPage({ searchParams }: PageProps) {
     const items = detailData?.results || detailData || [];
     const paymentData: OrderPayment | null =
       Array.isArray(items) && items.length > 0 ? items[0] : null;
+
     const order = paymentData?.order_detail;
 
     return (
@@ -80,8 +88,7 @@ export default async function VerifyOrderPage({ searchParams }: PageProps) {
                 پرداخت با موفقیت انجام شد
               </h2>
               <p className="text-gray-500 text-sm max-w-md">
-سفارش شما با موفقیت ثبت شد و در حال پردازش است. لطفاً کد رهگیری خود را یادداشت یا ذخیره کنید.
-
+                سفارش شما با موفقیت ثبت شد و در حال پردازش است. لطفاً کد رهگیری خود را یادداشت یا ذخیره کنید.
               </p>
             </div>
 
@@ -119,7 +126,32 @@ export default async function VerifyOrderPage({ searchParams }: PageProps) {
                   </span>
                 </div>
 
-                {/* --- FIXED PRICE DISPLAY (rial → toman) --- */}
+                {/* ✅ PRODUCT LIST */}
+                {order.products && order.products.length > 0 && (
+                  <div className="pt-4 mt-4 border-t space-y-3">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                      <FaShoppingBag className="text-blue-500 w-4 h-4" />
+                      اقلام سفارش
+                    </div>
+
+                    {order.products.map((p, i) => (
+                      <div
+                        key={i}
+                        className="flex justify-between items-center bg-white border border-slate-200 rounded-lg p-3 text-sm"
+                      >
+                        <span className="font-medium text-gray-700">
+                          {p.product_name}
+                        </span>
+
+                        <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
+                          تعداد: {p.quantity}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* PRICE */}
                 <div className="flex justify-between items-center pt-4 mt-4 border-t">
                   <span className="font-semibold text-gray-700">
                     مبلغ پرداختی:

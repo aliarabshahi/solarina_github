@@ -16,11 +16,10 @@ import {
 } from "react-icons/fa";
 
 // --- Types ---
-interface OrderItem {
-  id: number;
+interface ProductItem {
+  product_id: number;
   product_name: string;
   quantity: number;
-  price: number; // rial
 }
 
 interface Order {
@@ -32,7 +31,7 @@ interface Order {
   status: "pending" | "paid" | "failed";
   created_at: string;
   total_price: number; // rial
-  order_items: OrderItem[];
+  products: ProductItem[];
 }
 
 interface PageProps {
@@ -48,13 +47,11 @@ export default async function OrderTrackPage({ searchParams }: PageProps) {
   let error: string | null = null;
   let notFound = false;
 
-  // Convert rial -> toman
-  const formatToman = (r: number | string) =>
-    (Number(r) / 10).toLocaleString();
-
   if (trackingCode) {
     try {
-      const response = await getApiData(`/orders/?tracking_code=${trackingCode}`);
+      const response = await getApiData(
+        `/orders/?tracking_code=${trackingCode}`
+      );
       const items = response?.data?.results || response?.data || [];
 
       if (Array.isArray(items) && items.length > 0) {
@@ -94,7 +91,7 @@ export default async function OrderTrackPage({ searchParams }: PageProps) {
   );
 }
 
-// ---------------- UI ----------------
+// ---------------- UI COMPONENTS ----------------
 
 function SearchForm({ initialCode }: { initialCode?: string }) {
   return (
@@ -134,8 +131,7 @@ function OrderResult({ order }: { order: Order }) {
     "0"
   )}`;
 
-  const formatToman = (r: number | string) =>
-    (Number(r) / 10).toLocaleString();
+  const formatToman = (r: number | string) => (Number(r) / 10).toLocaleString();
 
   return (
     <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100 space-y-6">
@@ -150,30 +146,26 @@ function OrderResult({ order }: { order: Order }) {
             </span>
           </p>
         </div>
-        <div className="text-sm text-gray-500">
-          تاریخ ثبت: {orderDate}
-        </div>
+        <div className="text-sm text-gray-500">تاریخ ثبت: {orderDate}</div>
       </div>
 
       <StatusTimeline status={order.status} />
-      <ProductList items={order.order_items} />
 
       {/* Customer Info */}
       <div className="border-t pt-6 space-y-4 text-sm text-gray-700">
-        <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+        {/* ✅ UPDATED: Added text-base class for consistent font size */}
+        <h3 className="text-base font-semibold text-gray-800 flex items-center gap-2">
           <FaUserCircle className="text-blue-500 w-5 h-5" />
-          اطلاعات تحویل
+          اطلاعات تحویل گیرنده:{" "}
         </h3>
-
         <div className="flex items-center gap-3">
           <span className="w-5 h-5 flex items-center justify-center">
             <FaUser className="text-gray-400 w-4 h-4" />
           </span>
           <span>
-            <strong>تحویل گیرنده:</strong> {order.full_name}
+            <strong>نام:</strong> {order.full_name}
           </span>
         </div>
-
         <div className="flex items-center gap-3">
           <span className="w-5 h-5 flex items-center justify-center">
             <FaPhone className="text-gray-400 w-4 h-4" />
@@ -182,7 +174,6 @@ function OrderResult({ order }: { order: Order }) {
             <strong>شماره موبایل:</strong> {order.phone_number}
           </span>
         </div>
-
         <div className="flex items-start gap-3">
           <span className="w-5 h-5 flex items-center justify-center mt-1">
             <FaMapMarkerAlt className="text-gray-400 w-4 h-4" />
@@ -193,12 +184,13 @@ function OrderResult({ order }: { order: Order }) {
         </div>
       </div>
 
+      {/* Product List */}
+      <ProductList items={order.products} />
+
       {/* Total Price */}
       <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
         <div className="flex justify-between items-center">
-          <span className="font-semibold text-gray-700">
-            مبلغ کل سفارش:
-          </span>
+          <span className="font-semibold text-gray-700">مبلغ کل سفارش:</span>
           <span className="font-bold text-blue-700 text-lg">
             {formatToman(order.total_price)} تومان
           </span>
@@ -208,13 +200,12 @@ function OrderResult({ order }: { order: Order }) {
   );
 }
 
-// ---------------- STATUS ----------------
+// ---------------- STATUS TIMELINE ----------------
 
 function StatusTimeline({ status }: { status: Order["status"] }) {
   const isPaid = status === "paid";
   const isPending = status === "pending";
   const isFailed = status === "failed";
-
   const circle =
     "w-8 h-8 rounded-full flex items-center justify-center text-white text-sm";
   const line = "flex-1 h-0.5";
@@ -224,7 +215,6 @@ function StatusTimeline({ status }: { status: Order["status"] }) {
       <h3 className="font-semibold text-gray-700 mb-5 text-center text-sm">
         وضعیت فعلی سفارش
       </h3>
-
       <div className="flex items-center">
         <div className="flex flex-col items-center">
           <div className={`${circle} bg-green-500`}>
@@ -232,9 +222,7 @@ function StatusTimeline({ status }: { status: Order["status"] }) {
           </div>
           <span className="text-xs mt-2 text-gray-600">ثبت سفارش</span>
         </div>
-
         <div className={`${line} ${isPaid ? "bg-green-500" : "bg-gray-300"}`} />
-
         <div className="flex flex-col items-center">
           <div
             className={`${circle} ${
@@ -253,11 +241,11 @@ function StatusTimeline({ status }: { status: Order["status"] }) {
               : "در انتظار پرداخت"}
           </span>
         </div>
-
         <div className={`${line} ${isPaid ? "bg-green-500" : "bg-gray-300"}`} />
-
         <div className="flex flex-col items-center">
-          <div className={`${circle} ${isPaid ? "bg-green-500" : "bg-gray-400"}`}>
+          <div
+            className={`${circle} ${isPaid ? "bg-green-500" : "bg-gray-400"}`}
+          >
             <FaBoxOpen />
           </div>
           <span className="text-xs mt-2 text-gray-600">آماده‌سازی</span>
@@ -267,38 +255,30 @@ function StatusTimeline({ status }: { status: Order["status"] }) {
   );
 }
 
-// ---------------- PRODUCTS ----------------
+// ---------------- PRODUCT LIST ----------------
 
-function ProductList({ items }: { items: OrderItem[] }) {
+function ProductList({ items }: { items: ProductItem[] }) {
   if (!items?.length) return null;
-
-  const formatToman = (r: number | string) =>
-    (Number(r) / 10).toLocaleString();
 
   return (
     <div className="border-t pt-6 space-y-4">
-      <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+      {/* ✅ UPDATED: Added text-base class for consistent font size */}
+      <h3 className="text-base font-semibold text-gray-800 flex items-center gap-2">
         <FaShoppingBag className="text-blue-500 w-5 h-5" />
         محصولات سفارش
       </h3>
-
       <ul className="space-y-3 text-sm">
         {items.map((item) => (
           <li
-            key={item.id}
+            key={item.product_id}
             className="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-200"
           >
-            <div>
-              <p className="font-semibold text-gray-800">
-                {item.product_name}
-              </p>
-              <p className="text-xs text-gray-500">
-                تعداد: {item.quantity}
-              </p>
-            </div>
-            <div className="font-semibold text-gray-600">
-              {formatToman(item.price * item.quantity)} تومان
-            </div>
+            <span className="font-medium text-gray-800">
+              {item.product_name}
+            </span>
+            <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
+              تعداد: {item.quantity}
+            </span>
           </li>
         ))}
       </ul>
@@ -306,7 +286,7 @@ function ProductList({ items }: { items: OrderItem[] }) {
   );
 }
 
-// ---------------- STATES ----------------
+// ---------------- STATE COMPONENTS ----------------
 
 function InitialPrompt() {
   return (
@@ -332,9 +312,7 @@ function NotFoundMessage() {
   return (
     <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-yellow-200 text-center">
       <FaTimesCircle className="mx-auto text-5xl text-yellow-500 mb-4" />
-      <h3 className="font-semibold text-yellow-700">
-        سفارش یافت نشد
-      </h3>
+      <h3 className="font-semibold text-yellow-700">سفارش یافت نشد</h3>
       <p className="text-sm text-gray-600 mt-2">
         کد رهگیری وارد شده معتبر نیست.
       </p>
