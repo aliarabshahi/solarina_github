@@ -252,7 +252,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         </div>
 
         <InputField
-          label="آدرس دقیق"
+          label="آدرس"
           icon={<FaMapMarkerAlt />}
           required
           name="address"
