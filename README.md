@@ -614,3 +614,39 @@ Proxy_Route-->>NextJS_Frontend: Rewrite URLs if needed
 NextJS_Frontend-->>Browser: Send processed data
 
 ```
+
+### payment frontend process
+```
+/order
+   │
+   │ fill form
+   ▼
+submit
+   │
+   ▼
+/order/review?data=...
+   │
+   │ confirm
+   ▼
+POST /orders/create/
+   │
+   ▼
+POST /orders/payment/create/
+   │
+   ▼
+Redirect → Zarinpal
+   │
+   │ user pays
+   ▼
+/order/verify?Status=OK&Authority=XXX
+   │
+   ▼
+GET /orders/payment/verify/
+   │
+   ▼
+Order → paid
+   │
+   ▼
+Success page
+
+```
