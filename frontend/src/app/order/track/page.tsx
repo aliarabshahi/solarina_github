@@ -20,7 +20,7 @@ interface OrderItem {
   id: number;
   product_name: string;
   quantity: number;
-  price: number;
+  price: number; // rial
 }
 
 interface Order {
@@ -31,7 +31,7 @@ interface Order {
   address: string;
   status: "pending" | "paid" | "failed";
   created_at: string;
-  total_price: number;
+  total_price: number; // rial
   order_items: OrderItem[];
 }
 
@@ -47,6 +47,10 @@ export default async function OrderTrackPage({ searchParams }: PageProps) {
   let order: Order | null = null;
   let error: string | null = null;
   let notFound = false;
+
+  // Convert rial -> toman
+  const formatToman = (r: number | string) =>
+    (Number(r) / 10).toLocaleString();
 
   if (trackingCode) {
     try {
@@ -130,6 +134,9 @@ function OrderResult({ order }: { order: Order }) {
     "0"
   )}`;
 
+  const formatToman = (r: number | string) =>
+    (Number(r) / 10).toLocaleString();
+
   return (
     <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100 space-y-6">
       {/* Header */}
@@ -151,7 +158,7 @@ function OrderResult({ order }: { order: Order }) {
       <StatusTimeline status={order.status} />
       <ProductList items={order.order_items} />
 
-      {/* ✅ Customer Info — ICONS FIXED */}
+      {/* Customer Info */}
       <div className="border-t pt-6 space-y-4 text-sm text-gray-700">
         <h3 className="font-semibold text-gray-800 flex items-center gap-2">
           <FaUserCircle className="text-blue-500 w-5 h-5" />
@@ -186,14 +193,14 @@ function OrderResult({ order }: { order: Order }) {
         </div>
       </div>
 
-      {/* Total */}
+      {/* Total Price */}
       <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
         <div className="flex justify-between items-center">
           <span className="font-semibold text-gray-700">
             مبلغ کل سفارش:
           </span>
           <span className="font-bold text-blue-700 text-lg">
-            {Number(order.total_price).toLocaleString()} تومان
+            {formatToman(order.total_price)} تومان
           </span>
         </div>
       </div>
@@ -265,6 +272,9 @@ function StatusTimeline({ status }: { status: Order["status"] }) {
 function ProductList({ items }: { items: OrderItem[] }) {
   if (!items?.length) return null;
 
+  const formatToman = (r: number | string) =>
+    (Number(r) / 10).toLocaleString();
+
   return (
     <div className="border-t pt-6 space-y-4">
       <h3 className="font-semibold text-gray-800 flex items-center gap-2">
@@ -287,7 +297,7 @@ function ProductList({ items }: { items: OrderItem[] }) {
               </p>
             </div>
             <div className="font-semibold text-gray-600">
-              {Number(item.price * item.quantity).toLocaleString()} تومان
+              {formatToman(item.price * item.quantity)} تومان
             </div>
           </li>
         ))}

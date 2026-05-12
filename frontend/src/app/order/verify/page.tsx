@@ -21,7 +21,7 @@ interface OrderDetail {
 interface OrderPayment {
   id: number;
   authority: string;
-  amount: number | string;
+  amount: number | string; // comes as rial
   status: string;
   order_detail: OrderDetail;
   tracking_code: string;
@@ -37,6 +37,10 @@ interface PageProps {
 
 export default async function VerifyOrderPage({ searchParams }: PageProps) {
   const { Status, Authority } = searchParams;
+
+  // Convert rial → toman
+  const formatToman = (r: number | string) =>
+    (Number(r) / 10).toLocaleString();
 
   if (!Status || !Authority) {
     return <FailedPayment />;
@@ -76,8 +80,7 @@ export default async function VerifyOrderPage({ searchParams }: PageProps) {
                 پرداخت با موفقیت انجام شد
               </h2>
               <p className="text-gray-500 text-sm max-w-md">
-                سفارش شما ثبت و پرداخت شد. تیم ما به زودی با شما تماس خواهد
-                گرفت.
+                سفارش شما ثبت و پرداخت شد. تیم ما به زودی با شما تماس خواهد گرفت.
               </p>
             </div>
 
@@ -115,19 +118,19 @@ export default async function VerifyOrderPage({ searchParams }: PageProps) {
                   </span>
                 </div>
 
+                {/* --- FIXED PRICE DISPLAY (rial → toman) --- */}
                 <div className="flex justify-between items-center pt-4 mt-4 border-t">
                   <span className="font-semibold text-gray-700">
                     مبلغ پرداختی:
                   </span>
                   <span className="font-bold text-blue-700 text-lg">
-                    {Number(paymentData.amount).toLocaleString()} تومان
+                    {formatToman(paymentData.amount)} تومان
                   </span>
                 </div>
               </div>
             ) : (
               <div className="text-sm text-gray-500 bg-gray-100 p-3 rounded-lg border border-gray-200">
-                جزئیات سفارش در حال حاضر در دسترس نیست، اما پرداخت شما تایید شده
-                است.
+                جزئیات سفارش در حال حاضر در دسترس نیست، اما پرداخت شما تایید شده است.
               </div>
             )}
           </div>

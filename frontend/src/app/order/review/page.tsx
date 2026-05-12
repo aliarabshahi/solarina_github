@@ -19,6 +19,11 @@ export default function OrderReviewPage() {
   const [message, setMessage] = useState("");
   const [order, setOrder] = useState<any>(null);
 
+  /* ---------------- PRICE FORMAT ---------------- */
+  const formatToman = (rial: number) => {
+    return (rial / 10).toLocaleString();
+  };
+
   // -----------------------------------------
   // Load order data from search params
   // -----------------------------------------
@@ -47,11 +52,12 @@ export default function OrderReviewPage() {
     try {
       const payload = {
         ...order,
-        total_price: Number(order.total_price),
-        products: order.products?.map((p: any) => ({
-          product_id: Number(p.product_id),
-          quantity: Number(p.quantity),
-        })) || [],
+        total_price: Number(order.total_price), // keep rial
+        products:
+          order.products?.map((p: any) => ({
+            product_id: Number(p.product_id),
+            quantity: Number(p.quantity),
+          })) || [],
       };
 
       const orderRes = await fetch("/api/proxy/orders/create/", {
@@ -96,7 +102,10 @@ export default function OrderReviewPage() {
   // -----------------------------------------
   if (!order) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-center p-10" dir="rtl">
+      <div
+        className="min-h-screen bg-slate-50 flex items-center justify-center text-center p-10"
+        dir="rtl"
+      >
         <p className="text-sm text-gray-600">
           {message || "در حال بارگذاری اطلاعات سفارش..."}
         </p>
@@ -110,7 +119,6 @@ export default function OrderReviewPage() {
   return (
     <div className="min-h-screen bg-slate-50 py-10 sm:py-16 px-6" dir="rtl">
       <div className="max-w-2xl mx-auto">
-
         <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100 space-y-6">
 
           {/* Page Header */}
@@ -119,7 +127,7 @@ export default function OrderReviewPage() {
               بررسی نهایی سفارش
             </h1>
             <p className="text-sm text-gray-500 mt-2">
-              لطفاً اطلاعات زیر را بررسی کنید
+              لطفاً اطلاعات زیر را بررسی و در صورت تایید برای پرداخت اقدام فرمایید. 
             </p>
           </header>
 
@@ -131,7 +139,8 @@ export default function OrderReviewPage() {
                 <FaUser className="text-gray-400 w-4 h-4" />
               </span>
               <span>
-                <strong className="text-gray-800">نام کامل:</strong> {order.full_name}
+                <strong className="text-gray-800">نام کامل:</strong>{" "}
+                {order.full_name}
               </span>
             </div>
 
@@ -140,7 +149,8 @@ export default function OrderReviewPage() {
                 <FaPhone className="text-gray-400 w-4 h-4" />
               </span>
               <span>
-                <strong className="text-gray-800">شماره موبایل:</strong> {order.phone_number}
+                <strong className="text-gray-800">شماره موبایل:</strong>{" "}
+                {order.phone_number}
               </span>
             </div>
 
@@ -149,7 +159,8 @@ export default function OrderReviewPage() {
                 <FaEnvelope className="text-gray-400 w-4 h-4" />
               </span>
               <span>
-                <strong className="text-gray-800">ایمیل:</strong> {order.email || "-"}
+                <strong className="text-gray-800">ایمیل:</strong>{" "}
+                {order.email || "-"}
               </span>
             </div>
 
@@ -158,7 +169,8 @@ export default function OrderReviewPage() {
                 <FaMapMarkerAlt className="text-gray-400 w-4 h-4" />
               </span>
               <span>
-                <strong className="text-gray-800">آدرس:</strong> {order.address}
+                <strong className="text-gray-800">آدرس:</strong>{" "}
+                {order.address}
               </span>
             </div>
 
@@ -167,7 +179,8 @@ export default function OrderReviewPage() {
                 <FaHashtag className="text-gray-400 w-4 h-4" />
               </span>
               <span>
-                <strong className="text-gray-800">کد پستی:</strong> {order.postal_code}
+                <strong className="text-gray-800">کد پستی:</strong>{" "}
+                {order.postal_code}
               </span>
             </div>
 
@@ -176,10 +189,10 @@ export default function OrderReviewPage() {
                 <FaStickyNote className="text-gray-400 w-4 h-4" />
               </span>
               <span>
-                <strong className="text-gray-800">توضیحات:</strong> {order.notes || "-"}
+                <strong className="text-gray-800">توضیحات:</strong>{" "}
+                {order.notes || "-"}
               </span>
             </div>
-
           </div>
 
           {/* ---------------------- Product List ---------------------- */}
@@ -208,9 +221,12 @@ export default function OrderReviewPage() {
           {/* ---------------------- Total Price ---------------------- */}
           <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
             <div className="flex justify-between items-center">
-              <span className="font-semibold text-gray-700">مبلغ قابل پرداخت</span>
+              <span className="font-semibold text-gray-700">
+                مبلغ قابل پرداخت
+              </span>
+
               <span className="font-bold text-blue-700 text-lg">
-                {Number(order.total_price).toLocaleString()} تومان
+                {formatToman(Number(order.total_price))} تومان
               </span>
             </div>
           </div>

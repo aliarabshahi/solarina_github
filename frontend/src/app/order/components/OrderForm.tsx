@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import {
   FaUser,
@@ -24,7 +25,7 @@ type OrderFormData = {
 type Product = {
   id: number;
   name: string;
-  price: number;
+  price: number; // backend price in rial
 };
 
 type SelectedProduct = {
@@ -66,6 +67,11 @@ export default function OrderForm() {
     fetchProducts();
   }, []);
 
+  /* ---------------- HELPERS ---------------- */
+  const formatToman = (rial: number) => {
+    return (rial / 10).toLocaleString();
+  };
+
   /* ---------------- FORM HANDLERS ---------------- */
   const handleChange = (field: keyof OrderFormData, value: string) => {
     setOrder((prev) => ({ ...prev, [field]: value }));
@@ -97,27 +103,25 @@ export default function OrderForm() {
     const product = products.find((p) => String(p.id) === row.product);
     if (!product) return sum;
     const qty = Number(row.quantity) || 0;
-    return sum + product.price * qty;
+    return sum + product.price * qty; // still in rial
   }, 0);
 
   /* ---------------- REAL SUBMIT HANDLER ---------------- */
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const orderData = {
-    ...order,
-    products: selectedProducts.map((row) => ({
-      product_id: Number(row.product),
-      quantity: Number(row.quantity),
-    })),
-    total_price: totalPrice,
+    const orderData = {
+      ...order,
+      products: selectedProducts.map((row) => ({
+        product_id: Number(row.product),
+        quantity: Number(row.quantity),
+      })),
+      total_price: totalPrice, // keep in rial
+    };
+
+    const encoded = encodeURIComponent(JSON.stringify(orderData));
+    router.push(`/order/review?data=${encoded}`);
   };
-
-  const encoded = encodeURIComponent(JSON.stringify(orderData));
-
-  router.push(`/order/review?data=${encoded}`);
-};
-
 
   return (
     <motion.section
@@ -201,7 +205,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     <option value="">انتخاب کنید...</option>
                     {products.map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.name} — {p.price.toLocaleString()} تومان
+                        {p.name} — {formatToman(p.price)} تومان
                       </option>
                     ))}
                   </select>
@@ -229,12 +233,11 @@ const handleSubmit = async (e: React.FormEvent) => {
                     aria-label="حذف سطر"
                     disabled={!canRemove}
                     onClick={() => canRemove && removeProductRow(index)}
-                    className={`flex items-center justify-center h-10 w-10 rounded-full border text-xs transition
-                      ${
-                        canRemove
-                          ? "border-red-200 text-red-400 hover:border-red-400 hover:text-red-600 hover:bg-red-50"
-                          : "border-gray-200 text-gray-300 cursor-default"
-                      }`}
+                    className={`flex items-center justify-center h-10 w-10 rounded-full border text-xs transition ${
+                      canRemove
+                        ? "border-red-200 text-red-400 hover:border-red-400 hover:text-red-600 hover:bg-red-50"
+                        : "border-gray-200 text-gray-300 cursor-default"
+                    }`}
                   >
                     <FaMinusCircle className="text-base" />
                   </button>
@@ -247,7 +250,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         <div className="flex justify-between items-center pt-2">
           <span className="text-sm text-gray-600">مجموع سفارش:</span>
           <span className="font-semibold text-blue-700">
-            {totalPrice.toLocaleString()} تومان
+            {formatToman(totalPrice)} تومان
           </span>
         </div>
 
@@ -289,7 +292,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-lg transition flex items-center justify-center gap-2 text-sm font-medium"
+          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 rounded-lg transition flex items-center justify-center gap-2 text-lg font-medium"
         >
           {loading ? "در حال ثبت..." : "ثبت سفارش"}
         </button>
