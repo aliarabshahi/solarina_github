@@ -4,6 +4,7 @@ const navbarLinks = [
   { label: "خانه", href: "/" },
   { label: "محصولات", href: "/products" },
   { label: "ثبت سفارش", href: "/order" },
+  { label: "پیگیری سفارش", href: "/order/track" },
   { label: "درباره ما", href: "/about" },
   { label: "تماس با ما", href: "/contact" },
 ];
