@@ -50,15 +50,12 @@ export default function OrderReviewPage() {
     setMessage("");
 
     try {
-      const payload = {
-        ...order,
-        total_price: Number(order.total_price), // keep rial
-        products:
-          order.products?.map((p: any) => ({
-            product_name: Number(p.product_name),
-            quantity: Number(p.quantity),
-          })) || [],
-      };
+      // --- START OF CHANGES ---
+      // The `order` object is already in the correct format.
+      // We no longer need to remap the products array.
+      // The buggy `map` function has been removed.
+      const payload = { ...order };
+      // --- END OF CHANGES ---
 
       const orderRes = await fetch("/api/proxy/orders/create/", {
         method: "POST",
@@ -120,20 +117,18 @@ export default function OrderReviewPage() {
     <div className="min-h-screen bg-slate-50 py-10 sm:py-16 px-6" dir="rtl">
       <div className="max-w-2xl mx-auto">
         <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100 space-y-6">
-
           {/* Page Header */}
           <header className="text-center">
             <h1 className="text-2xl  font-bold text-blue-600">
               بررسی نهایی سفارش
             </h1>
             <p className="text-sm text-gray-500 mt-2">
-              لطفاً اطلاعات زیر را بررسی و در صورت تایید برای پرداخت اقدام فرمایید. 
+              لطفاً اطلاعات زیر را بررسی و در صورت تایید برای پرداخت اقدام فرمایید.
             </p>
           </header>
 
           {/* ---------------------- Customer Info ---------------------- */}
           <div className="space-y-5 text-sm text-gray-700">
-
             <div className="flex items-center gap-3">
               <span className="w-5 h-5 flex items-center justify-center">
                 <FaUser className="text-gray-400 w-4 h-4" />
@@ -169,8 +164,7 @@ export default function OrderReviewPage() {
                 <FaMapMarkerAlt className="text-gray-400 w-4 h-4" />
               </span>
               <span>
-                <strong className="text-gray-800">آدرس:</strong>{" "}
-                {order.address}
+                <strong className="text-gray-800">آدرس:</strong> {order.address}
               </span>
             </div>
 
@@ -208,7 +202,8 @@ export default function OrderReviewPage() {
                 className="flex justify-between items-center bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm"
               >
                 <span className="font-medium text-gray-700">
-                    {p.product_name}
+                  {/* CHANGED: from p.product_name to p.name */}
+                  {p.name}
                 </span>
 
                 <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
@@ -275,7 +270,6 @@ export default function OrderReviewPage() {
               {message}
             </div>
           )}
-
         </div>
       </div>
     </div>

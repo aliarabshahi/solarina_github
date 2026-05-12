@@ -114,12 +114,18 @@ export default function OrderForm() {
       ...order,
       products: selectedProducts.map((row) => {
         const product = products.find((p) => String(p.id) === row.product);
+        const quantity = Number(row.quantity) || 0;
+        const unitPrice = product?.price || 0;
 
+        // --- START OF CHANGES ---
         return {
           product_id: Number(row.product),
-          product_name: product?.name || "",
-          quantity: Number(row.quantity),
+          name: product?.name || "محصول یافت نشد", // CHANGED: from product_name to name
+          quantity: quantity,
+          unit_price: unitPrice, // ADDED: The price of a single item
+          total_price: quantity * unitPrice, // ADDED: The total for this line item
         };
+        // --- END OF CHANGES ---
       }),
       total_price: totalPrice,
     };
