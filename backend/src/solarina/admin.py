@@ -62,8 +62,8 @@ class ProductModelAdmin(admin.ModelAdmin):
 # Orders Admin Configuration
 # ---------------------------------------------------------------------
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ("id", "full_name", "total_price", "status", "created_at")
-    readonly_fields = ("created_at", "updated_at")
+    list_display = ("id", "tracking_code", "full_name", "total_price", "status", "created_at")
+    readonly_fields = ("tracking_code", "created_at", "updated_at")
 
 class OrderPaymentAdmin(admin.ModelAdmin):
     list_display = ("authority", "amount", "status", "created_at")

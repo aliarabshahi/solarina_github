@@ -27,9 +27,13 @@ router.register(r'order-payments', OrderPaymentViewSet, basename='order-payments
 # URL Patterns
 # ---------------------------------------------------------------------
 urlpatterns = [
-    path('health/', health_check),   # Health check endpoint
-    path('', include(router.urls)),  # REST endpoints for ExampleModel
+    path('health/', health_check),
+    
+    # Manual paths FIRST
     path("orders/create/", create_order_view),
     path("orders/payment/create/", create_order_payment_view),
     path("orders/payment/verify/", verify_order_payment),
+    
+    # Router LAST
+    path('', include(router.urls)),
 ]

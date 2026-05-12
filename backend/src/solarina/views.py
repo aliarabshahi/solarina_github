@@ -303,12 +303,23 @@ def verify_order_payment(request):
 class OrderViewSet(viewsets.ModelViewSet):
     """
     Manage OrderModel instances.
+    - Supports filtering by ?tracking_code=
     """
     queryset = OrderModel.objects.all()
     serializer_class = OrderSerializer
     pagination_class = DashboardPagination
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        tracking_code = self.request.query_params.get("tracking_code")
+
+        if tracking_code:
+            queryset = queryset.filter(tracking_code=tracking_code)
+
+        return queryset
 
 
 # ---------------------------------------------------------------------
@@ -336,3 +347,7 @@ class OrderPaymentViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(authority=authority)
 
         return queryset
+    
+
+
+    

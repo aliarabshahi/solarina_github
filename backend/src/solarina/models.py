@@ -1,3 +1,5 @@
+import random
+import string
 from django.db import models
 
 # ---------------------------------------------------------------------
@@ -89,10 +91,27 @@ class ProductModel(models.Model):
         return self.name
 
 
+def generate_tracking_code():
+    """Generate a random 8-character alphanumeric string."""
+    length = 8
+    while True:
+        code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=length))
+        if not OrderModel.objects.filter(tracking_code=code).exists():
+            return code
+
 class OrderModel(models.Model):
     """
     Stores order information before payment.
     """
+
+    tracking_code = models.CharField(
+        max_length=8,
+        unique=True,
+        null=True,
+        blank=True,
+        db_index=True
+    )
+
     full_name = models.CharField(max_length=150)
     phone_number = models.CharField(max_length=20)
     email = models.EmailField(blank=True, null=True)
@@ -101,10 +120,10 @@ class OrderModel(models.Model):
     postal_code = models.CharField(max_length=20)
     notes = models.TextField(blank=True, null=True)
 
-    # Products stored as JSON (list of {product_id, quantity})
     products = models.JSONField(default=list)
 
     total_price = models.PositiveIntegerField()
+
     status = models.CharField(
         max_length=20,
         default="pending",   # pending / paid / failed
@@ -113,8 +132,15 @@ class OrderModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
+    def save(self, *args, **kwargs):
+        if not self.tracking_code:
+            self.tracking_code = generate_tracking_code()
+        super().save(*args, **kwargs)
+
+
     def __str__(self):
-        return f"Order #{self.id} - {self.full_name}"
+        return f"Order {self.tracking_code or self.id} - {self.full_name}"
 
 
 class OrderPaymentModel(models.Model):
