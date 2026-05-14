@@ -417,11 +417,23 @@ class OrderPaymentViewSet(viewsets.ModelViewSet):
         return queryset
     
 
-
-    
 # ---------------------------------------------------------------------
 # Send OTP API
 # ---------------------------------------------------------------------
+
+from datetime import timedelta
+
+from django.utils import timezone
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework import status
+
+
+OTP_COOLDOWN_SECONDS = 60
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def send_otp_view(request):
@@ -432,20 +444,35 @@ def send_otp_view(request):
 
     phone_number = serializer.validated_data["phone_number"]
 
-    # جلوگیری از اسپم
-    recent_otp_exists = OTPModel.objects.filter(
+    # آخرین OTP استفاده نشده
+    latest_otp = OTPModel.objects.filter(
         phone_number=phone_number,
-        created_at__gt=timezone.now() - timedelta(minutes=1)
-    ).exists()
+        is_used=False
+    ).order_by("-created_at").first()
 
-    if recent_otp_exists:
-        return Response(
-            {
-                "success": False,
-                "message": "لطفاً کمی صبر کنید"
-            },
-            status=status.HTTP_429_TOO_MANY_REQUESTS
+    # جلوگیری از اسپم
+    if latest_otp:
+
+        passed_seconds = int(
+            (
+                timezone.now() - latest_otp.created_at
+            ).total_seconds()
         )
+
+        remaining_seconds = (
+            OTP_COOLDOWN_SECONDS - passed_seconds
+        )
+
+        if remaining_seconds > 0:
+
+            return Response(
+                {
+                    "success": False,
+                    "message": f"لطفاً {remaining_seconds} ثانیه صبر کنید",
+                    "remaining_seconds": remaining_seconds,
+                },
+                status=status.HTTP_429_TOO_MANY_REQUESTS
+            )
 
     # ساخت OTP
     otp = OTPModel.create_otp(phone_number)
@@ -457,6 +484,7 @@ def send_otp_view(request):
     )
 
     if not sms_result:
+
         return Response(
             {
                 "success": False,
@@ -468,12 +496,11 @@ def send_otp_view(request):
     return Response(
         {
             "success": True,
-            "message": "کد تایید ارسال شد"
+            "message": "کد تایید ارسال شد",
+            "cooldown": OTP_COOLDOWN_SECONDS,
         },
         status=status.HTTP_200_OK
     )
-
-
 
 
 # ---------------------------------------------------------------------
