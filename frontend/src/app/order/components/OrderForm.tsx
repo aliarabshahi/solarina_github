@@ -9,6 +9,8 @@ import {
   FaMailBulk,
   FaCheckCircle,
   FaTrashAlt,
+  FaChevronDown,
+  FaSearch,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { getApiData } from "@/app/services/receive_data/apiServerFetch";
@@ -53,6 +55,8 @@ export default function OrderForm() {
 
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   /* FETCH PRODUCTS */
   useEffect(() => {
@@ -73,7 +77,6 @@ export default function OrderForm() {
     return (rial / 10).toLocaleString();
   };
 
-  // soft required star
   const requiredStar = (
     <span className="text-rose-400 text-sm font-medium">*</span>
   );
@@ -102,6 +105,20 @@ export default function OrderForm() {
   const removeProductRow = (index: number) => {
     if (selectedProducts.length === 1) return;
     setSelectedProducts((prev) => prev.filter((_, i) => i !== index));
+    if (activeDropdown === index) {
+      setActiveDropdown(null);
+      setSearchTerm("");
+    }
+  };
+
+  const toggleDropdown = (index: number) => {
+    if (activeDropdown === index) {
+      setActiveDropdown(null);
+      setSearchTerm("");
+    } else {
+      setActiveDropdown(index);
+      setSearchTerm("");
+    }
   };
 
   /* TOTAL PRICE */
@@ -164,12 +181,17 @@ export default function OrderForm() {
     }
   };
 
+  const filteredProducts = products.filter((p) =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <motion.div
+      dir="rtl"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-100"
+      className="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-100 relative"
     >
       <h2 className="text-2xl font-bold text-blue-600 mb-8 text-center">
         ثبت سفارش جدید
@@ -178,14 +200,12 @@ export default function OrderForm() {
       <form onSubmit={handleSubmit} className="space-y-6" autoComplete="on">
         {/* Customer Details */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Full Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1.5">
               <FaUser className="text-gray-400" />
               نام و نام خانوادگی
               {requiredStar}
             </label>
-
             <input
               type="text"
               name="full_name"
@@ -198,14 +218,12 @@ export default function OrderForm() {
             />
           </div>
 
-          {/* Phone */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1.5">
               <FaPhone className="text-gray-400" />
               شماره موبایل
               {requiredStar}
             </label>
-
             <input
               type="tel"
               name="phone"
@@ -219,13 +237,11 @@ export default function OrderForm() {
             />
           </div>
 
-          {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1.5">
               <FaMailBulk className="text-gray-400" />
               ایمیل
             </label>
-
             <input
               type="email"
               name="email"
@@ -238,14 +254,12 @@ export default function OrderForm() {
             />
           </div>
 
-          {/* Postal Code */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1.5">
               <FaMapMarkerAlt className="text-gray-400" />
               کد پستی
               {requiredStar}
             </label>
-
             <input
               type="text"
               name="postal_code"
@@ -267,7 +281,6 @@ export default function OrderForm() {
             آدرس دقیق
             {requiredStar}
           </label>
-
           <textarea
             name="address"
             autoComplete="street-address"
@@ -284,7 +297,6 @@ export default function OrderForm() {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             توضیحات سفارش
           </label>
-
           <textarea
             name="notes"
             value={order.notes}
@@ -296,85 +308,171 @@ export default function OrderForm() {
 
         {/* Products */}
         <div className="border-t pt-6 space-y-4">
-          <h3 className="font-semibold text-gray-800 flex items-center gap-2">
-            <FaCheckCircle className="text-blue-500" />
-            انتخاب محصولات
-          </h3>
+          <div className="flex justify-between items-center">
+            <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+              <FaCheckCircle className="text-blue-500" />
+              انتخاب محصولات
+            </h3>
+          </div>
 
-          {selectedProducts.map((row, index) => (
-            <div
-              key={index}
-              className="flex flex-col sm:flex-row items-end gap-3 bg-slate-50 p-4 rounded-lg border border-slate-200"
+          {selectedProducts.map((row, index) => {
+            const selectedProductName = row.product
+              ? products.find((p) => String(p.id) === row.product)?.name ?? "انتخاب کنید"
+              : "-- محصول مورد نظر را انتخاب کنید --";
+
+            return (
+              <div
+                key={index}
+                className={`flex flex-col sm:flex-row sm:items-end gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200 relative transition-all ${
+                  activeDropdown === index ? "z-30 ring-2 ring-blue-200" : "z-10"
+                }`}
+              >
+                {/* Product Dropdown */}
+                <div className="w-full sm:flex-1 min-w-0 relative">
+                  <label className="block text-xs font-semibold text-gray-500 mb-2">
+                    محصول {requiredStar}
+                  </label>
+                  <input type="hidden" required value={row.product} />
+
+                  <div
+                    onClick={() => toggleDropdown(index)}
+                    title={selectedProductName}
+                    className={`h-[46px] w-full border ${
+                      activeDropdown === index
+                        ? "border-blue-500 bg-blue-50/50 shadow-inner"
+                        : "border-gray-300"
+                    } rounded-lg px-3 text-sm bg-white cursor-pointer flex justify-between items-center transition-all hover:border-blue-400 shadow-sm relative z-20`}
+                  >
+                    <span
+                      className={`truncate ml-2 ${
+                        row.product ? "text-gray-800 font-medium" : "text-gray-400"
+                      }`}
+                    >
+                      {selectedProductName}
+                    </span>
+                    <FaChevronDown
+                      className={`flex-shrink-0 text-gray-400 transition-transform duration-300 ${
+                        activeDropdown === index ? "rotate-180 text-blue-600" : ""
+                      }`}
+                    />
+                  </div>
+
+                  {/* Dropdown Menu (Centered, Wider & Scrollable) */}
+                  {activeDropdown === index && (
+                    <div className="absolute z-40 w-[calc(100vw-3rem)] sm:w-[720px] left-1/2 -translate-x-1/2 top-[85px] bg-white border border-gray-100 rounded-xl shadow-2xl flex flex-col overflow-hidden">
+                      <div className="p-2 border-b border-gray-100 bg-gray-50/80">
+                        <div className="relative">
+                          <FaSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+                          <input
+                            type="text"
+                            autoFocus
+                            placeholder="جستجوی محصول..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-full pl-3 pr-9 py-2.5 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all shadow-sm"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="max-h-[260px] overflow-y-auto overflow-x-hidden">
+                        {filteredProducts.length > 0 ? (
+                          filteredProducts.map((p) => (
+                            <div
+                              key={p.id}
+                              onClick={() => {
+                                updateProductRow(index, "product", String(p.id));
+                                setActiveDropdown(null);
+                                setSearchTerm("");
+                              }}
+                              className={`group flex justify-between items-center px-4 py-3 cursor-pointer border-b border-gray-50 last:border-0 transition-colors gap-4 ${
+                                row.product === String(p.id)
+                                  ? "bg-blue-50 text-blue-700"
+                                  : "hover:bg-slate-50 text-gray-700"
+                              }`}
+                            >
+                              <span
+                                className={`font-medium truncate ${
+                                  row.product === String(p.id)
+                                    ? "text-blue-700"
+                                    : "text-gray-700 group-hover:text-blue-600"
+                                }`}
+                              >
+                                {p.name}
+                              </span>
+                              <span className="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap flex-shrink-0">
+                                {formatToman(p.price)} تومان
+                              </span>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-8 text-sm text-gray-500 text-center flex flex-col items-center gap-3">
+                            <span className="text-gray-300 text-2xl">🔍</span>
+                            محصولی یافت نشد
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Quantity */}
+                <div className="w-full sm:w-24 flex-shrink-0">
+                  <label className="block text-xs font-semibold text-gray-500 mb-2">
+                    تعداد {requiredStar}
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={row.quantity}
+                    onChange={(e) =>
+                      updateProductRow(index, "quantity", e.target.value)
+                    }
+                    className="h-[46px] w-full border border-gray-300 rounded-lg px-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none shadow-sm transition-all text-center font-medium relative z-20"
+                    dir="ltr"
+                  />
+                </div>
+
+                {/* Remove Button */}
+                <div className="w-full sm:w-[46px] flex-shrink-0 flex justify-end sm:block relative z-20">
+                  <label className="hidden sm:block text-xs mb-2 invisible">
+                    &nbsp;
+                  </label>
+                  {selectedProducts.length > 1 ? (
+                    <button
+                      type="button"
+                      onClick={() => removeProductRow(index)}
+                      className="h-[46px] w-full sm:w-[46px] flex-shrink-0 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all shadow-sm"
+                      title="حذف محصول"
+                    >
+                      <FaTrashAlt size={16} />
+                    </button>
+                  ) : (
+                    <div className="hidden sm:block h-[46px] w-[46px]"></div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+
+          <div className="flex justify-start relative z-10">
+            <button
+              type="button"
+              onClick={addProductRow}
+              className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 font-bold bg-blue-50 hover:bg-blue-100 px-4 py-2.5 rounded-lg transition-colors mt-2"
             >
-              {/* Product */}
-              <div className="w-full sm:w-2/3">
-                <label className="block text-xs text-gray-500 mb-1">
-                  محصول {requiredStar}
-                </label>
-
-                <select
-                  required
-                  value={row.product}
-                  onChange={(e) => updateProductRow(index, "product", e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none"
-                >
-                  <option value="">-- انتخاب کنید --</option>
-
-                  {products.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name} - {formatToman(p.price)} تومان
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Quantity */}
-              <div className="w-full sm:w-1/4">
-                <label className="block text-xs text-gray-500 mb-1">
-                  تعداد {requiredStar}
-                </label>
-
-                <input
-                  type="number"
-                  min="1"
-                  required
-                  value={row.quantity}
-                  onChange={(e) => updateProductRow(index, "quantity", e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none"
-                  dir="ltr"
-                />
-              </div>
-
-              {/* Remove */}
-              {selectedProducts.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeProductRow(index)}
-                  className="h-[42px] w-[42px] inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition"
-                  title="حذف محصول"
-                  aria-label="حذف محصول"
-                >
-                  <FaTrashAlt size={18} />
-                </button>
-              )}
-            </div>
-          ))}
-
-          <button
-            type="button"
-            onClick={addProductRow}
-            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-          >
-            + افزودن محصول دیگر
-          </button>
+              <span className="text-lg leading-none">+</span> افزودن محصول دیگر
+            </button>
+          </div>
         </div>
 
         {/* Total */}
-        <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg flex justify-between items-center">
-          <span className="font-semibold text-gray-700">مبلغ کل سفارش:</span>
-
-          <span className="font-bold text-blue-700 text-lg">
-            {formatToman(totalPrice)} تومان
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 p-5 rounded-xl flex justify-between items-center shadow-sm relative z-10">
+          <span className="font-bold text-gray-700">مبلغ کل سفارش:</span>
+          <span className="font-extrabold text-blue-700 text-xl tracking-tight">
+            {formatToman(totalPrice)}{" "}
+            <span className="text-sm font-medium text-blue-600">تومان</span>
           </span>
         </div>
 
@@ -382,10 +480,10 @@ export default function OrderForm() {
         <button
           type="submit"
           disabled={loading || totalPrice === 0}
-          className={`w-full py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${
+          className={`w-full py-4 rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 relative z-10 ${
             loading || totalPrice === 0
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700 text-white shadow-md"
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-blue-200 hover:-translate-y-0.5"
           }`}
         >
           {loading ? "در حال پردازش..." : "ثبت سفارش و ادامه"}
@@ -393,11 +491,22 @@ export default function OrderForm() {
 
         {/* Error Message */}
         {message && (
-          <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center border border-red-200">
+          <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium text-center border border-red-200 relative z-10">
             {message}
           </div>
         )}
       </form>
+
+      {/* Blurred Background Overlay */}
+      {activeDropdown !== null && (
+        <div
+          className="fixed inset-0 z-20 bg-slate-800/10 backdrop-blur-[2px] transition-all duration-300"
+          onClick={() => {
+            setActiveDropdown(null);
+            setSearchTerm("");
+          }}
+        />
+      )}
     </motion.div>
   );
 }
