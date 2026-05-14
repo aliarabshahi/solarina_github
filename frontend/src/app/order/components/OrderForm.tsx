@@ -55,16 +55,31 @@ export default function OrderForm() {
     notes: "",
   });
 
-  /* ✅ AUTO FILL PHONE FROM LOGGED IN USER */
-  useEffect(() => {
-    const user = getUser();
 
-    if (user?.phone) {
-      setOrder((prev) => ({
-        ...prev,
-        phone_number: user.phone,
-      }));
-    }
+
+  /* ✅ AUTO FILL PHONE FROM LOGGED IN USER */
+
+  useEffect(() => {
+    const loadUserPhone = () => {
+      const user = getUser();
+
+      if (user?.phone) {
+        setOrder(prev => ({
+          ...prev,
+          phone_number: user.phone,
+        }));
+      }
+    };
+
+    // load once
+    loadUserPhone();
+
+    // update if auth changes
+    window.addEventListener("authChanged", loadUserPhone);
+
+    return () => {
+      window.removeEventListener("authChanged", loadUserPhone);
+    };
   }, []);
 
   const [message, setMessage] = useState("");
@@ -236,21 +251,28 @@ export default function OrderForm() {
             <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1.5">
               <FaPhone className="text-gray-400" />
               شماره موبایل
-              {requiredStar}
             </label>
 
+<input
+  type="tel"
+  value={order.phone_number}
+  readOnly
+  className="
+    w-full
+    rounded-xl
+    border
+    border-gray-200
+    bg-gray-100
+    px-4
+    py-3
+    text-base
+    text-gray-700
+    cursor-not-allowed
+    opacity-90
+  "
+/>
 
-            <input
-              type="tel"
-              name="phone"
-              autoComplete="tel"
-              required
-              value={order.phone_number}
-              onChange={(e) => handleChange("phone_number", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition"
-              placeholder="09123456789"
-              dir="ltr"
-            />
+
           </div>
 
           <div>

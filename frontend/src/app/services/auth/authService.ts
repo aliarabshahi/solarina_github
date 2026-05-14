@@ -1,12 +1,6 @@
 import { postApiData } from "../receive_data/apiClientPost";
 import { saveUser } from "./authStorage";
 
-interface VerifyResponse {
-  user: {
-    phone: string;
-  };
-}
-
 export async function sendOTP(phone: string) {
   return await postApiData(
     "/auth/send-otp/",
@@ -20,10 +14,12 @@ export async function verifyOTP(
   phone: string,
   code: string
 ) {
-  const res = await postApiData<VerifyResponse>(
+  const cleanPhone = phone.trim();
+
+  const res = await postApiData(
     "/auth/verify-otp/",
     {
-      phone_number: phone.trim(),
+      phone_number: cleanPhone,
       code: code.trim(),
     }
   );
@@ -32,11 +28,10 @@ export async function verifyOTP(
     throw new Error(res.error);
   }
 
-  if (res.data?.user) {
-    saveUser({
-      phone: res.data.user.phone,
-    });
-  }
+  // ✅ Always save phone after successful verify
+  saveUser({
+    phone: cleanPhone,
+  });
 
   return res;
 }
