@@ -5,19 +5,20 @@ from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.pagination import PageNumberPagination
-from datetime import datetime
+from datetime import datetime, timedelta
+from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db import connections
 import os
 import logging
 import threading
-from .utils import CountBasedPaymentHandler
+from .utils import CountBasedPaymentHandler, send_sms_otp
 # ---------------------------------------------------------------------
 # Models & Serializers
 # ---------------------------------------------------------------------
-from .models import ContactUsModel, ExampleModel, ProductModel, ProductCategoryModel, OrderModel, OrderPaymentModel
-from .serializers import ContactUsSerializer, ExampleModelSerializer, ProductModelSerializer, ProductCategoryModelSerializer, OrderPaymentSerializer, OrderSerializer
+from .models import ContactUsModel, ExampleModel, OTPModel, ProductModel, ProductCategoryModel, OrderModel, OrderPaymentModel, UserModel
+from .serializers import ContactUsSerializer, ExampleModelSerializer, ProductModelSerializer, ProductCategoryModelSerializer, OrderPaymentSerializer, OrderSerializer, SendOTPSerializer, UserSerializer, VerifyOTPSerializer
 
 
 # ---------------------------------------------------------------------
@@ -418,3 +419,119 @@ class OrderPaymentViewSet(viewsets.ModelViewSet):
 
 
     
+# ---------------------------------------------------------------------
+# Send OTP API
+# ---------------------------------------------------------------------
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def send_otp_view(request):
+
+    serializer = SendOTPSerializer(data=request.data)
+
+    serializer.is_valid(raise_exception=True)
+
+    phone_number = serializer.validated_data["phone_number"]
+
+    # جلوگیری از اسپم
+    recent_otp_exists = OTPModel.objects.filter(
+        phone_number=phone_number,
+        created_at__gt=timezone.now() - timedelta(minutes=1)
+    ).exists()
+
+    if recent_otp_exists:
+        return Response(
+            {
+                "success": False,
+                "message": "لطفاً کمی صبر کنید"
+            },
+            status=status.HTTP_429_TOO_MANY_REQUESTS
+        )
+
+    # ساخت OTP
+    otp = OTPModel.create_otp(phone_number)
+
+    # ارسال پیامک
+    sms_result = send_sms_otp(
+        phone_number=phone_number,
+        code=otp.code
+    )
+
+    if not sms_result:
+        return Response(
+            {
+                "success": False,
+                "message": "خطا در ارسال پیامک"
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+    return Response(
+        {
+            "success": True,
+            "message": "کد تایید ارسال شد"
+        },
+        status=status.HTTP_200_OK
+    )
+
+
+
+
+# ---------------------------------------------------------------------
+# Verify OTP API
+# ---------------------------------------------------------------------
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def verify_otp_view(request):
+
+    serializer = VerifyOTPSerializer(data=request.data)
+
+    serializer.is_valid(raise_exception=True)
+
+    phone_number = serializer.validated_data["phone_number"]
+
+    code = serializer.validated_data["code"]
+
+    otp = OTPModel.objects.filter(
+        phone_number=phone_number,
+        code=code,
+        is_used=False
+    ).last()
+
+    if not otp:
+        return Response(
+            {
+                "success": False,
+                "message": "کد نامعتبر است"
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if not otp.is_valid():
+        return Response(
+            {
+                "success": False,
+                "message": "کد منقضی شده است"
+            },
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # mark as used
+    otp.is_used = True
+    otp.save()
+
+    # create or get user
+    user, created = UserModel.objects.get_or_create(
+        phone_number=phone_number
+    )
+
+    user.is_verified = True
+    user.save()
+
+    return Response(
+        {
+            "success": True,
+            "message": "ورود موفق",
+            "user": UserSerializer(user).data
+        },
+        status=status.HTTP_200_OK
+    )

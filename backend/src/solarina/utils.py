@@ -174,3 +174,62 @@ class CountBasedPaymentHandler:
             print("[ERROR] 💥 Exception in verify_payment():", str(e))
             traceback.print_exc()
             return {"status": "failed", "errors": str(e)}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import requests
+import logging
+
+
+SMS_API_URL = "https://s.api.ir/api/sw1/SmsOTP"
+
+SMS_API_TOKEN = "Bearer ImmJ+7dwBXNXsYPOR+Vn/BIrFGFm8lgqSkGmDcf6hBCzCBUatX9h2dbVR91RTEC7q43t38I2TnmYVhsLcFiVZzLq4kNGrJrFDLNT2BHo244="
+
+def send_sms_otp(phone_number, code):
+    """
+    Send OTP SMS using provider API
+    """
+
+    payload = {
+        "code": code,
+        "mobile": phone_number,
+        "template": 1
+    }
+
+    headers = {
+        "Authorization": SMS_API_TOKEN,
+        "Content-Type": "application/json"
+    }
+
+    try:
+        response = requests.post(
+            SMS_API_URL,
+            json=payload,
+            headers=headers,
+            timeout=10
+        )
+
+        data = response.json()
+
+        logging.warning(f"[SMS API RESPONSE] {data}")
+
+        return data
+
+    except Exception as e:
+        logging.error(f"[SMS ERROR] {e}")
+        return None

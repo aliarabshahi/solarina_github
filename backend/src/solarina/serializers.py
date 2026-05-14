@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ContactUsModel, ExampleModel, ProductModel, ProductCategoryModel, OrderPaymentModel, OrderModel
+from .models import ContactUsModel, ExampleModel, ProductModel, ProductCategoryModel, OrderPaymentModel, OrderModel, UserModel
 
 
 # ---------------------------------------------------------------------
@@ -94,3 +94,30 @@ class OrderPaymentSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["status", "created_at", "updated_at"]
 
+
+
+# ---------------------------------------------------------------------
+# Send OTP Serializer
+# ---------------------------------------------------------------------
+class SendOTPSerializer(serializers.Serializer):
+
+    phone_number = serializers.CharField(max_length=11)
+
+# ---------------------------------------------------------------------
+# Verify OTP Serializer
+# ---------------------------------------------------------------------
+class VerifyOTPSerializer(serializers.Serializer):
+
+    phone_number = serializers.CharField(max_length=11)
+
+    code = serializers.CharField(max_length=4)
+
+
+# ---------------------------------------------------------------------
+# User Serializer
+# ---------------------------------------------------------------------
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserModel
+        fields = "__all__"
