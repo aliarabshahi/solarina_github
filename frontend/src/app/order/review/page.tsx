@@ -13,6 +13,8 @@ import {
   FaShoppingBag,
 } from "react-icons/fa";
 
+import { postApiData } from "@/app/services/receive_data/apiClientPost";
+
 export default function OrderReviewPage() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
@@ -21,19 +23,19 @@ export default function OrderReviewPage() {
 
   /* ---------------- PRICE FORMAT ---------------- */
   const formatToman = (rial: number) => {
-    // Check if the input is a valid number
-    if (typeof rial !== 'number' || isNaN(rial)) {
-        return '0'; // Return a default value or handle as an error
+    if (typeof rial !== "number" || isNaN(rial)) {
+      return "0";
     }
+
     return (rial / 10).toLocaleString();
   };
-
 
   // -----------------------------------------
   // Load order data from search params
   // -----------------------------------------
   useEffect(() => {
     const data = searchParams.get("data");
+
     if (data) {
       try {
         const decodedOrder = JSON.parse(decodeURIComponent(data));
@@ -58,36 +60,35 @@ export default function OrderReviewPage() {
       // The `order` object is already in the correct format.
       const payload = { ...order };
 
-      const orderRes = await fetch("/api/proxy/orders/create/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      // Create Order
+      const orderRes = await postApiData<any>(
+        "orders/create",
+        payload
+      );
 
-      const orderData = await orderRes.json();
-      const orderId = orderData.order_id;
-
-      if (!orderRes.ok || !orderId) {
-        setMessage(orderData?.error || "خطا در ثبت سفارش");
+      if (orderRes.error || !orderRes.data?.order_id) {
+        setMessage(orderRes.error || "خطا در ثبت سفارش");
         setLoading(false);
         return;
       }
 
-      const payRes = await fetch("/api/proxy/orders/payment/create/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ order_id: orderId }),
-      });
+      const orderId = orderRes.data.order_id;
 
-      const payData = await payRes.json();
+      // Create Payment
+      const payRes = await postApiData<any>(
+        "orders/payment/create",
+        {
+          order_id: orderId,
+        }
+      );
 
-      if (!payRes.ok || !payData.payment_url) {
-        setMessage(payData?.error || "خطا در ساخت لینک پرداخت");
+      if (payRes.error || !payRes.data?.payment_url) {
+        setMessage(payRes.error || "خطا در ساخت لینک پرداخت");
         setLoading(false);
         return;
       }
 
-      window.location.href = payData.payment_url;
+      window.location.href = payRes.data.payment_url;
     } catch (err) {
       console.error("Payment Error:", err);
       setMessage("خطا در ارتباط با سرور. لطفاً دوباره تلاش کنید.");
@@ -120,9 +121,10 @@ export default function OrderReviewPage() {
         <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100 space-y-6">
           {/* Page Header */}
           <header className="text-center">
-            <h1 className="text-2xl  font-bold text-blue-600">
+            <h1 className="text-2xl font-bold text-blue-600">
               بررسی نهایی سفارش
             </h1>
+
             <p className="text-sm text-gray-500 mt-2">
               لطفاً اطلاعات زیر را بررسی و در صورت تایید برای پرداخت اقدام فرمایید.
             </p>
@@ -134,6 +136,7 @@ export default function OrderReviewPage() {
               <span className="w-5 h-5 flex items-center justify-center">
                 <FaUser className="text-gray-400 w-4 h-4" />
               </span>
+
               <span>
                 <strong className="text-gray-800">نام کامل:</strong>{" "}
                 {order.full_name}
@@ -144,6 +147,7 @@ export default function OrderReviewPage() {
               <span className="w-5 h-5 flex items-center justify-center">
                 <FaPhone className="text-gray-400 w-4 h-4" />
               </span>
+
               <span>
                 <strong className="text-gray-800">شماره موبایل:</strong>{" "}
                 {order.phone_number}
@@ -154,6 +158,7 @@ export default function OrderReviewPage() {
               <span className="w-5 h-5 flex items-center justify-center">
                 <FaEnvelope className="text-gray-400 w-4 h-4" />
               </span>
+
               <span>
                 <strong className="text-gray-800">ایمیل:</strong>{" "}
                 {order.email || "-"}
@@ -164,8 +169,10 @@ export default function OrderReviewPage() {
               <span className="w-5 h-5 flex items-center justify-center mt-1">
                 <FaMapMarkerAlt className="text-gray-400 w-4 h-4" />
               </span>
+
               <span>
-                <strong className="text-gray-800">آدرس:</strong> {order.address}
+                <strong className="text-gray-800">آدرس:</strong>{" "}
+                {order.address}
               </span>
             </div>
 
@@ -173,6 +180,7 @@ export default function OrderReviewPage() {
               <span className="w-5 h-5 flex items-center justify-center">
                 <FaHashtag className="text-gray-400 w-4 h-4" />
               </span>
+
               <span>
                 <strong className="text-gray-800">کد پستی:</strong>{" "}
                 {order.postal_code}
@@ -183,6 +191,7 @@ export default function OrderReviewPage() {
               <span className="w-5 h-5 flex items-center justify-center mt-1">
                 <FaStickyNote className="text-gray-400 w-4 h-4" />
               </span>
+
               <span>
                 <strong className="text-gray-800">توضیحات:</strong>{" "}
                 {order.notes || "-"}
@@ -197,7 +206,6 @@ export default function OrderReviewPage() {
               اقلام سفارش
             </h2>
 
-            {/* --- START OF CHANGES --- */}
             {order.products.map((p: any, i: number) => (
               <div
                 key={i}
@@ -216,7 +224,6 @@ export default function OrderReviewPage() {
                 </span>
               </div>
             ))}
-            {/* --- END OF CHANGES --- */}
           </div>
 
           {/* ---------------------- Total Price ---------------------- */}
@@ -258,12 +265,14 @@ export default function OrderReviewPage() {
                     stroke="currentColor"
                     strokeWidth="4"
                   ></circle>
+
                   <path
                     className="opacity-75"
                     fill="currentColor"
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                   ></path>
                 </svg>
+
                 در حال انتقال به درگاه...
               </>
             ) : (
