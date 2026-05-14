@@ -15,6 +15,7 @@ import {
 import { motion } from "framer-motion";
 import { getApiData } from "@/app/services/receive_data/apiServerFetch";
 import { postApiData } from "@/app/services/receive_data/apiClientPost";
+import { getUser } from "@/app/services/auth/authStorage";
 
 type OrderFormData = {
   full_name: string;
@@ -44,6 +45,7 @@ export default function OrderForm() {
     { product: "", quantity: "1" },
   ]);
 
+
   const [order, setOrder] = useState<OrderFormData>({
     full_name: "",
     phone_number: "",
@@ -52,6 +54,18 @@ export default function OrderForm() {
     postal_code: "",
     notes: "",
   });
+
+  /* ✅ AUTO FILL PHONE FROM LOGGED IN USER */
+  useEffect(() => {
+    const user = getUser();
+
+    if (user?.phone) {
+      setOrder((prev) => ({
+        ...prev,
+        phone_number: user.phone,
+      }));
+    }
+  }, []);
 
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -224,6 +238,8 @@ export default function OrderForm() {
               شماره موبایل
               {requiredStar}
             </label>
+
+
             <input
               type="tel"
               name="phone"

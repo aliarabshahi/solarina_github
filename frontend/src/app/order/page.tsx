@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import OrderForm from "./components/OrderForm";
 import OrderImage from "./components/OrderImage";
-import OrderSupport from "./components/OrderSupport";
+import OrderAuth from "./components/OrderAuth";
+
+import { isLoggedIn } from "@/app/services/auth/authStorage";
 
 function OrderFormSkeleton() {
   return (
@@ -13,29 +16,45 @@ function OrderFormSkeleton() {
 
 export default function OrderPage() {
   const [loading, setLoading] = useState(true);
-  
+  const [authenticated, setAuthenticated] = useState(false);
+
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 300);
-    return () => clearTimeout(timer);
+    const checkAuth = () => {
+      setAuthenticated(isLoggedIn());
+      setLoading(false);
+    };
+
+    checkAuth();
+
+    window.addEventListener("authChanged", checkAuth);
+
+    return () => {
+      window.removeEventListener("authChanged", checkAuth);
+    };
   }, []);
 
   return (
-    // تغییر رنگ پس‌زمینه به bg-slate-50 (یا bg-blue-50/30) برای هماهنگی با تم آبی و سفید
-    <div className="min-h-screen bg-slate-50 py-8 sm:py-10 px-6 sm:px-10 lg:px-20" dir="rtl">
+    <div
+      className="min-h-screen bg-slate-50 py-8 sm:py-10 px-6 sm:px-10 lg:px-20"
+      dir="rtl"
+    >
       <div className="max-w-5xl mx-auto">
         <div className="flex flex-col lg:flex-row items-start gap-10">
-
-          {/* تصویر استیکی */}
-          <div className="w-full lg:w-1/2 order-1 lg:order-1 lg:sticky lg:top-0 self-start">
+          {/* Image */}
+          <div className="w-full lg:w-1/2 lg:sticky lg:top-0 self-start">
             <OrderImage />
           </div>
 
-          {/* فرم + جزئیات پشتیبانی */}
-          <div className="w-full lg:w-1/2 order-2 lg:order-2">
-            {loading ? <OrderFormSkeleton /> : <OrderForm />}
-            {/* <OrderSupport /> */}
+          {/* Form/Auth */}
+          <div className="w-full lg:w-1/2">
+            {loading ? (
+              <OrderFormSkeleton />
+            ) : authenticated ? (
+              <OrderForm />
+            ) : (
+              <OrderAuth onSuccess={() => setAuthenticated(true)} />
+            )}
           </div>
-
         </div>
       </div>
     </div>
