@@ -1,6 +1,11 @@
 import random
 import string
 from django.db import models
+import random
+from datetime import timedelta
+
+from django.utils import timezone
+from django.core.validators import RegexValidator
 
 # ---------------------------------------------------------------------
 # Example Models
@@ -155,3 +160,99 @@ class OrderPaymentModel(models.Model):
 
     def __str__(self):
         return f"Payment {self.authority} - {self.status}"
+
+
+
+# ---------------------------------------------------------------------
+# User
+# ---------------------------------------------------------------------
+class UserModel(models.Model):
+    phone_validator = RegexValidator(
+        regex=r'^09\d{9}$',
+        message="Phone number must be in format: 09123456789"
+    )
+
+    phone_number = models.CharField(
+        max_length=11,
+        unique=True,
+        validators=[phone_validator],
+        db_index=True
+    )
+
+    full_name = models.CharField(max_length=150, blank=True, null=True)
+
+    is_active = models.BooleanField(default=True)
+    is_verified = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "User"
+        verbose_name_plural = "Users"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.phone_number
+
+
+# ---------------------------------------------------------------------
+# OTP
+# ---------------------------------------------------------------------
+class OTPModel(models.Model):
+    phone_validator = RegexValidator(
+        regex=r'^09\d{9}$',
+        message="Phone number must be in format: 09123456789"
+    )
+
+    phone_number = models.CharField(
+        max_length=11,
+        validators=[phone_validator],
+        db_index=True
+    )
+
+    code = models.CharField(max_length=4)
+
+    is_used = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    class Meta:
+        verbose_name = "OTP"
+        verbose_name_plural = "OTPs"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.phone_number} - {self.code}"
+
+    def is_valid(self):
+        """
+        OTP is valid if:
+        - not used
+        - not expired
+        """
+        return (
+            not self.is_used and
+            timezone.now() < self.expires_at
+        )
+
+    @staticmethod
+    def generate_code():
+        """
+        Generate random 4-digit OTP
+        """
+        return str(random.randint(1000, 9999))
+
+    @classmethod
+    def create_otp(cls, phone_number):
+        """
+        Create new OTP valid for 2 minutes
+        """
+
+        code = cls.generate_code()
+
+        return cls.objects.create(
+            phone_number=phone_number,
+            code=code,
+            expires_at=timezone.now() + timedelta(minutes=2)
+        )
