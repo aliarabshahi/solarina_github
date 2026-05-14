@@ -1,15 +1,42 @@
-export const saveUser = (user: any) => {
-  localStorage.setItem("user", JSON.stringify(user));
-};
+// app/services/auth/authStorage.ts
 
-export const getUser = () => {
+export interface AuthUser {
+  phone: string;
+}
+
+const USER_KEY = "solarina_user";
+
+export function saveUser(user: AuthUser) {
+  if (typeof window === "undefined") return;
+
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+
+  // ✅ Notify app that auth changed
+  window.dispatchEvent(new Event("authChanged"));
+}
+
+export function getUser(): AuthUser | null {
   if (typeof window === "undefined") return null;
 
-  const data = localStorage.getItem("user");
+  const data = localStorage.getItem(USER_KEY);
+  if (!data) return null;
 
-  return data ? JSON.parse(data) : null;
-};
+  try {
+    return JSON.parse(data);
+  } catch {
+    return null;
+  }
+}
 
-export const logout = () => {
-  localStorage.removeItem("user");
-};
+export function removeUser() {
+  if (typeof window === "undefined") return;
+
+  localStorage.removeItem(USER_KEY);
+
+  // ✅ Notify app that auth changed
+  window.dispatchEvent(new Event("authChanged"));
+}
+
+export function isLoggedIn() {
+  return !!getUser();
+}

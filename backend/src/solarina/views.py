@@ -528,7 +528,7 @@ def verify_otp_view(request):
         return Response(
             {
                 "success": False,
-                "message": "کد نامعتبر است"
+                "message": "کد وارد شده صحیح نمی باشد"
             },
             status=status.HTTP_400_BAD_REQUEST
         )

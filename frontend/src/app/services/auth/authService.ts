@@ -1,34 +1,42 @@
 import { postApiData } from "../receive_data/apiClientPost";
+import { saveUser } from "./authStorage";
 
-export const sendOTP = async (phone: string) => {
-  return await postApiData("/auth/send-otp/", {
-    phone_number: phone,
-  });
-};
+interface VerifyResponse {
+  user: {
+    phone: string;
+  };
+}
 
-export const verifyOTP = async (
+export async function sendOTP(phone: string) {
+  return await postApiData(
+    "/auth/send-otp/",
+    {
+      phone_number: phone.trim(),
+    }
+  );
+}
+
+export async function verifyOTP(
   phone: string,
   code: string
-) => {
-  const res = await postApiData<any>(
+) {
+  const res = await postApiData<VerifyResponse>(
     "/auth/verify-otp/",
     {
-      phone_number: phone,
-      code: code,
+      phone_number: phone.trim(),
+      code: code.trim(),
     }
   );
 
-  // IMPORTANT
   if (res.error) {
     throw new Error(res.error);
   }
 
-  if (res?.data?.user) {
-    localStorage.setItem(
-      "user",
-      JSON.stringify(res.data.user)
-    );
+  if (res.data?.user) {
+    saveUser({
+      phone: res.data.user.phone,
+    });
   }
 
-  return res.data;
-};
+  return res;
+}

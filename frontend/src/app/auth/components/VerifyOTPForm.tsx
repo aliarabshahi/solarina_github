@@ -1,116 +1,111 @@
-// components/VerifyOTPForm.tsx
-
 "use client";
 
 import { useEffect, useState } from "react";
-
 import { useRouter } from "next/navigation";
-
-import {
-  FaShieldAlt,
-  FaRedo,
-} from "react-icons/fa";
+import { FaShieldAlt, FaRedo } from "react-icons/fa";
 
 import {
   verifyOTP,
   sendOTP,
 } from "@/app/services/auth/authService";
 
+const OTP_LENGTH = 4;
+const RESEND_TIME = 60;
+
 export default function VerifyOTPForm({
   phone,
 }: {
   phone: string;
 }) {
-
   const router = useRouter();
 
   const [code, setCode] = useState("");
-
   const [loading, setLoading] = useState(false);
-
+  const [resending, setResending] = useState(false);
   const [error, setError] = useState("");
+  const [timer, setTimer] = useState(RESEND_TIME);
 
-  const [timer, setTimer] = useState(60);
-
+  // ✅ countdown timer
   useEffect(() => {
-
     if (timer <= 0) return;
 
     const interval = setInterval(() => {
-
       setTimer((prev) => prev - 1);
-
     }, 1000);
 
     return () => clearInterval(interval);
-
   }, [timer]);
 
-  const handleVerify = async (e: any) => {
-
+  // ✅ verify otp
+  const handleVerify = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
 
-    if (!code.trim()) {
+    setError("");
 
-      setError("کد تایید را وارد کنید");
-
+    // validate code length
+    if (code.length !== OTP_LENGTH) {
+      setError(`کد تایید باید ${OTP_LENGTH} رقمی باشد`);
       return;
     }
 
     try {
-
       setLoading(true);
-
-      setError("");
 
       await verifyOTP(phone, code);
 
+      // success
       router.push("/");
-
     } catch (err: any) {
+      console.log(err);
 
-      console.error(err);
+      // ✅ clean backend error
+      let message = "کد وارد شده صحیح نمی باشد";
+      if (typeof err === "string") {
+        message = err;
+      } else if (
+        err &&
+        typeof err.message === "string"
+      ) {
+        message = err.message;
+      } else if (
+        typeof err?.response?.data?.message === "string"
+      ) {
+        message = err.response.data.message;
+      }
 
-      setError(
-        err?.message || "کد وارد شده معتبر نیست"
-      );
+      // ✅ remove unwanted "false |"
+      message = message
+        .replace("false |", "")
+        .trim();
 
+      setError(message);
     } finally {
-
       setLoading(false);
-
     }
   };
 
+  // ✅ resend otp
   const handleResend = async () => {
-
     try {
-
       setError("");
 
-      const res = await sendOTP(phone);
+      // ✅ clear old code immediately
+      setCode("");
 
-      if (res.error) {
+      setResending(true);
 
-        setError(res.error);
+      await sendOTP(phone);
 
-        const match = res.error.match(/\d+/);
-
-        if (match) {
-          setTimer(Number(match[0]));
-        }
-
-        return;
-      }
-
-      setTimer(60);
-
+      // ✅ restart countdown
+      setTimer(RESEND_TIME);
     } catch (err) {
-
-      console.error(err);
+      console.log(err);
 
       setError("خطا در ارسال مجدد کد");
-
+    } finally {
+      setResending(false);
     }
   };
 
@@ -128,9 +123,21 @@ export default function VerifyOTPForm({
       "
       dir="rtl"
     >
+      {/* HEADER */}
       <div className="text-center mb-8">
-
-        <div className="mx-auto w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-4">
+        <div
+          className="
+            mx-auto
+            w-16
+            h-16
+            rounded-2xl
+            bg-blue-50
+            flex
+            items-center
+            justify-center
+            mb-4
+          "
+        >
           <FaShieldAlt className="text-blue-600 w-6 h-6" />
         </div>
 
@@ -139,7 +146,7 @@ export default function VerifyOTPForm({
         </h2>
 
         <p className="text-sm text-gray-500 mt-2 leading-7">
-          کد تایید ارسال شده به شماره زیر را وارد کنید.
+          کد تایید ارسال شده به شماره زیر را وارد کنید
         </p>
 
         <div
@@ -158,74 +165,93 @@ export default function VerifyOTPForm({
         >
           {phone}
         </div>
-
       </div>
 
+      {/* FORM */}
       <form
         onSubmit={handleVerify}
         className="space-y-5"
       >
+        {/* OTP INPUT */}
         <div className="space-y-2">
-
           <label className="text-sm font-medium text-gray-700">
             کد تایید
           </label>
 
           <input
-            type="text"
-            placeholder="123456"
+            type="tel"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={OTP_LENGTH}
+            placeholder="1 2 3 4"
             value={code}
-            onChange={(e) => setCode(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value.replace(
+                /\D/g,
+                ""
+              );
+
+              setCode(value);
+
+              // ✅ clear old error while typing
+              if (error) {
+                setError("");
+              }
+            }}
             className="
               w-full
-              h-[52px]
+              h-[56px]
               rounded-xl
               border
               border-gray-300
+              bg-white
               px-4
               text-center
-              tracking-[8px]
-              text-lg
+              text-2xl
+              tracking-[12px]
               outline-none
               transition
               focus:border-blue-500
               focus:ring-4
               focus:ring-blue-100
+              placeholder:text-gray-400
             "
           />
-
         </div>
 
+        {/* ERROR */}
         {error && (
           <div
             className="
-              bg-red-50
+              rounded-xl
               border
               border-red-200
-              text-red-700
+              bg-red-50
+              px-4
+              py-3
               text-sm
-              rounded-xl
-              p-3
+              text-red-700
             "
           >
             {error}
           </div>
         )}
 
+        {/* VERIFY BUTTON */}
         <button
           type="submit"
           disabled={loading}
           className={`
             w-full
-            h-[52px]
+            h-[56px]
             rounded-xl
             font-semibold
+            text-white
             transition
-            shadow-md
             ${
               loading
-                ? "bg-gray-400 cursor-not-allowed text-white"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
             }
           `}
         >
@@ -234,37 +260,45 @@ export default function VerifyOTPForm({
             : "تایید و ورود"}
         </button>
 
-        <div className="text-center pt-2">
-
+        {/* RESEND */}
+        <div className="text-center">
           {timer > 0 ? (
-
-            <div className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500">
               ارسال مجدد تا {timer} ثانیه دیگر
-            </div>
-
+            </p>
           ) : (
-
             <button
               type="button"
               onClick={handleResend}
-              className="
+              disabled={resending}
+              className={`
                 inline-flex
                 items-center
                 gap-2
-                text-blue-600
-                hover:text-blue-700
                 text-sm
                 font-medium
-              "
+                transition
+                ${
+                  resending
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-blue-600 hover:text-blue-700"
+                }
+              `}
             >
-              <FaRedo className="w-3 h-3" />
-              ارسال مجدد کد
+              <FaRedo
+                className={`
+                  w-3
+                  h-3
+                  ${resending ? "animate-spin" : ""}
+                `}
+              />
+
+              {resending
+                ? "در حال ارسال..."
+                : "ارسال مجدد کد"}
             </button>
-
           )}
-
         </div>
-
       </form>
     </div>
   );
