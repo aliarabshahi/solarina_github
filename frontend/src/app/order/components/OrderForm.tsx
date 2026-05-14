@@ -1,17 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   FaUser,
   FaPhone,
   FaMapMarkerAlt,
   FaMailBulk,
   FaCheckCircle,
-  FaMinusCircle,
+  FaTrashAlt,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { getApiData } from "@/app/services/receive_data/apiServerFetch";
-import { useRouter } from "next/navigation";
+import { postApiData } from "@/app/services/receive_data/apiClientPost";
 
 type OrderFormData = {
   full_name: string;
@@ -34,6 +35,8 @@ type SelectedProduct = {
 };
 
 export default function OrderForm() {
+  const router = useRouter();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([
     { product: "", quantity: "1" },
@@ -49,30 +52,33 @@ export default function OrderForm() {
   });
 
   const [message, setMessage] = useState("");
-  const [loading] = useState(false);
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
-  /* ---------------- FETCH PRODUCTS ---------------- */
+  /* FETCH PRODUCTS */
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const res = await getApiData("/products/?page_size=100");
-        if (res?.data) {
-          setProducts(res.data);
-        }
+        if (res?.data) setProducts(res.data);
       } catch (err) {
         console.error("Error fetching products", err);
       }
     };
+
     fetchProducts();
   }, []);
 
-  /* ---------------- HELPERS ---------------- */
+  /* HELPERS */
   const formatToman = (rial: number) => {
     return (rial / 10).toLocaleString();
   };
 
-  /* ---------------- FORM HANDLERS ---------------- */
+  // soft required star
+  const requiredStar = (
+    <span className="text-rose-400 text-sm font-medium">*</span>
+  );
+
+  /* FORM HANDLERS */
   const handleChange = (field: keyof OrderFormData, value: string) => {
     setOrder((prev) => ({ ...prev, [field]: value }));
   };
@@ -98,263 +104,300 @@ export default function OrderForm() {
     setSelectedProducts((prev) => prev.filter((_, i) => i !== index));
   };
 
-  /* ---------------- TOTAL PRICE ---------------- */
+  /* TOTAL PRICE */
   const totalPrice = selectedProducts.reduce((sum, row) => {
     const product = products.find((p) => String(p.id) === row.product);
     if (!product) return sum;
+
     const qty = Number(row.quantity) || 0;
     return sum + product.price * qty;
   }, 0);
 
-  /* ---------------- SUBMIT HANDLER ---------------- */
+  /* SUBMIT */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    setLoading(true);
+    setMessage("");
+
     const orderData = {
-      ...order,
+      full_name: order.full_name,
+      phone_number: order.phone_number,
+      email: order.email,
+      address: order.address,
+      postal_code: order.postal_code,
+      notes: order.notes,
       products: selectedProducts.map((row) => {
         const product = products.find((p) => String(p.id) === row.product);
+
         const quantity = Number(row.quantity) || 0;
         const unitPrice = product?.price || 0;
 
-        // --- START OF CHANGES ---
         return {
           product_id: Number(row.product),
-          name: product?.name || "محصول یافت نشد", // CHANGED: from product_name to name
-          quantity: quantity,
-          unit_price: unitPrice, // ADDED: The price of a single item
-          total_price: quantity * unitPrice, // ADDED: The total for this line item
+          name: product?.name || "محصول یافت نشد",
+          quantity,
+          unit_price: unitPrice,
+          total_price: quantity * unitPrice,
         };
-        // --- END OF CHANGES ---
       }),
       total_price: totalPrice,
     };
 
-    const encoded = encodeURIComponent(JSON.stringify(orderData));
-    router.push(`/order/review?data=${encoded}`);
+    try {
+      const res = await postApiData<{
+        tracking_code: string;
+        order_id: number;
+      }>("orders/draft/", orderData);
+
+      if (res.error || !res.data?.tracking_code) {
+        setMessage(res.error || "خطا در ثبت سفارش");
+        setLoading(false);
+        return;
+      }
+
+      router.push(`/order/review/${res.data.tracking_code}`);
+    } catch (err) {
+      console.error("Submit Error:", err);
+      setMessage("خطا در ارتباط با سرور");
+      setLoading(false);
+    }
   };
 
   return (
-    <motion.section
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white/70 backdrop-blur-md p-6 rounded-xl shadow-lg border border-blue-500/15 w-full"
+      className="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-100"
     >
-      <h2 className="text-2xl font-bold text-blue-600 mb-6 text-center">
-        ثبت سفارش
+      <h2 className="text-2xl font-bold text-blue-600 mb-8 text-center">
+        ثبت سفارش جدید
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6" dir="rtl">
-        <InputField
-          label="نام کامل"
-          icon={<FaUser />}
-          required
-          name="full_name"
-          autoComplete="name"
-          type="text"
-          value={order.full_name}
-          onChange={(v: string) => handleChange("full_name", v)}
-        />
+      <form onSubmit={handleSubmit} className="space-y-6" autoComplete="on">
+        {/* Customer Details */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Full Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1.5">
+              <FaUser className="text-gray-400" />
+              نام و نام خانوادگی
+              {requiredStar}
+            </label>
 
-        <InputField
-          label="شماره موبایل"
-          icon={<FaPhone />}
-          required
-          name="phone"
-          autoComplete="tel"
-          type="tel"
-          value={order.phone_number}
-          onChange={(v: string) => handleChange("phone_number", v)}
-        />
-
-        <InputField
-          label="ایمیل"
-          icon={<FaMailBulk />}
-          name="email"
-          autoComplete="email"
-          type="email"
-          value={order.email}
-          onChange={(v: string) => handleChange("email", v)}
-        />
-
-        {/* PRODUCTS */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-gray-700">
-              محصولات مورد نظر
-            </span>
-            <button
-              type="button"
-              onClick={addProductRow}
-              className="text-xs text-blue-600 hover:text-blue-700 font-medium"
-            >
-              + افزودن محصول دیگر
-            </button>
+            <input
+              type="text"
+              name="full_name"
+              autoComplete="name"
+              required
+              value={order.full_name}
+              onChange={(e) => handleChange("full_name", e.target.value)}
+              className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition"
+              placeholder="علی احمدی"
+            />
           </div>
 
-          {selectedProducts.map((row, index) => {
-            const canRemove = selectedProducts.length > 1;
+          {/* Phone */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1.5">
+              <FaPhone className="text-gray-400" />
+              شماره موبایل
+              {requiredStar}
+            </label>
 
-            return (
-              <div
-                key={index}
-                className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end"
-              >
-                <div className="sm:col-span-7">
-                  <label className="block text-sm mb-2 text-gray-700">
-                    محصول *
-                  </label>
-                  <select
-                    required
-                    value={row.product}
-                    onChange={(e) =>
-                      updateProductRow(index, "product", e.target.value)
-                    }
-                    className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 text-sm"
-                  >
-                    <option value="">انتخاب کنید...</option>
-                    {products.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name} — {formatToman(p.price)} تومان
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            <input
+              type="tel"
+              name="phone"
+              autoComplete="tel"
+              required
+              value={order.phone_number}
+              onChange={(e) => handleChange("phone_number", e.target.value)}
+              className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition"
+              placeholder="09123456789"
+              dir="ltr"
+            />
+          </div>
 
-                <div className="sm:col-span-3">
-                  <label className="block text-sm mb-2 text-gray-700">
-                    تعداد *
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    required
-                    value={row.quantity}
-                    onChange={(e) =>
-                      updateProductRow(index, "quantity", e.target.value)
-                    }
-                    className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 text-sm"
-                  />
-                </div>
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1.5">
+              <FaMailBulk className="text-gray-400" />
+              ایمیل
+            </label>
 
-                <div className="sm:col-span-2 flex justify-center sm:justify-end pb-1">
-                  <button
-                    type="button"
-                    disabled={!canRemove}
-                    onClick={() => canRemove && removeProductRow(index)}
-                    className={`flex items-center justify-center h-10 w-10 rounded-full border ${
-                      canRemove
-                        ? "border-red-200 text-red-400 hover:border-red-400 hover:text-red-600 hover:bg-red-50"
-                        : "border-gray-200 text-gray-300"
-                    }`}
-                  >
-                    <FaMinusCircle />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+            <input
+              type="email"
+              name="email"
+              autoComplete="email"
+              value={order.email}
+              onChange={(e) => handleChange("email", e.target.value)}
+              className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition"
+              placeholder="example@mail.com"
+              dir="ltr"
+            />
+          </div>
+
+          {/* Postal Code */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1.5">
+              <FaMapMarkerAlt className="text-gray-400" />
+              کد پستی
+              {requiredStar}
+            </label>
+
+            <input
+              type="text"
+              name="postal_code"
+              autoComplete="postal-code"
+              required
+              value={order.postal_code}
+              onChange={(e) => handleChange("postal_code", e.target.value)}
+              className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition"
+              placeholder="1234567890"
+              dir="ltr"
+            />
+          </div>
         </div>
 
-        <div className="flex justify-between items-center pt-2">
-          <span className="text-sm text-gray-600">مجموع سفارش:</span>
-          <span className="font-semibold text-blue-700">
+        {/* Address */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1.5">
+            <FaMapMarkerAlt className="text-gray-400" />
+            آدرس دقیق
+            {requiredStar}
+          </label>
+
+          <textarea
+            name="address"
+            autoComplete="street-address"
+            required
+            value={order.address}
+            onChange={(e) => handleChange("address", e.target.value)}
+            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition h-24 resize-none"
+            placeholder="استان، شهر، خیابان..."
+          />
+        </div>
+
+        {/* Notes */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            توضیحات سفارش
+          </label>
+
+          <textarea
+            name="notes"
+            value={order.notes}
+            onChange={(e) => handleChange("notes", e.target.value)}
+            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition h-24 resize-none"
+            placeholder="توضیحات اضافی (اختیاری)"
+          />
+        </div>
+
+        {/* Products */}
+        <div className="border-t pt-6 space-y-4">
+          <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+            <FaCheckCircle className="text-blue-500" />
+            انتخاب محصولات
+          </h3>
+
+          {selectedProducts.map((row, index) => (
+            <div
+              key={index}
+              className="flex flex-col sm:flex-row items-end gap-3 bg-slate-50 p-4 rounded-lg border border-slate-200"
+            >
+              {/* Product */}
+              <div className="w-full sm:w-2/3">
+                <label className="block text-xs text-gray-500 mb-1">
+                  محصول {requiredStar}
+                </label>
+
+                <select
+                  required
+                  value={row.product}
+                  onChange={(e) => updateProductRow(index, "product", e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none"
+                >
+                  <option value="">-- انتخاب کنید --</option>
+
+                  {products.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} - {formatToman(p.price)} تومان
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Quantity */}
+              <div className="w-full sm:w-1/4">
+                <label className="block text-xs text-gray-500 mb-1">
+                  تعداد {requiredStar}
+                </label>
+
+                <input
+                  type="number"
+                  min="1"
+                  required
+                  value={row.quantity}
+                  onChange={(e) => updateProductRow(index, "quantity", e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none"
+                  dir="ltr"
+                />
+              </div>
+
+              {/* Remove */}
+              {selectedProducts.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeProductRow(index)}
+                  className="h-[42px] w-[42px] inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition"
+                  title="حذف محصول"
+                  aria-label="حذف محصول"
+                >
+                  <FaTrashAlt size={18} />
+                </button>
+              )}
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={addProductRow}
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          >
+            + افزودن محصول دیگر
+          </button>
+        </div>
+
+        {/* Total */}
+        <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg flex justify-between items-center">
+          <span className="font-semibold text-gray-700">مبلغ کل سفارش:</span>
+
+          <span className="font-bold text-blue-700 text-lg">
             {formatToman(totalPrice)} تومان
           </span>
         </div>
 
-        <InputField
-          label="آدرس"
-          icon={<FaMapMarkerAlt />}
-          required
-          name="address"
-          autoComplete="street-address"
-          type="text"
-          value={order.address}
-          onChange={(v: string) => handleChange("address", v)}
-        />
-
-        <InputField
-          label="کد پستی"
-          icon={<FaMailBulk />}
-          required
-          name="postal_code"
-          autoComplete="postal-code"
-          type="text"
-          value={order.postal_code}
-          onChange={(v: string) => handleChange("postal_code", v)}
-        />
-
-        <div>
-          <label className="block text-sm mb-2 text-gray-700">
-            توضیحات تکمیلی
-          </label>
-          <textarea
-            value={order.notes}
-            onChange={(e) => handleChange("notes", e.target.value)}
-            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 text-sm"
-            rows={3}
-          />
-        </div>
-
+        {/* Submit */}
         <button
           type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg flex items-center justify-center gap-2 text-lg font-medium"
+          disabled={loading || totalPrice === 0}
+          className={`w-full py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${
+            loading || totalPrice === 0
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700 text-white shadow-md"
+          }`}
         >
-          ثبت سفارش
+          {loading ? "در حال پردازش..." : "ثبت سفارش و ادامه"}
         </button>
 
+        {/* Error Message */}
         {message && (
-          <div className="bg-green-100 text-green-800 p-3 rounded-lg text-sm flex items-center gap-2">
-            <FaCheckCircle />
+          <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center border border-red-200">
             {message}
           </div>
         )}
       </form>
-    </motion.section>
-  );
-}
-
-/* INPUT COMPONENT */
-
-function InputField({
-  label,
-  icon,
-  value,
-  onChange,
-  required = false,
-  name,
-  autoComplete,
-  type = "text",
-}: {
-  label: string;
-  icon: React.ReactNode;
-  value: string;
-  onChange: (value: string) => void;
-  required?: boolean;
-  name?: string;
-  autoComplete?: string;
-  type?: string;
-}) {
-  return (
-    <div>
-      <label className="block text-sm mb-2 text-gray-700">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <div className="relative">
-        <div className="absolute right-3 top-3 text-blue-500">{icon}</div>
-        <input
-          name={name}
-          autoComplete={autoComplete}
-          type={type}
-          required={required}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full border rounded-lg p-3 pr-10 focus:ring-2 focus:ring-blue-500 text-sm"
-        />
-      </div>
-    </div>
+    </motion.div>
   );
 }

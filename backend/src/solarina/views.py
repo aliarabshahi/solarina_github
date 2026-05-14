@@ -210,34 +210,94 @@ def create_order_view(request):
     order = serializer.save(status="pending")
     return Response({"order_id": order.id}, status=201)
 
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def create_order_payment_view(request):
-    order_id = request.data.get("order_id")
-
+    """
+    Create payment for an existing order using tracking_code or order_id.
+    """
+    tracking_code = request.data.get('tracking_code')
+    order_id = request.data.get('order_id')
+    
     try:
-        order = OrderModel.objects.get(id=order_id)
+        if tracking_code:
+            order = OrderModel.objects.get(tracking_code=tracking_code)
+        elif order_id:
+            order = OrderModel.objects.get(id=order_id)
+        else:
+            return Response(
+                {"error": "tracking_code یا order_id الزامی است"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
     except OrderModel.DoesNotExist:
-        return Response({"error": "Order not found"}, status=404)
-
+        return Response(
+            {"error": "سفارش یافت نشد"},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    # Use the correct callback URL
     callback_url = "http://solarina.ir/order/verify/"
-
+    
+    # Call the correct payment handler methods
     payment_url, authority = order_payment_handler.send_request(
-        order.total_price, order_id, callback_url
+        order.total_price, 
+        order.id, 
+        callback_url
     )
-
+    
     if payment_url and authority:
         order_payment_handler.save_transaction(
             authority=authority,
             amount=order.total_price,
-            order_id=order_id,
+            order_id=order.id,
             user_name=order.full_name,
             bot_key="web:order"
         )
-        return Response({"payment_url": payment_url})
+        return Response({
+            "payment_url": payment_url,
+            "tracking_code": order.tracking_code
+        }, status=status.HTTP_200_OK)
+    
+    return Response(
+        {"error": "خطا در ایجاد لینک پرداخت"}, 
+        status=status.HTTP_500_INTERNAL_SERVER_ERROR
+    )
 
-    return Response({"error": "Payment request failed"}, status=500)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def create_draft_order(request):
+    """
+    Create a draft order and return tracking_code for review page.
+    """
+    serializer = OrderSerializer(data=request.data)
+    if serializer.is_valid():
+        # Save with default status='pending'
+        order = serializer.save()
+        
+        return Response({
+            "tracking_code": order.tracking_code,
+            "order_id": order.id
+        }, status=status.HTTP_201_CREATED)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_order_by_tracking(request, tracking_code):
+    """
+    Retrieve order details by tracking code for review page.
+    """
+    try:
+        order = OrderModel.objects.get(tracking_code=tracking_code)
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except OrderModel.DoesNotExist:
+        return Response(
+            {"error": "سفارش یافت نشد"},
+            status=status.HTTP_404_NOT_FOUND
+        )
 
 @api_view(["GET"])
 @permission_classes([AllowAny])

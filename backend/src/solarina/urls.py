@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import SimpleRouter
 
-from .views import ContactUsViewSet, ExampleModelViewSet, OrderPaymentViewSet, OrderViewSet, create_order_payment_view, create_order_view, health_check, ProductModelViewSet, ProductCategoryModelViewSet, verify_order_payment
+from .views import ContactUsViewSet, ExampleModelViewSet, OrderPaymentViewSet, OrderViewSet, create_draft_order, create_order_payment_view, create_order_view, get_order_by_tracking, health_check, ProductModelViewSet, ProductCategoryModelViewSet, verify_order_payment
 
 
 # ---------------------------------------------------------------------
@@ -30,6 +30,8 @@ urlpatterns = [
     path('health/', health_check),
     
     # Manual paths FIRST
+    path("orders/draft/", create_draft_order),  
+    path("orders/tracking/<str:tracking_code>/", get_order_by_tracking),
     path("orders/create/", create_order_view),
     path("orders/payment/create/", create_order_payment_view),
     path("orders/payment/verify/", verify_order_payment),
