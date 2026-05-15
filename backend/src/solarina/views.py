@@ -199,7 +199,11 @@ class ProductModelViewSet(viewsets.ReadOnlyModelViewSet):
         "created_at"
     ]
 
-    ordering = ["-created_at"]
+    # ✅ available products first
+    ordering = [
+        "-stock",
+        "-created_at"
+    ]
 
     lookup_field = "slug"
 
@@ -213,9 +217,7 @@ class ProductModelViewSet(viewsets.ReadOnlyModelViewSet):
             "images"
         )
 
-        category_slug = self.request.query_params.get(
-            "category"
-        )
+        category_slug = self.request.query_params.get("category")
 
         if category_slug:
             queryset = queryset.filter(
@@ -223,7 +225,6 @@ class ProductModelViewSet(viewsets.ReadOnlyModelViewSet):
             )
 
         return queryset
-
 
 
 @api_view(['POST'])

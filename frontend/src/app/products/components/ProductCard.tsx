@@ -20,6 +20,8 @@ export default function ProductCard({
     return (rial / 10).toLocaleString();
   };
 
+  const isOutOfStock = product.stock <= 0;
+
   const productImages =
     product.images?.length > 0
       ? product.images
@@ -96,7 +98,6 @@ export default function ProductCard({
 
             <p className="text-2xl font-extrabold text-blue-600">
               {formatToman(product.price)}
-
               <span className="text-sm mr-1 font-medium">
                 تومان
               </span>
@@ -133,15 +134,27 @@ export default function ProductCard({
             مشاهده جزئیات
           </Link>
 
-          <Link
-            href={`/order?product=${product.id}`}
-            className="flex-1 flex items-center justify-center gap-2
-            bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl
-            font-bold transition-all duration-300"
-          >
-            <ShoppingBag size={18} />
-            خرید
-          </Link>
+          {isOutOfStock ? (
+            <button
+              disabled
+              className="flex-1 flex items-center justify-center gap-2
+              bg-blue-200 text-white py-4 rounded-2xl
+              font-bold cursor-not-allowed"
+            >
+              <ShoppingBag size={18} />
+              خرید
+            </button>
+          ) : (
+            <Link
+              href={`/order?product=${product.id}`}
+              className="flex-1 flex items-center justify-center gap-2
+              bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl
+              font-bold transition-all duration-300"
+            >
+              <ShoppingBag size={18} />
+              خرید
+            </Link>
+          )}
         </div>
       </div>
     </div>
