@@ -76,7 +76,7 @@ export default function ProductsPage() {
         <div className="text-center max-w-3xl mx-auto mb-16">
 
         <h1
-          className="mt-6 text-4xl sm:text-5xl font-extrabold
+          className=" text-4xl sm:text-5xl font-extrabold
           tracking-tight text-gray-900 leading-tight"
         >
           انرژی خورشید،
