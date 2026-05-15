@@ -74,27 +74,17 @@ export default function ProductsPage() {
 
       <section className="max-w-7xl mx-auto px-6 lg:px-8 py-16 sm:py-24">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <span
-            className="inline-flex items-center rounded-full
-            bg-blue-50 px-4 py-1 text-sm font-medium text-blue-700"
-          >
-            محصولات سولارینا
+
+        <h1
+          className="mt-6 text-4xl sm:text-5xl font-extrabold
+          tracking-tight text-gray-900 leading-tight"
+        >
+          انرژی خورشید،
+          <span className="block sm:inline text-blue-600 mt-2 sm:mt-0 sm:mr-2">
+            همیشه همراهت
           </span>
+        </h1>
 
-          <h1
-            className="mt-6 text-4xl sm:text-5xl font-extrabold
-            tracking-tight text-gray-900 leading-tight"
-          >
-            انرژی خورشید،
-            <span className="block text-blue-600 mt-2">
-              همیشه همراهت
-            </span>
-          </h1>
-
-          <p className="mt-6 text-lg leading-8 text-gray-600">
-            پنل‌های خورشیدی سبک، قابل حمل و مناسب سفر،
-            طبیعت‌گردی و استفاده روزمره.
-          </p>
         </div>
 
         {/* categories */}
