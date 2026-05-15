@@ -47,7 +47,6 @@ export default function OrderForm() {
     { product: initialProductId, quantity: "1" },
   ]);
 
-
   const [order, setOrder] = useState<OrderFormData>({
     full_name: "",
     phone_number: "",
@@ -57,10 +56,7 @@ export default function OrderForm() {
     notes: "",
   });
 
-
-
   /* ✅ AUTO FILL PHONE FROM LOGGED IN USER */
-
   useEffect(() => {
     const loadUserPhone = () => {
       const user = getUser();
@@ -168,6 +164,18 @@ export default function OrderForm() {
     setLoading(true);
     setMessage("");
 
+    // 1. فیلتر کردن ردیف‌های خالی (ردیف‌هایی که محصولی در آن‌ها انتخاب نشده است)
+    const validSelectedProducts = selectedProducts.filter(
+      (row) => row.product && row.product.trim() !== ""
+    );
+
+    // بررسی اینکه آیا حداقل یک محصول معتبر انتخاب شده است
+    if (validSelectedProducts.length === 0) {
+      setMessage("لطفاً حداقل یک محصول را انتخاب کنید.");
+      setLoading(false);
+      return;
+    }
+
     const orderData = {
       full_name: order.full_name,
       phone_number: order.phone_number,
@@ -175,7 +183,8 @@ export default function OrderForm() {
       address: order.address,
       postal_code: order.postal_code,
       notes: order.notes,
-      products: selectedProducts.map((row) => {
+      // 2. استفاده از آرایه فیلتر شده برای ارسال به سرور
+      products: validSelectedProducts.map((row) => {
         const product = products.find((p) => String(p.id) === row.product);
 
         const quantity = Number(row.quantity) || 0;
@@ -254,27 +263,24 @@ export default function OrderForm() {
               <FaPhone className="text-gray-400" />
               شماره موبایل
             </label>
-
-<input
-  type="tel"
-  value={order.phone_number}
-  readOnly
-  className="
-    w-full
-    rounded-xl
-    border
-    border-gray-200
-    bg-gray-100
-    px-4
-    py-3
-    text-base
-    text-gray-700
-    cursor-not-allowed
-    opacity-90
-  "
-/>
-
-
+            <input
+              type="tel"
+              value={order.phone_number}
+              readOnly
+              className="
+                w-full
+                rounded-xl
+                border
+                border-gray-200
+                bg-gray-100
+                px-4
+                py-3
+                text-base
+                text-gray-700
+                cursor-not-allowed
+                opacity-90
+              "
+            />
           </div>
 
           <div>
@@ -397,7 +403,7 @@ export default function OrderForm() {
                     />
                   </div>
 
-                  {/* Dropdown Menu (Centered, Wider & Scrollable) */}
+                  {/* Dropdown Menu */}
                   {activeDropdown === index && (
                     <div className="absolute z-40 w-[calc(100vw-3rem)] sm:w-[720px] left-1/2 -translate-x-1/2 top-[85px] bg-white border border-gray-100 rounded-xl shadow-2xl flex flex-col overflow-hidden">
                       <div className="p-2 border-b border-gray-100 bg-gray-50/80">
