@@ -1,18 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
 import ProductCard from "./components/ProductCard";
+
 import { ProductType } from "@/app/types/productType";
+
 import { getApiData } from "@/app/services/receive_data/apiServerFetch";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<ProductType[]>([]);
+
   const [loading, setLoading] = useState(true);
+
   const [error, setError] = useState("");
+
+  const [selectedCategory, setSelectedCategory] =
+    useState("all");
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const res = await getApiData("products");
+      setLoading(true);
+
+      const endpoint =
+        selectedCategory === "all"
+          ? "products"
+          : `products?category=${selectedCategory}`;
+
+      const res = await getApiData(endpoint);
 
       if (res.error) {
         setError(res.error);
@@ -24,7 +39,20 @@ export default function ProductsPage() {
     };
 
     fetchProducts();
-  }, []);
+  }, [selectedCategory]);
+
+  const categories = useMemo(() => {
+    const map = new Map();
+
+    products.forEach((product) => {
+      map.set(product.category_slug, {
+        slug: product.category_slug,
+        name: product.category_name,
+      });
+    });
+
+    return Array.from(map.values());
+  }, [products]);
 
   return (
     <main
@@ -68,6 +96,41 @@ export default function ProductsPage() {
             طبیعت‌گردی و استفاده روزمره.
           </p>
         </div>
+
+        {/* categories */}
+        {!loading && categories.length > 0 && (
+          <div
+            className="flex flex-wrap items-center justify-center
+            gap-3 mb-14"
+          >
+            <button
+              onClick={() => setSelectedCategory("all")}
+              className={`px-5 py-3 rounded-2xl text-sm font-bold transition-all ${
+                selectedCategory === "all"
+                  ? "bg-blue-600 text-white shadow-lg"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              همه محصولات
+            </button>
+
+            {categories.map((category) => (
+              <button
+                key={category.slug}
+                onClick={() =>
+                  setSelectedCategory(category.slug)
+                }
+                className={`px-5 py-3 rounded-2xl text-sm font-bold transition-all ${
+                  selectedCategory === category.slug
+                    ? "bg-blue-600 text-white shadow-lg"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
+        )}
 
         {loading && (
           <div className="text-center py-20 text-gray-500">

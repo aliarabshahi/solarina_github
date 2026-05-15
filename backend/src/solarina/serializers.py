@@ -66,8 +66,14 @@ class ProductImageSerializer(serializers.ModelSerializer):
         return None
 
 class ProductModelSerializer(serializers.ModelSerializer):
+
     category_name = serializers.CharField(
         source="category.name",
+        read_only=True
+    )
+
+    category_slug = serializers.CharField(
+        source="category.slug",
         read_only=True
     )
 
@@ -80,6 +86,7 @@ class ProductModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductModel
+
         fields = [
             "id",
             "name",
@@ -90,13 +97,17 @@ class ProductModelSerializer(serializers.ModelSerializer):
             "stock",
             "is_active",
             "is_featured",
+
             "category",
             "category_name",
+            "category_slug",
+
             "images",
             "primary_image",
         ]
 
     def get_primary_image(self, obj):
+
         request = self.context.get("request")
 
         primary = obj.images.filter(
@@ -107,6 +118,7 @@ class ProductModelSerializer(serializers.ModelSerializer):
             primary = obj.images.first()
 
         if primary and primary.image:
+
             if request:
                 return request.build_absolute_uri(
                     primary.image.url

@@ -181,29 +181,16 @@ class ProductCategoryModelViewSet(viewsets.ModelViewSet):
 # ---------------------------------------------------------------------
 # Product ViewSet
 # ---------------------------------------------------------------------
-class ProductModelViewSet(viewsets.ModelViewSet):
+class ProductModelViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    Manage Products.
-    Public GET
-    Authenticated write operations
+    Public Products API
     """
-
-    queryset = ProductModel.objects.filter(
-        is_active=True
-    ).select_related(
-        "category"
-    ).prefetch_related(
-        "images"
-    )
 
     serializer_class = ProductModelSerializer
 
     pagination_class = DashboardPagination
 
-    authentication_classes = [
-        SessionAuthentication,
-        TokenAuthentication
-    ]
+    permission_classes = [AllowAny]
 
     filter_backends = [filters.OrderingFilter]
 
@@ -216,12 +203,26 @@ class ProductModelViewSet(viewsets.ModelViewSet):
 
     lookup_field = "slug"
 
-    def get_permissions(self):
+    def get_queryset(self):
 
-        if self.request.method in ["GET"]:
-            return [AllowAny()]
+        queryset = ProductModel.objects.filter(
+            is_active=True
+        ).select_related(
+            "category"
+        ).prefetch_related(
+            "images"
+        )
 
-        return [IsAuthenticated()]
+        category_slug = self.request.query_params.get(
+            "category"
+        )
+
+        if category_slug:
+            queryset = queryset.filter(
+                category__slug=category_slug
+            )
+
+        return queryset
 
 
 

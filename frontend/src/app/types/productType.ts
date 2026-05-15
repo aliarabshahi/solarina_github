@@ -33,6 +33,7 @@ export type ProductType = {
   is_featured: boolean;
   category: number;
   category_name: string;
+  category_slug: string;
 
   primary_image: string | null;
 
