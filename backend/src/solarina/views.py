@@ -187,17 +187,40 @@ class ProductModelViewSet(viewsets.ModelViewSet):
     Public GET
     Authenticated write operations
     """
-    queryset = ProductModel.objects.filter(is_active=True)
+
+    queryset = ProductModel.objects.filter(
+        is_active=True
+    ).select_related(
+        "category"
+    ).prefetch_related(
+        "images"
+    )
+
     serializer_class = ProductModelSerializer
+
     pagination_class = DashboardPagination
-    authentication_classes = [SessionAuthentication, TokenAuthentication]
+
+    authentication_classes = [
+        SessionAuthentication,
+        TokenAuthentication
+    ]
+
     filter_backends = [filters.OrderingFilter]
-    ordering_fields = ["price", "created_at"]
+
+    ordering_fields = [
+        "price",
+        "created_at"
+    ]
+
     ordering = ["-created_at"]
 
+    lookup_field = "slug"
+
     def get_permissions(self):
+
         if self.request.method in ["GET"]:
             return [AllowAny()]
+
         return [IsAuthenticated()]
 
 

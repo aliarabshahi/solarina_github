@@ -1,122 +1,109 @@
-import Link from "next/link";
-import { FaBolt, FaWeightHanging, FaSun, FaWater, FaUsb } from "react-icons/fa";
+"use client";
+
+import { useEffect, useState } from "react";
+import ProductCard from "./components/ProductCard";
+import { ProductType } from "@/app/types/productType";
+import { getApiData } from "@/app/services/receive_data/apiServerFetch";
 
 export default function ProductsPage() {
+  const [products, setProducts] = useState<ProductType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const res = await getApiData("products");
+
+      if (res.error) {
+        setError(res.error);
+      } else {
+        setProducts(res.data || []);
+      }
+
+      setLoading(false);
+    };
+
+    fetchProducts();
+  }, []);
+
   return (
-    // استفاده از کلاس‌های تراز اصلی مشابه Hero.tsx
-    <div className="bg-[#fbfeff] relative isolate px-6 lg:px-8" dir="rtl">
-      {/* بخش محتوا با رعایت max-w-4xl برای هماهنگی با متن‌های صفحه اصلی */}
-      <div className="mx-auto max-w-4xl pt-12 sm:pt-16 lg:pt-20 pb-12">
-        {/* تیتر و معرفی محصول */}
-        <div className="text-center space-y-6 sm:space-y-8 mb-16">
-          <h1 className="text-3xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight text-gray-900 leading-tight">
-            شارژر خورشیدی پرتابل <br />
-            <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent mt-2 block">
-              همسفرِ خستگی‌ناپذیرِ شما
+    <main
+      className="min-h-screen bg-white relative overflow-hidden"
+      dir="rtl"
+    >
+      {/* top decoration */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl"
+      >
+        <div
+          className="relative right-[calc(50%-11rem)] aspect-[1155/678]
+          w-[36rem] translate-x-1/2 rotate-[30deg]
+          bg-gradient-to-tr from-[#93c5fd] to-[#3b82f6]
+          opacity-20 sm:w-[72rem]"
+        />
+      </div>
+
+      <section className="max-w-7xl mx-auto px-6 lg:px-8 py-16 sm:py-24">
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <span
+            className="inline-flex items-center rounded-full
+            bg-blue-50 px-4 py-1 text-sm font-medium text-blue-700"
+          >
+            محصولات سولارینا
+          </span>
+
+          <h1
+            className="mt-6 text-4xl sm:text-5xl font-extrabold
+            tracking-tight text-gray-900 leading-tight"
+          >
+            انرژی خورشید،
+            <span className="block text-blue-600 mt-2">
+              همیشه همراهت
             </span>
           </h1>
-          <p className="text-base sm:text-lg lg:text-xl leading-7 sm:leading-8 text-gray-600 max-w-2xl mx-auto">
-            این پنل خورشیدی تاشو طراحی شده تا تو دل طبیعت، کویر یا حتی تو تراس
-            خونه، نذاره هیچوقت دستگاه‌هات خاموش بشن. سبک، مقاوم و با بازدهی
-            بالا.
+
+          <p className="mt-6 text-lg leading-8 text-gray-600">
+            پنل‌های خورشیدی سبک، قابل حمل و مناسب سفر،
+            طبیعت‌گردی و استفاده روزمره.
           </p>
-          <div className="flex justify-center">
-            <Link
-              href="/order"
-              className="w-full sm:w-auto rounded-xl bg-blue-600 px-10 py-4 text-base font-bold text-white shadow-lg 
-                         hover:bg-blue-700 hover:-translate-y-0.5 transition-all duration-300 text-center"
-            >
-              ثبت سفارش (۲,۴۵۰,۰۰۰ تومان)
-            </Link>
-          </div>
         </div>
 
-        {/* بخش مشخصات فنی - هماهنگ با عرض max-w-5xl */}
-        <div className="mt-16 max-w-5xl mx-auto">
-          <div className="bg-white rounded-[2rem] shadow-md border border-gray-100 p-8 sm:p-12 transition-all hover:shadow-xl">
-            <div className="text-center mb-12">
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                مشخصات فنی و ویژگی‌ها
-              </h2>
-              <p className="text-gray-500 mt-3">
-                همه چیزهایی که قبل از خرید باید بدونی
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              <div className="flex gap-4 items-start">
-                <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
-                  <FaBolt className="text-xl" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-gray-900 mb-1 text-sm sm:text-base">
-                    توان خروجی ($21W$)
-                  </h4>
-                  <p className="text-xs sm:text-sm text-gray-600">
-                    شارژ سریع و پایدار با پنل‌های مونوکریستال.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4 items-start">
-                <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
-                  <FaUsb className="text-xl" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-gray-900 mb-1 text-sm sm:text-base">
-                    پورت‌های خروجی
-                  </h4>
-                  <p className="text-xs sm:text-sm text-gray-600">
-                    دو پورت USB-A برای شارژ همزمان گوشی و پاوربانک.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4 items-start">
-                <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
-                  <FaWeightHanging className="text-xl" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-gray-900 mb-1 text-sm sm:text-base">
-                    بسیار سبک ($600g$)
-                  </h4>
-                  <p className="text-xs sm:text-sm text-gray-600">
-                    وزنی معادل یک بطری آب! ایده‌آل برای کوهنوردی.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4 items-start">
-                <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
-                  <FaWater className="text-xl" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-gray-900 mb-1 text-sm sm:text-base">
-                    مقاوم در برابر آب
-                  </h4>
-                  <p className="text-xs sm:text-sm text-gray-600">
-                    رویه پلیمری مقاوم در برابر پاشش آب و گرد و غبار.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4 items-start">
-                <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
-                  <FaSun className="text-xl" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-gray-900 mb-1 text-sm sm:text-base">
-                    تشخیص هوشمند نور
-                  </h4>
-                  <p className="text-xs sm:text-sm text-gray-600">
-                    تنظیم خودکار جریان برق برای محافظت از باتری.
-                  </p>
-                </div>
-              </div>
-            </div>
+        {loading && (
+          <div className="text-center py-20 text-gray-500">
+            در حال بارگذاری محصولات...
           </div>
-        </div>
-      </div>
-    </div>
+        )}
+
+        {error && (
+          <div
+            className="max-w-xl mx-auto bg-red-50 border border-red-200
+            text-red-700 p-5 rounded-2xl text-center"
+          >
+            {error}
+          </div>
+        )}
+
+        {!loading && !error && (
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3
+            gap-8"
+          >
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+              />
+            ))}
+          </div>
+        )}
+
+        {!loading && products.length === 0 && (
+          <div className="text-center py-20 text-gray-500">
+            محصولی برای نمایش وجود ندارد
+          </div>
+        )}
+      </section>
+    </main>
   );
 }

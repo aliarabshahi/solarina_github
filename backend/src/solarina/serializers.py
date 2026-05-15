@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ContactUsModel, ExampleModel, ProductModel, ProductCategoryModel, OrderPaymentModel, OrderModel, UserModel
+from .models import ContactUsModel, ExampleModel, ProductImageModel, ProductModel, ProductCategoryModel, OrderPaymentModel, OrderModel, UserModel
 
 
 # ---------------------------------------------------------------------
@@ -38,14 +38,83 @@ class ProductCategoryModelSerializer(serializers.ModelSerializer):
 # ---------------------------------------------------------------------
 # Product Serializer
 # ---------------------------------------------------------------------
-class ProductModelSerializer(serializers.ModelSerializer):
-    """Serializer for ProductModel."""
 
-    category_name = serializers.CharField(source="category.name", read_only=True)
+
+
+class ProductImageSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProductImageModel
+        fields = [
+            "id",
+            "image",
+            "image_url",
+            "alt_text",
+            "is_primary",
+        ]
+
+    def get_image_url(self, obj):
+        request = self.context.get("request")
+
+        if obj.image:
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+
+            return obj.image.url
+
+        return None
+
+class ProductModelSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(
+        source="category.name",
+        read_only=True
+    )
+
+    images = ProductImageSerializer(
+        many=True,
+        read_only=True
+    )
+
+    primary_image = serializers.SerializerMethodField()
 
     class Meta:
         model = ProductModel
-        fields = '__all__'
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "short_description",
+            "description",
+            "price",
+            "stock",
+            "is_active",
+            "is_featured",
+            "category",
+            "category_name",
+            "images",
+            "primary_image",
+        ]
+
+    def get_primary_image(self, obj):
+        request = self.context.get("request")
+
+        primary = obj.images.filter(
+            is_primary=True
+        ).first()
+
+        if not primary:
+            primary = obj.images.first()
+
+        if primary and primary.image:
+            if request:
+                return request.build_absolute_uri(
+                    primary.image.url
+                )
+
+            return primary.image.url
+
+        return None
 
 # ---------------------------------------------------------------------
 # Order Serializer

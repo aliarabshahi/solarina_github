@@ -8,6 +8,7 @@ from .models import (
     ContactUsModel,
     ExampleModel,
     ProductModel,
+    ProductImageModel,
     ProductCategoryModel,
     OrderModel,
     OrderPaymentModel,
@@ -87,6 +88,20 @@ class ProductCategoryModelAdmin(admin.ModelAdmin):
 
 
 # ---------------------------------------------------------------------
+# Product Images Inline
+# ---------------------------------------------------------------------
+class ProductImageInline(admin.TabularInline):
+    model = ProductImageModel
+    extra = 1
+
+    fields = (
+        'image',
+        'alt_text',
+        'is_primary',
+    )
+
+
+# ---------------------------------------------------------------------
 # Product Admin Configuration
 # ---------------------------------------------------------------------
 class ProductModelAdmin(admin.ModelAdmin):
@@ -117,6 +132,8 @@ class ProductModelAdmin(admin.ModelAdmin):
     )
 
     prepopulated_fields = {'slug': ('name',)}
+
+    inlines = [ProductImageInline]
 
     list_per_page = 20
 

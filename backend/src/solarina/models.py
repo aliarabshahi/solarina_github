@@ -65,7 +65,6 @@ class ProductCategoryModel(models.Model):
     def __str__(self):
         return self.name
 
-
 class ProductModel(models.Model):
     category = models.ForeignKey(
         ProductCategoryModel,
@@ -83,6 +82,7 @@ class ProductModel(models.Model):
     stock = models.PositiveIntegerField(default=0)
 
     is_active = models.BooleanField(default=True)
+    is_featured = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -94,6 +94,33 @@ class ProductModel(models.Model):
 
     def __str__(self):
         return self.name
+class ProductImageModel(models.Model):
+    product = models.ForeignKey(
+        ProductModel,
+        on_delete=models.CASCADE,
+        related_name="images"
+    )
+
+    image = models.ImageField(
+        upload_to="products/gallery/"
+    )
+
+    alt_text = models.CharField(
+        max_length=150,
+        blank=True
+    )
+
+    is_primary = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-is_primary", "id"]
+        verbose_name = "Product Image"
+        verbose_name_plural = "Product Images"
+
+    def __str__(self):
+        return f"{self.product.name} Image"
 
 
 def generate_tracking_code():
