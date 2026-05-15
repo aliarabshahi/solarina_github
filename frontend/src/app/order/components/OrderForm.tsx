@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   FaUser,
   FaPhone,
@@ -39,10 +39,12 @@ type SelectedProduct = {
 
 export default function OrderForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialProductId = searchParams.get("product") || "";
 
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<SelectedProduct[]>([
-    { product: "", quantity: "1" },
+    { product: initialProductId, quantity: "1" },
   ]);
 
 
