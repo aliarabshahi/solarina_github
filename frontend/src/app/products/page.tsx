@@ -1,23 +1,36 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-
+import { useEffect, useState } from "react";
 import ProductCard from "./components/ProductCard";
-
 import { ProductType } from "@/app/types/productType";
-
 import { getApiData } from "@/app/services/receive_data/apiServerFetch";
+
+// اضافه کردن تایپ برای دسته‌بندی
+type CategoryType = {
+  id: number;
+  name: string;
+  slug: string;
+};
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<ProductType[]>([]);
-
+  const [categories, setCategories] = useState<CategoryType[]>([]); // استیت جدید برای دسته‌بندی‌ها
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
 
-  const [selectedCategory, setSelectedCategory] =
-    useState("all");
+  // دریافت دسته‌بندی‌ها (فقط یک بار اجرا می‌شود)
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const res = await getApiData("product-categories"); // فراخوانی از اندپوینت بک‌اند
+      if (!res.error && res.data) {
+        setCategories(res.data);
+      }
+    };
+    fetchCategories();
+  }, []);
 
+  // دریافت محصولات (هر بار که selectedCategory عوض شود اجرا می‌شود)
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -40,19 +53,6 @@ export default function ProductsPage() {
 
     fetchProducts();
   }, [selectedCategory]);
-
-  const categories = useMemo(() => {
-    const map = new Map();
-
-    products.forEach((product) => {
-      map.set(product.category_slug, {
-        slug: product.category_slug,
-        name: product.category_name,
-      });
-    });
-
-    return Array.from(map.values());
-  }, [products]);
 
   return (
     <main
@@ -98,7 +98,7 @@ export default function ProductsPage() {
         </div>
 
         {/* categories */}
-        {!loading && categories.length > 0 && (
+        {categories.length > 0 && (
           <div
             className="flex flex-wrap items-center justify-center
             gap-3 mb-14"
@@ -117,9 +117,7 @@ export default function ProductsPage() {
             {categories.map((category) => (
               <button
                 key={category.slug}
-                onClick={() =>
-                  setSelectedCategory(category.slug)
-                }
+                onClick={() => setSelectedCategory(category.slug)}
                 className={`px-5 py-3 rounded-2xl text-sm font-bold transition-all ${
                   selectedCategory === category.slug
                     ? "bg-blue-600 text-white shadow-lg"
@@ -163,7 +161,7 @@ export default function ProductsPage() {
 
         {!loading && products.length === 0 && (
           <div className="text-center py-20 text-gray-500">
-            محصولی برای نمایش وجود ندارد
+            محصولی برای این دسته وجود ندارد
           </div>
         )}
       </section>
