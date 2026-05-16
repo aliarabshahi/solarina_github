@@ -1,3 +1,4 @@
+// app/components/navbar/NavbarLogin.tsx
 "use client";
 
 import Link from "next/link";
@@ -6,6 +7,8 @@ import {
   FaChevronDown,
   FaSignOutAlt,
   FaUserCircle,
+  FaShoppingBag, // اضافه کردن آیکون
+  FaSearch // اضافه کردن آیکون
 } from "react-icons/fa";
 
 import {
@@ -85,11 +88,23 @@ export default function NavbarLogin() {
 
       {open && (
         <div className="absolute left-0 mt-2 w-56 bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden z-50">
+          
+          {/* لینک جدید: سفارشات کاربر */}
           <Link
-            href="/order/track"
-            className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition"
+            href="/user/orders"
+            className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition border-b border-gray-100"
             onClick={() => setOpen(false)}
           >
+            <FaShoppingBag className="text-blue-500" />
+            سفارشات من
+          </Link>
+
+          <Link
+            href="/order/track"
+            className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition border-b border-gray-100"
+            onClick={() => setOpen(false)}
+          >
+            <FaSearch className="text-blue-500" />
             پیگیری سفارش
           </Link>
 
