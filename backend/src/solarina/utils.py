@@ -233,3 +233,47 @@ def send_sms_otp(phone_number, code):
     except Exception as e:
         logging.error(f"[SMS ERROR] {e}")
         return None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import requests
+import logging
+
+logger = logging.getLogger(__name__)
+
+SEND_SMS_API_URL = "https://s.api.ir/api/sw1/SendSms"
+SEND_SMS_API_TOKEN = "Bearer ImmJ+7dwBXNXsYPOR+Vn/BIrFGFm8lgqSkGmDcf6hBBThCYoqcWaLivTbGuHUGo6eNqgBCj5ofn293hjUW5TQcKl5p/UmyqHFzsEkFYz5bI="
+
+def send_notification_sms(mobiles: list, message: str):
+    """
+    Sends a general SMS notification using s.api.ir.
+    """
+    payload = {
+        "MessageBody": message,
+        "Mobiles": mobiles
+    }
+    
+    headers = {
+        "Authorization": SEND_SMS_API_TOKEN,
+        "Content-Type": "application/json"
+    }
+
+    try:
+        response = requests.post(SEND_SMS_API_URL, json=payload, headers=headers, timeout=10)
+        response.raise_for_status()
+        logger.info(f"SMS sent successfully to {mobiles}")
+        return True
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to send SMS to {mobiles}. Error: {e}")
+        return False
