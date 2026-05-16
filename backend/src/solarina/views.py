@@ -63,7 +63,7 @@ def health_check(request):
 # Pagination Class
 # ---------------------------------------------------------------------
 MAX_RESULTS = os.getenv("MAX_RESULTS", 100)
-PAGE_SIZE = 10
+PAGE_SIZE = 100
 
 class DashboardPagination(PageNumberPagination):
     """Custom pagination with max limits."""
@@ -418,7 +418,8 @@ class OrderViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        # Added .order_by('-created_at') here to fix the UnorderedObjectListWarning
+        queryset = super().get_queryset().order_by('-created_at')
 
         tracking_code = self.request.query_params.get("tracking_code")
         phone_number = self.request.query_params.get("phone_number")
