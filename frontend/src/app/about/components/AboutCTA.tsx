@@ -2,25 +2,26 @@ import Link from "next/link";
 
 export default function AboutCTA() {
   return (
-    <section className="text-center space-y-6 py-10" dir="rtl">
-      <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
-        آماده شروع هستید؟
-      </h2>
-      <p className="text-gray-600 text-base max-w-xl mx-auto">
-        همین حالا سفارش خود را ثبت کنید یا برای مشاوره رایگان با ما تماس بگیرید.
-      </p>
-      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+    <section className="text-center space-y-8 pb-10" dir="rtl">
+      <div>
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+          آماده شروع هستید؟
+        </h2>
+        <p className="text-gray-600 text-lg max-w-xl mx-auto">
+          همین حالا می‌توانید سفارش خود را ثبت کنید یا برای دریافت مشاوره تخصصی رایگان با کارشناسان ما در تماس باشید.
+        </p>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
         <Link
-          href="/order"
-          className="rounded-md bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-sm 
-                     hover:bg-blue-700 transition-all"
+          href="/products"
+          className="w-full sm:w-auto rounded-xl bg-blue-600 px-8 py-3.5 text-base font-semibold text-white shadow-sm hover:bg-blue-700 hover:shadow-md transition-all duration-200"
         >
-          ثبت سفارش
+          مشاهده محصولات و خرید
         </Link>
         <Link
           href="/contact"
-          className="rounded-md bg-white border-2 border-orange-500 px-6 py-3 text-base font-semibold 
-                     text-orange-500 hover:bg-orange-50 transition-all"
+          className="w-full sm:w-auto rounded-xl bg-white border-2 border-gray-200 px-8 py-3.5 text-base font-semibold text-gray-700 hover:border-orange-500 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
         >
           تماس با ما
         </Link>

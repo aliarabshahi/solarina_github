@@ -3,16 +3,13 @@ import AboutProjectSection from "./components/AboutProjectSection";
 import AboutFeatures from "./components/AboutFeatures";
 import AboutCTA from "./components/AboutCTA";
 
-/**
- * General About Page — combines introduction, project info, features, and CTA
- */
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-[#f9f9fb] py-10 px-6 sm:py-12 sm:px-8 lg:px-12">
-      <div className="max-w-5xl mx-auto space-y-20">
+    <div className="relative z-0 min-h-screen bg-white py-16 sm:py-24">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
         <AboutIntro />
         <AboutProjectSection />
-        <AboutFeatures />
+        {/* <AboutFeatures /> */}
         <AboutCTA />
       </div>
     </div>
