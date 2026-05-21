@@ -10,7 +10,6 @@ import { getApiData } from "@/app/services/receive_data/apiServerFetch";
 import { ReactNode } from "react";
 
 // --- Types ---
-// ✅ UPDATED: Added unit_price and other fields to match the API response
 interface OrderedProduct {
   name: string;
   quantity: number;
@@ -84,26 +83,26 @@ export default async function VerifyOrderPage({ searchParams }: PageProps) {
 
     return (
       <div className="min-h-screen bg-slate-50 py-10 sm:py-16 px-6" dir="rtl">
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100 text-center space-y-6">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100 text-center space-y-6 sm:space-y-8">
             <div className="flex flex-col items-center">
-              <FaCheckCircle className="text-6xl text-green-500 mb-3" />
-              <h2 className="text-2xl font-bold text-green-600 mb-2">
+              <FaCheckCircle className="text-5xl sm:text-6xl text-green-400 mb-3 sm:mb-4" />
+              <h2 className="text-2xl sm:text-3xl font-bold text-green-500 mb-2">
                 پرداخت با موفقیت انجام شد
               </h2>
-              <p className="text-gray-500 text-sm max-w-md">
+              <p className="text-gray-500 text-sm sm:text-base max-w-md">
                 سفارش شما با موفقیت ثبت شد و در حال پردازش است. لطفاً کد رهگیری خود را یادداشت یا ذخیره کنید.
               </p>
             </div>
 
             {order && paymentData ? (
-              <div className="bg-slate-50 rounded-lg p-5 text-right space-y-4 border border-slate-200">
-                <h3 className="font-semibold text-gray-800 text-base border-b pb-3 mb-2 text-center">
+              <div className="bg-slate-50 rounded-lg p-5 sm:p-6 text-right space-y-5 border border-slate-200">
+                <h3 className="font-semibold text-gray-800 text-base sm:text-lg border-b pb-3 mb-2 text-center">
                   خلاصه سفارش شما
                 </h3>
 
-                <div className="flex items-center gap-3 text-sm text-gray-700">
-                  <FaReceipt className="text-blue-500 w-4 h-4" />
+                <div className="flex items-center gap-3 text-sm sm:text-base text-gray-700">
+                  <FaReceipt className="text-blue-500 w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
                   <span>
                     <strong className="text-gray-900">کد رهگیری:</strong>{" "}
                     <span className="font-mono text-blue-600 font-semibold">
@@ -112,16 +111,16 @@ export default async function VerifyOrderPage({ searchParams }: PageProps) {
                   </span>
                 </div>
 
-                <div className="flex items-center gap-3 text-sm text-gray-700">
-                  <FaUser className="text-blue-500 w-4 h-4" />
+                <div className="flex items-center gap-3 text-sm sm:text-base text-gray-700">
+                  <FaUser className="text-blue-500 w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
                   <span>
                     <strong className="text-gray-900">نام:</strong>{" "}
                     {order.full_name}
                   </span>
                 </div>
 
-                <div className="flex items-start gap-3 text-sm text-gray-700">
-                  <FaMapMarkerAlt className="text-blue-500 w-4 h-4 mt-1" />
+                <div className="flex items-start gap-3 text-sm sm:text-base text-gray-700">
+                  <FaMapMarkerAlt className="text-blue-500 w-4 h-4 sm:w-5 sm:h-5 shrink-0 mt-1" />
                   <span className="flex flex-col">
                     <strong className="text-gray-900">آدرس:</strong>
                     <span className="text-gray-600 leading-relaxed">
@@ -132,47 +131,48 @@ export default async function VerifyOrderPage({ searchParams }: PageProps) {
 
                 {/* --- START OF CHANGES --- */}
                 {order.products && order.products.length > 0 && (
-                  <div className="pt-4 mt-4 border-t space-y-3">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-gray-800">
-                      <FaShoppingBag className="text-blue-500 w-4 h-4" />
+                  <div className="pt-5 mt-5 border-t space-y-4">
+                    <div className="flex items-center gap-2 text-base sm:text-lg font-semibold text-gray-800">
+                      <FaShoppingBag className="text-blue-500 w-4 h-4 sm:w-5 sm:h-5" />
                       اقلام سفارش
                     </div>
 
                     {order.products.map((p, i) => (
                       <div
                         key={i}
-                        className="flex justify-between items-center bg-white border border-slate-200 rounded-lg p-3 text-sm"
+                        className="flex flex-col sm:flex-row justify-between items-center bg-white border border-slate-200 rounded-lg p-3 sm:p-4 gap-4 text-sm sm:text-base text-center sm:text-right"
                       >
-                        <span className="font-medium text-gray-700 whitespace-nowrap">
+                        <span className="font-medium text-gray-700 w-full sm:w-auto">
                           {p.name}
                         </span>
 
-                        <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
-                          قیمت واحد: {formatToman(p.unit_price)} تومان
-                        </span>
+                        <div className="flex flex-wrap justify-center sm:justify-end items-center gap-2 w-full sm:w-auto">
+                          <span className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap">
+                            قیمت واحد: {formatToman(p.unit_price)} تومان
+                          </span>
 
-                        <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
-                          تعداد: {p.quantity}
-                        </span>
+                          <span className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap">
+                            تعداد: {p.quantity}
+                          </span>
+                        </div>
                       </div>
                     ))}
                   </div>
                 )}
                 {/* --- END OF CHANGES --- */}
 
-
                 {/* PRICE */}
-                <div className="flex justify-between items-center pt-4 mt-4 border-t">
-                  <span className="font-semibold text-gray-700">
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-2 pt-5 mt-5 border-t">
+                  <span className="font-semibold text-gray-700 text-base sm:text-lg">
                     مبلغ پرداختی:
                   </span>
-                  <span className="font-bold text-blue-700 text-lg">
+                  <span className="font-bold text-blue-700 text-xl sm:text-2xl">
                     {formatToman(paymentData.amount)} تومان
                   </span>
                 </div>
               </div>
             ) : (
-              <div className="text-sm text-gray-500 bg-gray-100 p-3 rounded-lg border border-gray-200">
+              <div className="text-sm sm:text-base text-gray-500 bg-gray-100 p-4 rounded-lg border border-gray-200">
                 جزئیات سفارش در حال حاضر در دسترس نیست، اما پرداخت شما تایید شده است.
               </div>
             )}
@@ -192,10 +192,10 @@ function FailedPayment() {
       className="min-h-screen bg-slate-50 py-10 sm:py-16 px-6 flex items-center justify-center"
       dir="rtl"
     >
-      <div className="max-w-md w-full bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100 text-center space-y-4">
-        <FaTimesCircle className="text-6xl text-red-500 mx-auto" />
-        <h2 className="text-2xl font-bold text-red-600">پرداخت ناموفق بود</h2>
-        <p className="text-gray-600 text-sm leading-relaxed">
+      <div className="max-w-md w-full bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100 text-center space-y-4 sm:space-y-6">
+        <FaTimesCircle className="text-5xl sm:text-6xl text-red-500 mx-auto" />
+        <h2 className="text-2xl sm:text-3xl font-bold text-red-600">پرداخت ناموفق بود</h2>
+        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
           فرآیند پرداخت تکمیل نشد. اگر مبلغی از حساب شما کسر شده است، معمولاً
           ظرف ۷۲ ساعت توسط بانک بازگردانده می‌شود.
         </p>

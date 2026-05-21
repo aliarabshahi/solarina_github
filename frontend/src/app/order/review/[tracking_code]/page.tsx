@@ -100,7 +100,7 @@ export default function OrderReviewPage() {
         className="min-h-screen bg-slate-50 flex items-center justify-center text-center p-10"
         dir="rtl"
       >
-        <p className="text-sm text-gray-600">در حال بارگذاری اطلاعات سفارش...</p>
+        <p className="text-base sm:text-lg text-gray-600">در حال بارگذاری اطلاعات سفارش...</p>
       </div>
     );
   }
@@ -111,7 +111,7 @@ export default function OrderReviewPage() {
         className="min-h-screen bg-slate-50 flex items-center justify-center text-center p-10"
         dir="rtl"
       >
-        <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-lg">
+        <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-lg text-sm sm:text-base">
           {message}
         </div>
       </div>
@@ -120,27 +120,28 @@ export default function OrderReviewPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 py-10 sm:py-16 px-6" dir="rtl">
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100 space-y-6">
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100 space-y-6 sm:space-y-8">
           <header className="text-center">
-            <h1 className="text-2xl font-bold text-blue-600">
+            <h1 className="text-2xl sm:text-3xl font-bold text-blue-600">
               بررسی نهایی سفارش
             </h1>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm sm:text-base text-gray-500 mt-3">
               کد رهگیری:{" "}
               <span className="font-mono text-blue-600 font-semibold">
                 {order?.tracking_code}
               </span>
             </p>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs sm:text-sm text-gray-400 mt-2">
               لطفاً اطلاعات زیر را بررسی و در صورت تایید برای پرداخت اقدام فرمایید.
             </p>
           </header>
 
-          {/* Customer Info */}
-          <div className="space-y-5 text-sm text-gray-700">
+          {/* Customer Info (2 columns for basic info, full width for address/notes) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 text-sm sm:text-base text-gray-700">
+            {/* 2x2 Grid Items */}
             <div className="flex items-center gap-3">
-              <FaUser className="text-gray-400 w-4 h-4" />
+              <FaUser className="text-blue-500 w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
               <span>
                 <strong className="text-gray-800">نام کامل:</strong>{" "}
                 {order?.full_name}
@@ -148,7 +149,7 @@ export default function OrderReviewPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <FaPhone className="text-gray-400 w-4 h-4" />
+              <FaPhone className="text-blue-500 w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
               <span>
                 <strong className="text-gray-800">شماره موبایل:</strong>{" "}
                 {order?.phone_number}
@@ -156,32 +157,33 @@ export default function OrderReviewPage() {
             </div>
 
             <div className="flex items-center gap-3">
-              <FaEnvelope className="text-gray-400 w-4 h-4" />
+              <FaEnvelope className="text-blue-500 w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
               <span>
                 <strong className="text-gray-800">ایمیل:</strong>{" "}
                 {order?.email || "-"}
               </span>
             </div>
 
-            <div className="flex items-start gap-3">
-              <FaMapMarkerAlt className="text-gray-400 w-4 h-4 mt-1" />
-              <span>
-                <strong className="text-gray-800">آدرس:</strong>{" "}
-                {order?.address}
-              </span>
-            </div>
-
             <div className="flex items-center gap-3">
-              <FaHashtag className="text-gray-400 w-4 h-4" />
+              <FaHashtag className="text-blue-500 w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
               <span>
                 <strong className="text-gray-800">کد پستی:</strong>{" "}
                 {order?.postal_code}
               </span>
             </div>
 
-            <div className="flex items-start gap-3">
-              <FaStickyNote className="text-gray-400 w-4 h-4 mt-1" />
-              <span>
+            {/* Full Width Items (Address & Notes) */}
+            <div className="flex items-start gap-3 sm:col-span-2">
+              <FaMapMarkerAlt className="text-blue-500 w-4 h-4 sm:w-5 sm:h-5 shrink-0 mt-1" />
+              <span className="leading-relaxed">
+                <strong className="text-gray-800">آدرس:</strong>{" "}
+                {order?.address}
+              </span>
+            </div>
+
+            <div className="flex items-start gap-3 sm:col-span-2">
+              <FaStickyNote className="text-blue-500 w-4 h-4 sm:w-5 sm:h-5 shrink-0 mt-1" />
+              <span className="leading-relaxed">
                 <strong className="text-gray-800">توضیحات:</strong>{" "}
                 {order?.notes || "-"}
               </span>
@@ -190,38 +192,41 @@ export default function OrderReviewPage() {
 
           {/* Product List */}
           <div className="border-t pt-6 space-y-4">
-            <h2 className="font-semibold text-gray-800 flex items-center gap-2 text-sm">
-              <FaShoppingBag className="text-blue-500 w-5 h-5" />
+            <h2 className="font-semibold text-gray-800 flex items-center gap-2 text-base sm:text-lg">
+              <FaShoppingBag className="text-blue-500 w-5 h-5 shrink-0" />
               اقلام سفارش
             </h2>
 
             {order?.products.map((p, i) => (
               <div
                 key={i}
-                className="flex justify-between items-center bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm"
+                className="flex flex-col sm:flex-row justify-between items-center bg-slate-50 border border-slate-200 rounded-lg p-3 sm:p-4 gap-4 text-sm sm:text-base text-center sm:text-right"
               >
-                <span className="font-medium text-gray-700 whitespace-nowrap">
+                <span className="font-medium text-gray-700 w-full sm:w-auto">
                   {p.name}
                 </span>
 
-                <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
-                  قیمت واحد: {formatToman(p.unit_price)} تومان
-                </span>
+                {/* Adjusted container to center items on mobile and match styles */}
+                <div className="flex flex-wrap justify-center sm:justify-end items-center gap-2 w-full sm:w-auto">
+                  <span className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap">
+                    قیمت واحد: {formatToman(p.unit_price)} تومان
+                  </span>
 
-                <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
-                  تعداد: {p.quantity}
-                </span>
+                  <span className="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap">
+                    تعداد: {p.quantity}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
 
           {/* Total Price */}
-          <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
-            <div className="flex justify-between items-center">
-              <span className="font-semibold text-gray-700">
-                مبلغ قابل پرداخت
+          <div className="bg-slate-50 border border-slate-200 rounded-lg p-5">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
+              <span className="font-semibold text-gray-700 text-base sm:text-lg">
+                مبلغ قابل پرداخت:
               </span>
-              <span className="font-bold text-blue-700 text-lg">
+              <span className="font-bold text-blue-700 text-xl sm:text-2xl">
                 {formatToman(Number(order?.total_price))} تومان
               </span>
             </div>
@@ -231,7 +236,7 @@ export default function OrderReviewPage() {
           <button
             onClick={handlePayment}
             disabled={loading}
-            className={`w-full py-4 rounded-lg flex items-center justify-center gap-2 font-semibold transition ${
+            className={`w-full py-4 rounded-lg flex items-center justify-center gap-2 font-semibold text-base sm:text-lg transition ${
               loading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700 text-white shadow-md"
@@ -240,7 +245,7 @@ export default function OrderReviewPage() {
             {loading ? (
               <>
                 <svg
-                  className="animate-spin h-5 w-5 text-white"
+                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -267,7 +272,7 @@ export default function OrderReviewPage() {
           </button>
 
           {message && (
-            <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg text-sm text-center">
+            <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg text-sm sm:text-base text-center">
               {message}
             </div>
           )}
