@@ -5,7 +5,7 @@ export default function OrderImage() {
   return (
     <div className="w-full h-full flex items-start justify-start">
       <Image
-        src="/images/forms/project-order.svg"
+        src="/images/forms/product-order.svg"
         alt="ثبت سفارش پنل خورشیدی"
         width={800}
         height={600}
