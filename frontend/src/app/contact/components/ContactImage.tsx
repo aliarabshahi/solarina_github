@@ -3,7 +3,8 @@ import Image from "next/image";
 
 export default function ContactImage() {
   return (
-    <div className="w-full h-full flex items-start justify-start">
+    // Added lg:pt-16 for desktop top padding
+    <div className="w-full h-full flex items-start justify-start lg:pt-16">
       <Image
         src="/images/forms/contact-us.svg"
         alt="تماس با تیم پنل خورشیدی"
