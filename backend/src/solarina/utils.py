@@ -186,55 +186,41 @@ class CountBasedPaymentHandler:
 
 
 
-
-
-
-
-
-
-import requests
 import logging
+from kavenegar import KavenegarAPI, APIException, HTTPException
 
-
-SMS_API_URL = "https://s.api.ir/api/sw1/SmsOTP"
-
-SMS_API_TOKEN = "Bearer ImmJ+7dwBXNXsYPOR+Vn/BIrFGFm8lgqSkGmDcf6hBCzCBUatX9h2dbVR91RTEC7q43t38I2TnmYVhsLcFiVZzLq4kNGrJrFDLNT2BHo244="
+# کلید API که ارائه دادید
+KAVENEGAR_API_KEY = "48316731674E6D74715A6A6F696931304C7A7353464F393734566E4970747A793379555A3742524A6830593D"
 
 def send_sms_otp(phone_number, code):
     """
-    Send OTP SMS using provider API
+    ارسال کد تایید با استفاده از سرویس Lookup کاوه‌نگار
     """
-
-    payload = {
-        "code": code,
-        "mobile": phone_number,
-        "template": 1
-    }
-
-    headers = {
-        "Authorization": SMS_API_TOKEN,
-        "Content-Type": "application/json"
-    }
-
     try:
-        response = requests.post(
-            SMS_API_URL,
-            json=payload,
-            headers=headers,
-            timeout=10
-        )
+        api = KavenegarAPI(KAVENEGAR_API_KEY)
+        
+        params = {
+            'receptor': phone_number,
+            'token': code,
+            'template': 'SolarinaOTP', # نام الگویی که در پنل کاوه‌نگار ثبت کردید
+        }
+        
+        response = api.verify_lookup(params)
+        logging.info(f"[SMS KAVENEGAR SUCCESS] {response}")
+        return response
 
-        data = response.json()
-
-        logging.warning(f"[SMS API RESPONSE] {data}")
-
-        return data
-
-    except Exception as e:
-        logging.error(f"[SMS ERROR] {e}")
+    except APIException as e:
+        # خطاهای برگشتی از خودِ API کاوه‌نگار (مانند عدم تایید الگو و ...)
+        logging.error(f"[KAVENEGAR API ERROR] {e}")
         return None
-
-
+    except HTTPException as e:
+        # خطاهای مربوط به شبکه و ارتباط با سرور کاوه‌نگار
+        logging.error(f"[KAVENEGAR HTTP ERROR] {e}")
+        return None
+    except Exception as e:
+        # هر خطای پیش‌بینی نشده دیگر
+        logging.error(f"[SMS GENERAL ERROR] {e}")
+        return None
 
 
 

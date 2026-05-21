@@ -464,86 +464,61 @@ class OrderPaymentViewSet(viewsets.ModelViewSet):
 # Send OTP API
 # ---------------------------------------------------------------------
 
-from datetime import timedelta
-
-from django.utils import timezone
-
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
+from django.utils import timezone
+# مطمئن شوید مدل‌ها و متغیرهای مورد نیاز مثل OTP_COOLDOWN_SECONDS وارد شده‌اند
+from .models import OTPModel
+from .serializers import SendOTPSerializer
+from .utils import send_sms_otp
 
 
 OTP_COOLDOWN_SECONDS = 60
 
-
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def send_otp_view(request):
-
     serializer = SendOTPSerializer(data=request.data)
-
     serializer.is_valid(raise_exception=True)
-
     phone_number = serializer.validated_data["phone_number"]
 
-    # آخرین OTP استفاده نشده
+    # بررسی محدودیت زمانی (Cool down)
     latest_otp = OTPModel.objects.filter(
         phone_number=phone_number,
         is_used=False
     ).order_by("-created_at").first()
 
-    # جلوگیری از اسپم
     if latest_otp:
-
-        passed_seconds = int(
-            (
-                timezone.now() - latest_otp.created_at
-            ).total_seconds()
-        )
-
-        remaining_seconds = (
-            OTP_COOLDOWN_SECONDS - passed_seconds
-        )
-
+        passed_seconds = int((timezone.now() - latest_otp.created_at).total_seconds())
+        # فرض بر این است که OTP_COOLDOWN_SECONDS در کانتکست شما تعریف شده است
+        remaining_seconds = (OTP_COOLDOWN_SECONDS - passed_seconds)
         if remaining_seconds > 0:
+            return Response({
+                "success": False,
+                "message": f"لطفاً {remaining_seconds} ثانیه صبر کنید",
+                "remaining_seconds": remaining_seconds,
+            }, status=status.HTTP_429_TOO_MANY_REQUESTS)
 
-            return Response(
-                {
-                    "success": False,
-                    "message": f"لطفاً {remaining_seconds} ثانیه صبر کنید",
-                    "remaining_seconds": remaining_seconds,
-                },
-                status=status.HTTP_429_TOO_MANY_REQUESTS
-            )
-
-    # ساخت OTP
+    # ساخت OTP در دیتابیس
     otp = OTPModel.create_otp(phone_number)
 
     # ارسال پیامک
-    sms_result = send_sms_otp(
-        phone_number=phone_number,
-        code=otp.code
-    )
+    sms_result = send_sms_otp(phone_number=phone_number, code=otp.code)
 
     if not sms_result:
+        return Response({
+            "success": False,
+            "message": "خطا در ارسال پیامک. لطفاً بعداً تلاش کنید."
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return Response(
-            {
-                "success": False,
-                "message": "خطا در ارسال پیامک"
-            },
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+    return Response({
+        "success": True,
+        "message": "کد تایید ارسال شد",
+        "cooldown": OTP_COOLDOWN_SECONDS,
+    }, status=status.HTTP_200_OK)
 
-    return Response(
-        {
-            "success": True,
-            "message": "کد تایید ارسال شد",
-            "cooldown": OTP_COOLDOWN_SECONDS,
-        },
-        status=status.HTTP_200_OK
-    )
 
 
 # ---------------------------------------------------------------------
