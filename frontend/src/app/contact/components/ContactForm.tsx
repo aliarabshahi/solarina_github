@@ -1,6 +1,13 @@
 "use client";
 import { useState } from "react";
-import { FaEnvelope, FaUser, FaPhone, FaComment, FaPaperPlane, FaCheckCircle } from "react-icons/fa";
+import {
+  FaEnvelope,
+  FaUser,
+  FaPhone,
+  FaComment,
+  FaPaperPlane,
+  FaCheckCircle,
+} from "react-icons/fa";
 import { motion } from "framer-motion";
 
 type ContactFormData = {
@@ -59,14 +66,13 @@ export default function ContactForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6" method="post">
-
         {/* Name */}
         <div>
           <label
             htmlFor="full_name"
             className="block text-xs sm:text-sm font-medium mb-2 text-gray-700"
           >
-            نام کامل
+            نام و نام خانوادگی{" "}
           </label>
 
           <div className="relative">

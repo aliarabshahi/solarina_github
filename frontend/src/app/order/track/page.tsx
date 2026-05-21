@@ -164,7 +164,7 @@ function OrderResult({ order }: { order: Order }) {
           <div className="flex items-center gap-3">
             <FaUser className="text-blue-500 w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
             <span>
-              <strong className="text-gray-900">نام:</strong> {order.full_name}
+              <strong className="text-gray-900">نام و نام خانوادگی:</strong> {order.full_name}
             </span>
           </div>
 

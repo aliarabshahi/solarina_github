@@ -142,7 +142,7 @@ export default async function VerifyOrderPage({ searchParams }: PageProps) {
                 <div className="flex items-center gap-3 text-sm sm:text-base text-gray-700">
                   <FaUser className="text-blue-500 w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
                   <span>
-                    <strong className="text-gray-900">نام:</strong>{" "}
+                    <strong className="text-gray-900">نام و نام خانوادگی:</strong>{" "}
                     {order.full_name}
                   </span>
                 </div>
