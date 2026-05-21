@@ -325,6 +325,10 @@ def get_order_by_tracking(request, tracking_code):
             status=status.HTTP_404_NOT_FOUND
         )
 
+# Admin/Boss phone number
+BOSS_PHONES = ["09190088190"]
+
+
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def verify_order_payment(request):
@@ -351,12 +355,12 @@ def verify_order_payment(request):
     order = transaction.order
     print(f"[DEBUG] Linked Order Found => ID={order.id}, Status={order.status}")
 
-    # 🚨 PREVENT DUPLICATE SMS: Check if already verified in DB
+    # 🚨 PREVENT DUPLICATE SMS
     if transaction.status == "successful":
         print("[DEBUG] ✅ Transaction was already verified. Skipping SMS.")
         return Response({
             "status": "success",
-            "ref_id": "already_verified_in_db", 
+            "ref_id": "already_verified_in_db",
             "order_id": order.id
         })
 
@@ -364,26 +368,39 @@ def verify_order_payment(request):
     result = order_payment_handler.verify_payment(authority, transaction.amount)
     print(f"[DEBUG] Verification result: {result}")
 
-    # 3️⃣ Handle verification result and update models
+    # 3️⃣ Handle verification result
     if result["status"] in ["success", "already_verified"]:
-        print("[DEBUG] ✅ Verification succeeded (either new or already verified by bank).")
+        print("[DEBUG] ✅ Verification succeeded.")
+
         order_payment_handler.update_transaction_status(authority, "successful")
 
         order.status = "paid"
         order.save()
+
         print(f"[DEBUG] ✅ Order {order.id} marked as paid")
 
-        # 4️⃣ SEND SMS NOTIFICATIONS
+        # ---------------------------
+        # SEND SMS
+        # ---------------------------
         customer_phone = order.phone_number
-        boss_phone = "09190088190"  # ⚠️ Replace with the actual Boss/Admin phone number
 
-        # Message for Customer
-        customer_msg = f"مشتری گرامی، سفارش شما با کد پیگیری {order.tracking_code} با موفقیت ثبت و پرداخت شد."
-        send_notification_sms([customer_phone], customer_msg)
+        # ✅ SMS to Customer
+        send_notification_sms(
+            receptor=customer_phone,
+            template="SolarinaUserOrderConfirmation",
+            token=order.tracking_code
+        )
 
-        # Message for Boss
-        boss_msg = f"سفارش جدید پرداخت شد! کد پیگیری: {order.tracking_code} شماره مشتری: {customer_phone}"
-        send_notification_sms([boss_phone], boss_msg)
+        # ✅ SMS to Admins
+        for boss_phone in BOSS_PHONES:
+            send_notification_sms(
+                receptor=boss_phone,
+                template="SolarinaAdminConfirmation",
+                token=str(order.id),
+                token2=order.tracking_code
+            )
+
+        customer_phone = order.phone_number
 
         return Response({
             "status": "success",
@@ -392,14 +409,17 @@ def verify_order_payment(request):
         })
 
     else:
-        print("[ERROR] ❌ Verification failed, updating statuses to failed")
+        print("[ERROR] ❌ Verification failed")
+
         order_payment_handler.update_transaction_status(authority, "failed")
 
         order.status = "failed"
         order.save()
+
         print(f"[DEBUG] ❌ Order {order.id} marked as failed")
 
         return Response({"status": "failed"})
+
 # ---------------------------------------------------------------------
 # Order ViewSet
 # ---------------------------------------------------------------------

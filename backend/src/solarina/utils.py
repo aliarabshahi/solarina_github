@@ -230,36 +230,55 @@ def send_sms_otp(phone_number, code):
 
 
 
-
-
-
-import requests
 import logging
+from kavenegar import KavenegarAPI, APIException, HTTPException
 
 logger = logging.getLogger(__name__)
 
-SEND_SMS_API_URL = "https://s.api.ir/api/sw1/SendSms"
-SEND_SMS_API_TOKEN = "Bearer ImmJ+7dwBXNXsYPOR+Vn/BIrFGFm8lgqSkGmDcf6hBBThCYoqcWaLivTbGuHUGo6eNqgBCj5ofn293hjUW5TQcKl5p/UmyqHFzsEkFYz5bI="
+# Kavenegar API Key
+KAVENEGAR_API_KEY = "48316731674E6D74715A6A6F696931304C7A7353464F393734566E4970747A793379555A3742524A6830593D"
 
-def send_notification_sms(mobiles: list, message: str):
+
+def send_notification_sms(receptor: str, template: str, token: str, token2=None, token3=None):
     """
-    Sends a general SMS notification using s.api.ir.
+    Send SMS using Kavenegar Verify Lookup (Template based)
+
+    receptor : mobile number
+    template : template name in Kavenegar panel
+    token    : first variable
+    token2   : second variable (optional)
+    token3   : third variable (optional)
     """
-    payload = {
-        "MessageBody": message,
-        "Mobiles": mobiles
-    }
-    
-    headers = {
-        "Authorization": SEND_SMS_API_TOKEN,
-        "Content-Type": "application/json"
-    }
 
     try:
-        response = requests.post(SEND_SMS_API_URL, json=payload, headers=headers, timeout=10)
-        response.raise_for_status()
-        logger.info(f"SMS sent successfully to {mobiles}")
+        api = KavenegarAPI(KAVENEGAR_API_KEY)
+
+        params = {
+            "receptor": receptor,
+            "template": template,
+            "token": token
+        }
+
+        if token2:
+            params["token2"] = token2
+
+        if token3:
+            params["token3"] = token3
+
+        response = api.verify_lookup(params)
+
+        logger.info(f"Kavenegar SMS sent successfully -> {response}")
+
         return True
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to send SMS to {mobiles}. Error: {e}")
+
+    except APIException as e:
+        logger.error(f"Kavenegar APIException: {e}")
+        return False
+
+    except HTTPException as e:
+        logger.error(f"Kavenegar HTTPException: {e}")
+        return False
+
+    except Exception as e:
+        logger.error(f"Kavenegar Unexpected Error: {e}")
         return False
