@@ -9,12 +9,20 @@ const navbarLinks = [
   { label: "تماس با ما", href: "/contact" },
 ];
 
-export default function NavbarMenu() {
+interface NavbarMenuProps {
+  onItemClick?: () => void;
+}
+
+export default function NavbarMenu({ onItemClick }: NavbarMenuProps) {
   return (
     <ul className="flex flex-col md:flex-row gap-3 md:gap-6 text-gray-700 text-sm md:text-base">
       {navbarLinks.map((item) => (
         <li key={item.href}>
-          <Link href={item.href} className="hover:text-blue-600 transition-colors">
+          <Link 
+            href={item.href} 
+            className="hover:text-blue-600 transition-colors block py-1 md:py-0"
+            onClick={onItemClick}
+          >
             {item.label}
           </Link>
         </li>

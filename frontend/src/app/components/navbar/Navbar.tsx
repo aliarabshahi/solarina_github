@@ -1,20 +1,12 @@
-// app/components/navbar/Navbar.tsx
-
 "use client";
 
 import { useState } from "react";
-
-import {
-  Menu,
-  X,
-} from "lucide-react";
-
+import { Menu, X } from "lucide-react";
 import NavbarLogo from "./NavbarLogo";
 import NavbarMenu from "./NavbarMenu";
 import NavbarLogin from "./NavbarLogin";
 
 export default function Navbar() {
-
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -43,34 +35,35 @@ export default function Navbar() {
         "
         dir="rtl"
       >
-
-        {/* Right Side */}
-        <div className="flex items-center gap-6">
-
+        {/* بخش سمت راست: منوی همبرگری (موبایل) و لوگو+لینک‌ها (دسکتاپ) */}
+        <div className="flex items-center justify-start flex-1 md:flex-none md:gap-6">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="block md:hidden text-[#22313F]"
+            className="block md:hidden text-[#22313F] p-1"
             aria-label="Toggle menu"
           >
-            {menuOpen
-              ? <X size={24} />
-              : <Menu size={24} />}
+            {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
 
-          <NavbarLogo />
-
-          <div className="hidden md:block">
+          {/* نمایش لوگو و منو فقط در دسکتاپ */}
+          <div className="hidden md:flex items-center gap-6">
+            <NavbarLogo />
             <NavbarMenu />
           </div>
-
         </div>
 
-        {/* Left Side */}
-        <NavbarLogin />
+        {/* بخش وسط: لوگو مخصوص موبایل (وسط‌چین) */}
+        <div className="flex md:hidden items-center justify-center flex-1">
+          <NavbarLogo />
+        </div>
 
+        {/* بخش سمت چپ: دکمه ورود/پروفایل */}
+        <div className="flex items-center justify-end flex-1 md:flex-none">
+          <NavbarLogin />
+        </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Dropdown */}
       {menuOpen && (
         <div
           className="
@@ -84,15 +77,10 @@ export default function Navbar() {
           dir="rtl"
         >
           <div className="pt-4">
-            <NavbarMenu />
-          </div>
-
-          <div className="pt-4">
-            <NavbarLogin />
+            <NavbarMenu onItemClick={() => setMenuOpen(false)} />
           </div>
         </div>
       )}
-
     </div>
   );
 }
