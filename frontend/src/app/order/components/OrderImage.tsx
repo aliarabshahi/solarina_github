@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function OrderImage() {
   return (
-    <div className="w-full h-full flex items-start justify-start">
+    <div className="w-full h-full flex items-start justify-start lg:pt-16">
       <Image
         src="/images/forms/product-order.svg"
         alt="ثبت سفارش پنل خورشیدی"
