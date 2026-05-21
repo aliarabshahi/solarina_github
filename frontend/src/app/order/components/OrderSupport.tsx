@@ -14,12 +14,12 @@ export default function OrderSupport() {
         <div className="space-y-3 text-sm sm:text-base" dir="rtl">
           <div className="flex items-center justify-center sm:justify-start">
             <FaPhone className="text-base sm:text-lg ml-2" />
-            <span className="tracking-wide">۰۹۳۷۴۱۵۲۰۹۵</span>
+            <span className="tracking-wide">09123679265</span>
           </div>
-          <div className="flex items-center justify-center sm:justify-start">
+          {/* <div className="flex items-center justify-center sm:justify-start">
             <FaEnvelope className="text-base sm:text-lg ml-2" />
-            <span className="tracking-wide">info@solarina.ir</span>
-          </div>
+            <span className="tracking-wide">s4aa4m@gmail.com</span>
+          </div> */}
         </div>
 
         {/* شبکه‌ها */}

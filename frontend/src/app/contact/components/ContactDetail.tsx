@@ -13,13 +13,13 @@ export default function ContactDetail() {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-10">
         <div className="space-y-3 text-sm sm:text-base" dir="rtl">
           <div className="flex items-center justify-center sm:justify-end">
-            <span className="ml-2 tracking-wide">۰۹۳۷۴۱۵۲۰۹۵</span>
+            <span className="ml-2 tracking-wide">09123679265</span>
             <FaPhone className="text-base sm:text-lg mr-1" />
           </div>
-          <div className="flex items-center justify-center sm:justify-end">
-            <span className="ml-2 tracking-wide">info@solarina.ir</span>
+          {/* <div className="flex items-center justify-center sm:justify-end">
+            <span className="ml-2 tracking-wide">s4aa4m@gmail.com</span>
             <FaEnvelope className="text-base sm:text-lg mr-1" />
-          </div>
+          </div> */}
         </div>
 
         {/* شبکه‌ها */}
