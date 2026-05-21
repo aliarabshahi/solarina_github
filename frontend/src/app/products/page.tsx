@@ -93,12 +93,12 @@ export default function ProductsPage() {
         />
       </div>
 
-      <section className="max-w-7xl mx-auto px-6 lg:px-8 py-16 sm:py-24">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-24">
         
         {/* HEADER */}
-        <div className="text-center max-w-3xl mx-auto mb-14">
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
           <h1
-            className="text-4xl sm:text-5xl font-extrabold
+            className="text-3xl sm:text-5xl font-extrabold
             tracking-tight text-gray-900 leading-tight"
           >
             انرژی خورشید،
@@ -109,13 +109,13 @@ export default function ProductsPage() {
         </div>
 
         {/* top bar (categories + search) */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 mb-14">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 mb-10 sm:mb-14">
 
           {/* categories */}
-          <div className="flex flex-wrap items-center justify-center gap-3">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
             <button
               onClick={() => setSelectedCategory("all")}
-              className={`px-5 py-3 rounded-2xl text-sm font-bold transition-all ${
+              className={`px-4 py-2 sm:px-5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all ${
                 selectedCategory === "all"
                   ? "bg-blue-600 text-white shadow-lg"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -128,7 +128,7 @@ export default function ProductsPage() {
               <button
                 key={category.slug}
                 onClick={() => setSelectedCategory(category.slug)}
-                className={`px-5 py-3 rounded-2xl text-sm font-bold transition-all ${
+                className={`px-4 py-2 sm:px-5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all ${
                   selectedCategory === category.slug
                     ? "bg-blue-600 text-white shadow-lg"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -156,8 +156,8 @@ export default function ProductsPage() {
               bg-gray-100
               border border-transparent
               rounded-2xl
-              py-3 pr-11 pl-4
-              text-sm
+              py-2.5 sm:py-3 pr-11 pl-4
+              text-xs sm:text-sm
               text-gray-700
               placeholder:text-gray-400
               focus:outline-none
@@ -173,7 +173,7 @@ export default function ProductsPage() {
 
         {/* loading */}
         {loading && (
-          <div className="text-center py-20 text-gray-500">
+          <div className="text-center py-20 text-gray-500 text-sm sm:text-base">
             در حال بارگذاری محصولات...
           </div>
         )}
@@ -182,7 +182,7 @@ export default function ProductsPage() {
         {error && (
           <div
             className="max-w-xl mx-auto bg-red-50 border border-red-200
-            text-red-700 p-5 rounded-2xl text-center"
+            text-red-700 p-4 sm:p-5 rounded-2xl text-center text-sm sm:text-base"
           >
             {error}
           </div>
@@ -190,7 +190,7 @@ export default function ProductsPage() {
 
         {/* products */}
         {!loading && !error && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-8">
             {filteredProducts.map((product) => (
               <ProductCard
                 key={product.id}
@@ -202,7 +202,7 @@ export default function ProductsPage() {
 
         {/* empty */}
         {!loading && filteredProducts.length === 0 && (
-          <div className="text-center py-20 text-gray-500">
+          <div className="text-center py-20 text-gray-500 text-sm sm:text-base">
             محصولی پیدا نشد
           </div>
         )}
