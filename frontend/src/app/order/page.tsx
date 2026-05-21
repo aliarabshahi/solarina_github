@@ -35,7 +35,7 @@ export default function OrderPage() {
 
   return (
     <div
-      className="min-h-screen bg-slate-50 py-8 sm:py-10 px-6 sm:px-10 lg:px-20"
+      className="min-h-screen  py-8 sm:py-10 px-6 sm:px-10 lg:px-20"
       dir="rtl"
     >
       <div className="max-w-5xl mx-auto">

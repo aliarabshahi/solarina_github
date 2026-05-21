@@ -21,7 +21,7 @@ export default function ContactPage() {
 
   return (
     // تغییر پس‌زمینه به bg-slate-50 و افزودن dir="rtl" برای هماهنگی
-    <div className="min-h-screen bg-slate-50 py-8 sm:py-10 px-6 sm:px-10 lg:px-20" dir="rtl">
+    <div className="min-h-screen  py-8 sm:py-10 px-6 sm:px-10 lg:px-20" dir="rtl">
       <div className="max-w-5xl mx-auto">
         <div className="flex flex-col lg:flex-row items-start gap-10">
 
