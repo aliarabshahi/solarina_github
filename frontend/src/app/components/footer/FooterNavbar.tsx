@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const navItems = [
   { title: "شرکت", links: [{ text: "درباره ما", href: "/about" }, { text: "تماس با ما", href: "/contact" }, { text: "سؤالات متداول", href: "/faq" }] },
-  { title: "محصولات", links: [{ text: "پنل ۱۰ واتی", href: "/#products" }, { text: "پنل ۲۰ واتی", href: "/#products" }, { text: "پنل ماشین", href: "/#products" }] },
+  { title: "خدمات مشتریان", links: [{ text: "پیگیری سفارش", href: "/order/track" }, { text: "شرایط و قوانین", href: "/terms" }, { text: "حریم خصوصی", href: "/privacy" }] },
 ];
 
 export default function FooterNavbar() {
