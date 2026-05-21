@@ -56,11 +56,9 @@ export default function OrderForm() {
     notes: "",
   });
 
-  /* ✅ AUTO FILL PHONE FROM LOGGED IN USER */
   useEffect(() => {
     const loadUserPhone = () => {
       const user = getUser();
-
       if (user?.phone) {
         setOrder(prev => ({
           ...prev,
@@ -68,13 +66,8 @@ export default function OrderForm() {
         }));
       }
     };
-
-    // load once
     loadUserPhone();
-
-    // update if auth changes
     window.addEventListener("authChanged", loadUserPhone);
-
     return () => {
       window.removeEventListener("authChanged", loadUserPhone);
     };
@@ -85,7 +78,6 @@ export default function OrderForm() {
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
-  /* FETCH PRODUCTS */
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -95,11 +87,9 @@ export default function OrderForm() {
         console.error("Error fetching products", err);
       }
     };
-
     fetchProducts();
   }, []);
 
-  /* HELPERS */
   const formatToman = (rial: number) => {
     return (rial / 10).toLocaleString();
   };
@@ -108,8 +98,16 @@ export default function OrderForm() {
     <span className="text-rose-400 text-sm font-medium">*</span>
   );
 
-  /* FORM HANDLERS */
   const handleChange = (field: keyof OrderFormData, value: string) => {
+    // اعتبارسنجی ورود فقط عدد برای کد پستی و حداکثر 10 رقم
+    if (field === "postal_code") {
+      const onlyNums = value.replace(/[^0-9]/g, "");
+      if (onlyNums.length <= 10) {
+        setOrder((prev) => ({ ...prev, [field]: onlyNums }));
+      }
+      return;
+    }
+    
     setOrder((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -148,7 +146,6 @@ export default function OrderForm() {
     }
   };
 
-  /* TOTAL PRICE */
   const totalPrice = selectedProducts.reduce((sum, row) => {
     const product = products.find((p) => String(p.id) === row.product);
     if (!product) return sum;
@@ -157,19 +154,22 @@ export default function OrderForm() {
     return sum + product.price * qty;
   }, 0);
 
-  /* SUBMIT */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setLoading(true);
     setMessage("");
 
-    // 1. فیلتر کردن ردیف‌های خالی (ردیف‌هایی که محصولی در آن‌ها انتخاب نشده است)
+    // بررسی دقیق ۱۰ رقمی بودن کد پستی
+    if (order.postal_code.length !== 10) {
+      setMessage("کدپستی باید ۱۰ رقمی و معتبر باشد");
+      setLoading(false);
+      return;
+    }
+
     const validSelectedProducts = selectedProducts.filter(
       (row) => row.product && row.product.trim() !== ""
     );
 
-    // بررسی اینکه آیا حداقل یک محصول معتبر انتخاب شده است
     if (validSelectedProducts.length === 0) {
       setMessage("لطفاً حداقل یک محصول را انتخاب کنید.");
       setLoading(false);
@@ -183,10 +183,8 @@ export default function OrderForm() {
       address: order.address,
       postal_code: order.postal_code,
       notes: order.notes,
-      // 2. استفاده از آرایه فیلتر شده برای ارسال به سرور
       products: validSelectedProducts.map((row) => {
         const product = products.find((p) => String(p.id) === row.product);
-
         const quantity = Number(row.quantity) || 0;
         const unitPrice = product?.price || 0;
 
@@ -238,7 +236,6 @@ export default function OrderForm() {
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-6" autoComplete="on">
-        {/* Customer Details */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1.5">
@@ -267,19 +264,7 @@ export default function OrderForm() {
               type="tel"
               value={order.phone_number}
               readOnly
-              className="
-                w-full
-                rounded-xl
-                border
-                border-gray-200
-                bg-gray-100
-                px-4
-                py-3
-                text-base
-                text-gray-700
-                cursor-not-allowed
-                opacity-90
-              "
+              className="w-full rounded-xl border border-gray-200 bg-gray-100 px-4 py-3 text-base text-gray-700 cursor-not-allowed opacity-90"
             />
           </div>
 
@@ -316,11 +301,11 @@ export default function OrderForm() {
               className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition"
               placeholder="1234567890"
               dir="ltr"
+              maxLength={10}
             />
           </div>
         </div>
 
-        {/* Address */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1.5">
             <FaMapMarkerAlt className="text-gray-400" />
@@ -338,7 +323,6 @@ export default function OrderForm() {
           />
         </div>
 
-        {/* Notes */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             توضیحات سفارش
@@ -352,7 +336,6 @@ export default function OrderForm() {
           />
         </div>
 
-        {/* Products */}
         <div className="border-t pt-6 space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="font-semibold text-gray-800 flex items-center gap-2">
@@ -373,7 +356,6 @@ export default function OrderForm() {
                   activeDropdown === index ? "z-30 ring-2 ring-blue-200" : "z-10"
                 }`}
               >
-                {/* Product Dropdown */}
                 <div className="w-full sm:flex-1 min-w-0 relative">
                   <label className="block text-xs font-semibold text-gray-500 mb-2">
                     محصول {requiredStar}
@@ -403,7 +385,6 @@ export default function OrderForm() {
                     />
                   </div>
 
-                  {/* Dropdown Menu */}
                   {activeDropdown === index && (
                     <div className="absolute z-40 w-[calc(100vw-3rem)] sm:w-[720px] left-1/2 -translate-x-1/2 top-[85px] bg-white border border-gray-100 rounded-xl shadow-2xl flex flex-col overflow-hidden">
                       <div className="p-2 border-b border-gray-100 bg-gray-50/80">
@@ -462,7 +443,6 @@ export default function OrderForm() {
                   )}
                 </div>
 
-                {/* Quantity */}
                 <div className="w-full sm:w-24 flex-shrink-0">
                   <label className="block text-xs font-semibold text-gray-500 mb-2">
                     تعداد {requiredStar}
@@ -480,7 +460,6 @@ export default function OrderForm() {
                   />
                 </div>
 
-                {/* Remove Button */}
                 <div className="w-full sm:w-[46px] flex-shrink-0 flex justify-end sm:block relative z-20">
                   <label className="hidden sm:block text-xs mb-2 invisible">
                     &nbsp;
@@ -513,7 +492,6 @@ export default function OrderForm() {
           </div>
         </div>
 
-        {/* Total */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 p-5 rounded-xl flex justify-between items-center shadow-sm relative z-10">
           <span className="font-bold text-gray-700">مبلغ کل سفارش:</span>
           <span className="font-extrabold text-blue-700 text-xl tracking-tight">
@@ -522,7 +500,6 @@ export default function OrderForm() {
           </span>
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading || totalPrice === 0}
@@ -535,7 +512,6 @@ export default function OrderForm() {
           {loading ? "در حال پردازش..." : "ثبت سفارش و ادامه"}
         </button>
 
-        {/* Error Message */}
         {message && (
           <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium text-center border border-red-200 relative z-10">
             {message}
@@ -543,7 +519,6 @@ export default function OrderForm() {
         )}
       </form>
 
-      {/* Blurred Background Overlay */}
       {activeDropdown !== null && (
         <div
           className="fixed inset-0 z-20 bg-slate-800/10 backdrop-blur-[2px] transition-all duration-300"
