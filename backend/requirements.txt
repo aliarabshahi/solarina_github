@@ -19,3 +19,4 @@ redis
 prometheus_client
 django-cors-headers
 Pillow==9.5.0
+kavenegar
