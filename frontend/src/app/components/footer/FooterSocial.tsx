@@ -14,7 +14,7 @@ const socialLinks = [
   },
   {
     name: "واتساپ",
-    href: "https://wa.me/989374152095",
+    href: "https://wa.me/989123679265",
     icon: <FaWhatsapp className="text-[#25D366] text-2xl sm:text-[26px]" />,
   },
 ];

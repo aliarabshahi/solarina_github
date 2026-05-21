@@ -26,7 +26,7 @@ export default function OrderSupport() {
         <div className="flex gap-5 justify-center" dir="ltr">
           <a href="https://instagram.com/solarina" className="hover:opacity-80 transition"><FaInstagram className="text-2xl" /></a>
           <a href="https://t.me/solarina" className="hover:opacity-80 transition"><FaTelegram className="text-2xl" /></a>
-          <a href="https://wa.me/9899374152095" className="hover:opacity-80 transition"><FaWhatsapp className="text-2xl" /></a>
+          <a href="https://wa.me/989123679265" className="hover:opacity-80 transition"><FaWhatsapp className="text-2xl" /></a>
         </div>
       </div>
     </div>

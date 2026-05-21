@@ -123,7 +123,7 @@ export default function RootLayout({
               contactPoint: [
                 {
                   "@type": "ContactPoint",
-                  telephone: "+989374152095",
+                  telephone: "+989123679265",
                   contactType: "customer service",
                   areaServed: "IR",
                 },

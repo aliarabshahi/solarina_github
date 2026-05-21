@@ -13,6 +13,38 @@ type CategoryType = {
   slug: string;
 };
 
+// کامپوننت اسکلتون برای نمایش هنگام بارگذاری
+const SkeletonCard = () => (
+  <div className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm">
+    {/* بخش تصویر */}
+    <div className="aspect-square bg-gray-200 animate-pulse"></div>
+
+    {/* بخش محتوا */}
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-5">
+      <div className="space-y-2.5">
+        {/* عنوان */}
+        <div className="h-6 sm:h-7 bg-gray-200 rounded-lg animate-pulse w-2/3"></div>
+        {/* توضیحات */}
+        <div className="h-4 bg-gray-200 rounded-md animate-pulse w-full"></div>
+        <div className="h-4 bg-gray-200 rounded-md animate-pulse w-5/6"></div>
+      </div>
+
+      <div className="flex items-center justify-between pt-2">
+        {/* قیمت */}
+        <div className="h-8 bg-gray-200 rounded-lg animate-pulse w-1/3"></div>
+        {/* وضعیت موجودی */}
+        <div className="h-8 bg-gray-200 rounded-xl animate-pulse w-1/4"></div>
+      </div>
+
+      {/* دکمه‌ها */}
+      <div className="flex gap-2 sm:gap-3">
+        <div className="flex-1 h-[46px] sm:h-[54px] bg-gray-200 rounded-xl sm:rounded-2xl animate-pulse"></div>
+        <div className="flex-1 h-[46px] sm:h-[54px] bg-gray-200 rounded-xl sm:rounded-2xl animate-pulse"></div>
+      </div>
+    </div>
+  </div>
+);
+
 export default function ProductsPage() {
   const [products, setProducts] = useState<ProductType[]>([]);
   const [categories, setCategories] = useState<CategoryType[]>([]);
@@ -171,10 +203,13 @@ export default function ProductsPage() {
 
         </div>
 
-        {/* loading */}
+        {/* loading - Skeleton Grid */}
         {loading && (
-          <div className="text-center py-20 text-gray-500 text-sm sm:text-base">
-            در حال بارگذاری محصولات...
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-8">
+            {/* نمایش ۶ اسکلتون به عنوان پیش‌فرض */}
+            {[1, 2, 3, 4, 5, 6].map((item) => (
+              <SkeletonCard key={item} />
+            ))}
           </div>
         )}
 
