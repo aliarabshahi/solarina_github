@@ -25,7 +25,7 @@ const vazir = localFont({
 
 /** Application metadata customized for Solarina — Portable Solar Devices */
 export const metadata: Metadata = {
-  title: "Solarina | شارژر خورشیدی قابل‌حمل و انرژی خورشیدی همیشه همراه",
+  title: "Solarina | انرژی پاک خورشیدی",
   description:
     "Solarina جاییه که خورشید به برق تبدیل میشه! شارژر خورشیدی قابل‌حمل برای شارژ موبایل، پاوربانک و وسایل الکترونیکی هرجا که نور باشه. سبک، تاشو و همیشه آماده سفر.",
   icons: {
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://solarina.ir" },
 
   openGraph: {
-    title: "Solarina | شارژر خورشیدی قابل‌حمل و انرژی همیشه در دسترس",
+    title: "Solarina | انرژی پاک خورشیدی",
     description:
       "با Solarina نور خورشید رو به برق تبدیل کن! شارژر خورشیدی قابل‌حمل برای موبایل، دوربین و وسایل سفری — مناسب طبیعت‌گردی، کوه، ساحل یا هرجایی که نور هست.",
     url: "https://solarina.ir",

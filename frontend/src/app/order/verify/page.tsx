@@ -5,9 +5,12 @@ import {
   FaMapMarkerAlt,
   FaReceipt,
   FaShoppingBag,
+  FaHome,
 } from "react-icons/fa";
 import { getApiData } from "@/app/services/receive_data/apiServerFetch";
 import { ReactNode } from "react";
+import Link from "next/link";
+import PrintButton from "./components/PrintButton";
 
 // --- Types ---
 interface OrderedProduct {
@@ -83,8 +86,33 @@ export default async function VerifyOrderPage({ searchParams }: PageProps) {
 
     return (
       <div className="min-h-screen bg-slate-50 py-10 sm:py-16 px-6" dir="rtl">
+        
+        {/* استایل‌های مخصوص چاپ برای مخفی کردن هدر، فوتر و ... */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            @media print {
+              body * {
+                visibility: hidden;
+              }
+              #receipt-card, #receipt-card * {
+                visibility: visible;
+              }
+              #receipt-card {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+              }
+            }
+          `
+        }} />
+
         <div className="max-w-3xl mx-auto">
-          <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100 text-center space-y-6 sm:space-y-8">
+          <div id="receipt-card" className="bg-white p-6 sm:p-8 rounded-xl shadow-lg border border-gray-100 text-center space-y-6 sm:space-y-8">
             <div className="flex flex-col items-center">
               <FaCheckCircle className="text-5xl sm:text-6xl text-green-400 mb-3 sm:mb-4" />
               <h2 className="text-2xl sm:text-3xl font-bold text-green-500 mb-2">
@@ -129,7 +157,6 @@ export default async function VerifyOrderPage({ searchParams }: PageProps) {
                   </span>
                 </div>
 
-                {/* --- START OF CHANGES --- */}
                 {order.products && order.products.length > 0 && (
                   <div className="pt-5 mt-5 border-t space-y-4">
                     <div className="flex items-center gap-2 text-base sm:text-lg font-semibold text-gray-800">
@@ -159,7 +186,6 @@ export default async function VerifyOrderPage({ searchParams }: PageProps) {
                     ))}
                   </div>
                 )}
-                {/* --- END OF CHANGES --- */}
 
                 {/* PRICE */}
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-2 pt-5 mt-5 border-t">
@@ -176,6 +202,20 @@ export default async function VerifyOrderPage({ searchParams }: PageProps) {
                 جزئیات سفارش در حال حاضر در دسترس نیست، اما پرداخت شما تایید شده است.
               </div>
             )}
+
+            {/* --- Buttons Section (Print/Download & Return Home) --- */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 print:hidden">
+              <PrintButton />
+              
+              <Link
+                href="/"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 text-white hover:bg-blue-700 font-semibold py-3 px-6 rounded-lg transition-colors text-sm sm:text-base shadow-sm"
+              >
+                <FaHome className="w-4 h-4 sm:w-5 sm:h-5" />
+بازگشت به صفحه اصلی              </Link>
+            </div>
+            {/* -------------------------------------------------------- */}
+
           </div>
         </div>
       </div>
@@ -199,6 +239,13 @@ function FailedPayment() {
           فرآیند پرداخت تکمیل نشد. اگر مبلغی از حساب شما کسر شده است، معمولاً
           ظرف ۷۲ ساعت توسط بانک بازگردانده می‌شود.
         </p>
+        <Link
+          href="/"
+          className="mt-6 w-full flex items-center justify-center gap-2 bg-blue-600 text-white hover:bg-blue-700 font-semibold py-3 px-6 rounded-lg transition-colors text-sm sm:text-base shadow-sm"
+        >
+          <FaHome className="w-4 h-4 sm:w-5 sm:h-5" />
+          بازگشت به صفحه اصلی
+        </Link>
       </div>
     </div>
   );
