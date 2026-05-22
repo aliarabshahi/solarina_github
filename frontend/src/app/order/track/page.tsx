@@ -106,7 +106,7 @@ function SearchForm({ initialCode }: { initialCode?: string }) {
         defaultValue={initialCode || ""}
         placeholder="کد رهگیری خود را وارد کنید"
         required
-        className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none h-[48px]"
+        className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none h-[48px] bg-white text-gray-900"
       />
 
       <button

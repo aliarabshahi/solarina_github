@@ -250,7 +250,7 @@ export default function OrderForm() {
               required
               value={order.full_name}
               onChange={(e) => handleChange("full_name", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition"
+              className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition bg-white text-gray-900"
               placeholder="علی احمدی"
             />
           </div>
@@ -264,7 +264,7 @@ export default function OrderForm() {
               type="tel"
               value={order.phone_number}
               readOnly
-              className="w-full rounded-xl border border-gray-200 bg-gray-100 px-4 py-3 text-base text-gray-700 cursor-not-allowed opacity-90"
+              className="w-full rounded-xl border border-gray-200 bg-gray-100 px-4 py-3 text-base text-gray-900 cursor-not-allowed opacity-90"
             />
           </div>
 
@@ -279,7 +279,7 @@ export default function OrderForm() {
               autoComplete="email"
               value={order.email}
               onChange={(e) => handleChange("email", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition"
+              className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition bg-white text-gray-900"
               placeholder="example@mail.com"
               dir="ltr"
             />
@@ -298,7 +298,7 @@ export default function OrderForm() {
               required
               value={order.postal_code}
               onChange={(e) => handleChange("postal_code", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition"
+              className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition bg-white text-gray-900"
               placeholder="1234567890"
               dir="ltr"
               maxLength={10}
@@ -318,7 +318,7 @@ export default function OrderForm() {
             required
             value={order.address}
             onChange={(e) => handleChange("address", e.target.value)}
-            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition h-24 resize-none"
+            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition h-24 resize-none bg-white text-gray-900"
             placeholder="استان، شهر، خیابان..."
           />
         </div>
@@ -331,7 +331,7 @@ export default function OrderForm() {
             name="notes"
             value={order.notes}
             onChange={(e) => handleChange("notes", e.target.value)}
-            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition h-24 resize-none"
+            className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none transition h-24 resize-none bg-white text-gray-900"
             placeholder="توضیحات اضافی (اختیاری)"
           />
         </div>
@@ -397,7 +397,7 @@ export default function OrderForm() {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             onClick={(e) => e.stopPropagation()}
-                            className="w-full pl-3 pr-9 py-2.5 bg-white border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all shadow-sm"
+                            className="w-full pl-3 pr-9 py-2.5 bg-white text-gray-900 border border-gray-200 rounded-lg text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all shadow-sm"
                           />
                         </div>
                       </div>
@@ -455,7 +455,7 @@ export default function OrderForm() {
                     onChange={(e) =>
                       updateProductRow(index, "quantity", e.target.value)
                     }
-                    className="h-[46px] w-full border border-gray-300 rounded-lg px-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none shadow-sm transition-all text-center font-medium relative z-20"
+                    className="h-[46px] w-full border border-gray-300 rounded-lg px-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none shadow-sm transition-all text-center font-medium relative z-20 bg-white text-gray-900"
                     dir="ltr"
                   />
                 </div>

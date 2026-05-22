@@ -85,7 +85,8 @@ export default function ContactForm() {
               type="text"
               placeholder="نام و نام خانوادگی"
               required
-              className="w-full border border-gray-300 rounded-lg p-2 pr-10 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none h-[48px]"
+              // Added bg-white and text-gray-900 here
+              className="w-full bg-white text-gray-900 border border-gray-300 rounded-lg p-2 pr-10 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none h-[48px]"
               value={contact.full_name}
               onChange={(e) => handleChange("full_name", e.target.value)}
             />
@@ -111,7 +112,8 @@ export default function ContactForm() {
               type="email"
               placeholder="ایمیل شما"
               required
-              className="w-full border border-gray-300 rounded-lg p-2 pr-10 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none h-[48px]"
+              // Added bg-white and text-gray-900 here
+              className="w-full bg-white text-gray-900 border border-gray-300 rounded-lg p-2 pr-10 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none h-[48px]"
               value={contact.email}
               onChange={(e) => handleChange("email", e.target.value)}
             />
@@ -139,7 +141,8 @@ export default function ContactForm() {
               required
               pattern="^0.*$"
               maxLength={12}
-              className="w-full border border-gray-300 rounded-lg p-2 pr-10 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none h-[48px]"
+              // Added bg-white and text-gray-900 here
+              className="w-full bg-white text-gray-900 border border-gray-300 rounded-lg p-2 pr-10 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none h-[48px]"
               value={contact.phone_number}
               onChange={(e) => handleChange("phone_number", e.target.value)}
             />
@@ -164,7 +167,8 @@ export default function ContactForm() {
               id="message"
               placeholder="متن پیام..."
               required
-              className="w-full border border-gray-300 rounded-lg p-2 pr-10 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none h-32 resize-none"
+              // Added bg-white and text-gray-900 here
+              className="w-full bg-white text-gray-900 border border-gray-300 rounded-lg p-2 pr-10 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none h-32 resize-none"
               value={contact.message}
               onChange={(e) => handleChange("message", e.target.value)}
             />

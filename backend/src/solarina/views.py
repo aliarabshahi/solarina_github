@@ -326,7 +326,11 @@ def get_order_by_tracking(request, tracking_code):
         )
 
 # Admin/Boss phone number
-BOSS_PHONES = ["09190088190"]
+# BOSS_PHONES = ["09190088190","09123679265"]
+# BOSS_PHONES = os.getenv("LOG_LEVEL",deufalt)
+phones_str = os.getenv("BOSS_PHONES", "09190088190")
+# Split the string by comma to create a list
+BOSS_PHONES = phones_str.split(",") if phones_str else []
 
 
 @api_view(["GET"])

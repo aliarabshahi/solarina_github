@@ -117,6 +117,8 @@ export default function LoginForm() {
               focus:border-blue-500
               focus:ring-4
               focus:ring-blue-100
+              bg-white
+              text-gray-900
             "
           />
 
