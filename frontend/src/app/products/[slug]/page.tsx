@@ -13,13 +13,10 @@ import { ShoppingBag, Zap } from "lucide-react";
 
 export default function ProductDetailsPage() {
   const params = useParams();
-
   const slug = params.slug as string;
 
   const [product, setProduct] = useState<ProductType | null>(null);
-
   const [loading, setLoading] = useState(true);
-
   const [selectedImage, setSelectedImage] = useState("");
 
   useEffect(() => {
@@ -62,8 +59,12 @@ export default function ProductDetailsPage() {
 
   return (
     <main className="bg-white min-h-screen" dir="rtl">
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
+
+      {/* EXACT SAME PADDING AS HERO PAGE */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-16">
+
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
+
           {/* gallery */}
           <div className="space-y-3 sm:space-y-5">
             <div

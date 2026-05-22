@@ -191,7 +191,7 @@ export default function UserOrdersPage() {
                       کد رهگیری: {order.tracking_code || <span className="text-gray-400 font-normal">در حال صدور...</span>}
                     </span>
                   </div>
-                  <div className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold w-fit">
+                  <div className="inline-flex items-center gap-1.5 bg-green-50 text-green-600 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold w-fit">
                     <CheckCircle2 size={16} />
                     پرداخت موفق
                   </div>

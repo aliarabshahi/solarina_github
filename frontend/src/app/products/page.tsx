@@ -13,30 +13,23 @@ type CategoryType = {
   slug: string;
 };
 
-// کامپوننت اسکلتون برای نمایش هنگام بارگذاری
+// Skeleton Loader
 const SkeletonCard = () => (
   <div className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm">
-    {/* بخش تصویر */}
     <div className="aspect-square bg-gray-200 animate-pulse"></div>
 
-    {/* بخش محتوا */}
     <div className="p-4 sm:p-6 space-y-4 sm:space-y-5">
       <div className="space-y-2.5">
-        {/* عنوان */}
         <div className="h-6 sm:h-7 bg-gray-200 rounded-lg animate-pulse w-2/3"></div>
-        {/* توضیحات */}
         <div className="h-4 bg-gray-200 rounded-md animate-pulse w-full"></div>
         <div className="h-4 bg-gray-200 rounded-md animate-pulse w-5/6"></div>
       </div>
 
       <div className="flex items-center justify-between pt-2">
-        {/* قیمت */}
         <div className="h-8 bg-gray-200 rounded-lg animate-pulse w-1/3"></div>
-        {/* وضعیت موجودی */}
         <div className="h-8 bg-gray-200 rounded-xl animate-pulse w-1/4"></div>
       </div>
 
-      {/* دکمه‌ها */}
       <div className="flex gap-2 sm:gap-3">
         <div className="flex-1 h-[46px] sm:h-[54px] bg-gray-200 rounded-xl sm:rounded-2xl animate-pulse"></div>
         <div className="flex-1 h-[46px] sm:h-[54px] bg-gray-200 rounded-xl sm:rounded-2xl animate-pulse"></div>
@@ -48,29 +41,25 @@ const SkeletonCard = () => (
 export default function ProductsPage() {
   const [products, setProducts] = useState<ProductType[]>([]);
   const [categories, setCategories] = useState<CategoryType[]>([]);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // fetch categories
+  // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       const res = await getApiData("product-categories");
-
       if (!res.error && res.data) {
-        setCategories(
-          res.data?.results ? res.data.results : res.data || []
-        );
+        setCategories(res.data?.results ? res.data.results : res.data || []);
       }
     };
 
     fetchCategories();
   }, []);
 
-  // fetch products
+  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -85,9 +74,7 @@ export default function ProductsPage() {
       if (res.error) {
         setError(res.error);
       } else {
-        setProducts(
-          res.data?.results ? res.data.results : res.data || []
-        );
+        setProducts(res.data?.results ? res.data.results : res.data || []);
       }
 
       setLoading(false);
@@ -96,23 +83,19 @@ export default function ProductsPage() {
     fetchProducts();
   }, [selectedCategory]);
 
-  // search filter
+  // Search filter
   const filteredProducts = useMemo(() => {
     if (!searchQuery.trim()) return products;
 
     return products.filter((product) =>
-      product.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [products, searchQuery]);
 
   return (
-    <main
-      className="min-h-screen bg-white relative overflow-hidden"
-      dir="rtl"
-    >
-      {/* top decoration */}
+    <main className="min-h-screen bg-white relative overflow-hidden" dir="rtl">
+      
+      {/* Light decoration */}
       <div
         aria-hidden="true"
         className="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl"
@@ -126,13 +109,10 @@ export default function ProductsPage() {
       </div>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-24">
-        
-        {/* HEADER */}
+
+        {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-          <h1
-            className="text-3xl sm:text-5xl font-extrabold
-            tracking-tight text-gray-900 leading-tight"
-          >
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-gray-900 leading-tight">
             انرژی خورشید،
             <span className="block sm:inline text-blue-600 mt-2 sm:mt-0 sm:mr-2">
               همیشه همراهت
@@ -140,10 +120,10 @@ export default function ProductsPage() {
           </h1>
         </div>
 
-        {/* top bar (categories + search) */}
+        {/* Top bar */}
         <div className="flex flex-col lg:flex-row items-center justify-between gap-6 mb-10 sm:mb-14">
 
-          {/* categories */}
+          {/* Categories */}
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
             <button
               onClick={() => setSelectedCategory("all")}
@@ -171,7 +151,7 @@ export default function ProductsPage() {
             ))}
           </div>
 
-          {/* minimal search */}
+          {/* Search */}
           <div className="relative w-full lg:w-auto">
             <Search
               size={18}
@@ -184,58 +164,43 @@ export default function ProductsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="
-              w-full lg:w-56
-              bg-gray-100
-              border border-transparent
-              rounded-2xl
-              py-2.5 sm:py-3 pr-11 pl-4
-              text-xs sm:text-sm
-              text-gray-700
-              placeholder:text-gray-400
-              focus:outline-none
-              focus:ring-2
-              focus:ring-blue-500
-              focus:bg-white
-              transition-all
+                w-full lg:w-56 bg-gray-100 border border-transparent
+                rounded-2xl py-2.5 sm:py-3 pr-11 pl-4
+                text-xs sm:text-sm text-gray-700 placeholder:text-gray-400
+                focus:outline-none focus:ring-2 focus:ring-blue-500
+                focus:bg-white transition-all
               "
             />
           </div>
 
         </div>
 
-        {/* loading - Skeleton Grid */}
+        {/* Loading skeleton */}
         {loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-8">
-            {/* نمایش ۶ اسکلتون به عنوان پیش‌فرض */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
             {[1, 2, 3, 4, 5, 6].map((item) => (
               <SkeletonCard key={item} />
             ))}
           </div>
         )}
 
-        {/* error */}
+        {/* Error message */}
         {error && (
-          <div
-            className="max-w-xl mx-auto bg-red-50 border border-red-200
-            text-red-700 p-4 sm:p-5 rounded-2xl text-center text-sm sm:text-base"
-          >
+          <div className="max-w-xl mx-auto bg-red-50 border border-red-200 text-red-700 p-4 sm:p-5 rounded-2xl text-center text-sm sm:text-base">
             {error}
           </div>
         )}
 
-        {/* products */}
+        {/* Products grid */}
         {!loading && !error && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
             {filteredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-              />
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         )}
 
-        {/* empty */}
+        {/* Empty state */}
         {!loading && filteredProducts.length === 0 && (
           <div className="text-center py-20 text-gray-500 text-sm sm:text-base">
             محصولی پیدا نشد
