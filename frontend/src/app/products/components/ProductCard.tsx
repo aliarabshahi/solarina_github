@@ -2,14 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { ProductType } from "@/app/types/productType";
 import { ShoppingBag, Zap } from "lucide-react";
-
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Autoplay } from "swiper/modules";
-
-import "swiper/css";
-import "swiper/css/pagination";
 
 export default function ProductCard({
   product,
@@ -34,36 +29,43 @@ export default function ProductCard({
           },
         ];
 
+  const [current, setCurrent] = useState(0);
+
+  // autoplay
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrent((prev) =>
+        prev === productImages.length - 1 ? 0 : prev + 1
+      );
+    }, 3500);
+
+    return () => clearInterval(interval);
+  }, [productImages.length]);
+
   return (
     <div
       className="group bg-white border border-gray-100 rounded-3xl overflow-hidden
       shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1"
     >
       <div className="relative aspect-square overflow-hidden bg-gray-100">
-        <Swiper
-          modules={[Pagination, Autoplay]}
-          pagination={{ clickable: true }}
-          autoplay={{
-            delay: 3500,
-            disableOnInteraction: false,
-          }}
-          loop
-          className="w-full h-full"
-        >
-          {productImages.map((img) => (
-            <SwiperSlide key={img.id}>
-              <div className="relative w-full h-full">
-                <Image
-                  src={img.image_url}
-                  alt={img.alt_text || product.name}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+        {/* Images */}
+        {productImages.map((img, index) => (
+          <div
+            key={img.id}
+            className={`absolute inset-0 transition-opacity duration-700 ${
+              index === current ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <Image
+              src={img.image_url}
+              alt={img.alt_text || product.name}
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+          </div>
+        ))}
 
+        {/* Category badge */}
         <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
           <span
             className="bg-blue-600/90 backdrop-blur text-white text-[10px] sm:text-xs
@@ -72,6 +74,23 @@ export default function ProductCard({
             {product.category_name}
           </span>
         </div>
+
+        {/* Pagination dots */}
+        {productImages.length > 1 && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            {productImages.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className={`w-2.5 h-2.5 rounded-full transition-all ${
+                  current === i
+                    ? "bg-white scale-110"
+                    : "bg-white/50"
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="p-4 sm:p-6 space-y-4 sm:space-y-5">
