@@ -4,7 +4,9 @@ FROM docker.arvancloud.ir/node:22-alpine AS builder
 WORKDIR /app
  
 # Use mirror before installing packages
-RUN npm config set registry https://package-mirror.liara.ir/repository/npm/
+# RUN npm config --global set registry https://mirror.abrha.net/repository/npm/
+
+
 
 # Copy package.json and lock file from src
 COPY src/package*.json ./

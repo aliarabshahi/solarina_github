@@ -4,6 +4,7 @@ import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/footer/Footer";
 import localFont from "next/font/local";
 import Alert from "./components/alert/Alert";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 /** Load Vazirmatn font (local) */
 const vazir = localFont({
@@ -25,7 +26,7 @@ const vazir = localFont({
 
 /** Application metadata customized for Solarina — Portable Solar Devices */
 export const metadata: Metadata = {
-  title: "Solarina | انرژی پاک خورشیدی",
+  title: "Solarina | تجهیزات خورشیدی",
   description:
     "Solarina جاییه که خورشید به برق تبدیل میشه! شارژر خورشیدی قابل‌حمل برای شارژ موبایل، پاوربانک و وسایل الکترونیکی هرجا که نور باشه. سبک، تاشو و همیشه آماده سفر.",
   icons: {
@@ -65,7 +66,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://solarina.ir" },
 
   openGraph: {
-    title: "Solarina | انرژی پاک خورشیدی",
+    title: "Solarina | تجهیزات خورشیدی",
     description:
       "با Solarina نور خورشید رو به برق تبدیل کن! شارژر خورشیدی قابل‌حمل برای موبایل، دوربین و وسایل سفری — مناسب طبیعت‌گردی، کوه، ساحل یا هرجایی که نور هست.",
     url: "https://solarina.ir",
@@ -140,6 +141,7 @@ export default function RootLayout({
         <main className="flex-grow">{children}</main>
         <Footer />
       </body>
+      <GoogleAnalytics gaId="G-DS310VL0NS" />
     </html>
   );
 }
