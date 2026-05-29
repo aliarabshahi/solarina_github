@@ -1,3 +1,5 @@
+from venv import logger
+
 from django.shortcuts import render
 from rest_framework import viewsets, status, filters
 from rest_framework.decorators import api_view, permission_classes
@@ -120,44 +122,59 @@ order_payment_handler = CountBasedPaymentHandler(
 # ---------------------------------------------------------------------
 # Contact Model ViewSet
 # ---------------------------------------------------------------------
+contact_phones_str = os.getenv("BOSS_CONTACT_PHONES", "")
+BOSS_CONTACT_PHONES = [p.strip() for p in contact_phones_str.split(",") if p.strip()]
+
 class ContactUsViewSet(viewsets.ModelViewSet):
-    """Manage Contact Us messages (store + async email)."""
+    """
+    Manage Contact Us messages: stores the message in DB and 
+    sends an SMS notification to administrators.
+    """
     queryset = ContactUsModel.objects.all()
     serializer_class = ContactUsSerializer
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [AllowAny]
     filter_backends = [filters.OrderingFilter]
-    ordering_fields = ['created_at']
-    ordering = ['-created_at']
+    ordering_fields = ["created_at"]
+    ordering = ["-created_at"]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
+        # 1) Save the record to the database
         instance = serializer.save()
 
-        # subject = "پیام جدید از فرم تماس با ما هوبوک"
-        # message = (
-        #     f"نام: {instance.full_name}\n"
-        #     f"ایمیل: {instance.email}\n"
-        #     f"تلفن: {instance.phone_number}\n"
-        #     "----------------------------------------\n\n"
-        #     f"پیام:\n{instance.message}\n"
-        # )
+        # 2) Background SMS Notification logic
+        try:
+            if BOSS_CONTACT_PHONES:
+                # Sanitize data for Kavenegar Template Compatibility
+                # Mapping based on: %token -> phone, %token2 -> name
+                name_val = (instance.full_name or "کاربر").strip()
+                name_val = name_val.replace("\n", " ").replace("\r", " ").replace(" ", "_")
+                
+                phone_val = (instance.phone_number or "09000000000").strip()
+                phone_val = phone_val.replace(" ", "").replace("-", "")
 
-        # # Send email asynchronously, without blocking or raising errors
-        # send_email_async_safe(
-        #     subject,
-        #     message,
-        #     settings.DEFAULT_FROM_EMAIL,
-        #     [settings.ADMIN_EMAIL],
-        # )
+                for boss_phone in BOSS_CONTACT_PHONES:
+                    send_notification_sms(
+                        receptor=boss_phone,
+                        template="SolarinaContactUsForm",
+                        token=phone_val,   # %token  => شماره موبایل
+                        token2=name_val,   # %token2 => نام
+                    )
+            else:
+                logger.warning("BOSS_CONTACT_PHONES is not configured. SMS skipped.")
 
-        # Return the normal success response (unchanged)
+        except Exception as e:
+            # We log the error but do not disrupt the user's response
+            logger.error(f"Kavenegar SMS failure in ContactUsViewSet: {e}")
+
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
 
-
+    
 # ---------------------------------------------------------------------
 # Product Category ViewSet
 # ---------------------------------------------------------------------
