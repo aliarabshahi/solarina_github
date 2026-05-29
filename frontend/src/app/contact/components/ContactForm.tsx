@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { postApiData } from "@/app/services/receive_data/apiClientPost";
 import {
   FaEnvelope,
   FaUser,
@@ -7,6 +8,7 @@ import {
   FaComment,
   FaPaperPlane,
   FaCheckCircle,
+  FaTimesCircle,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 
@@ -35,18 +37,22 @@ export default function ContactForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
+    
+    // Call the actual API endpoint
+    const { error } = await postApiData("contact-us", contact);
+    
     setLoading(false);
-    setMessage("پیام شما با موفقیت ارسال شد");
-
-    setContact({
-      full_name: "",
-      email: "",
-      phone_number: "",
-      message: "",
-    });
+    setMessage(error ? error : "پیام شما با موفقیت ارسال شد");
+    
+    // Clear form only on success
+    if (!error) {
+      setContact({
+        full_name: "",
+        email: "",
+        phone_number: "",
+        message: "",
+      });
+    }
   };
 
   return (
@@ -85,7 +91,6 @@ export default function ContactForm() {
               type="text"
               placeholder="نام و نام خانوادگی"
               required
-              // Added bg-white and text-gray-900 here
               className="w-full bg-white text-gray-900 border border-gray-300 rounded-lg p-2 pr-10 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none h-[48px]"
               value={contact.full_name}
               onChange={(e) => handleChange("full_name", e.target.value)}
@@ -112,7 +117,6 @@ export default function ContactForm() {
               type="email"
               placeholder="ایمیل شما"
               required
-              // Added bg-white and text-gray-900 here
               className="w-full bg-white text-gray-900 border border-gray-300 rounded-lg p-2 pr-10 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none h-[48px]"
               value={contact.email}
               onChange={(e) => handleChange("email", e.target.value)}
@@ -141,7 +145,6 @@ export default function ContactForm() {
               required
               pattern="^0.*$"
               maxLength={12}
-              // Added bg-white and text-gray-900 here
               className="w-full bg-white text-gray-900 border border-gray-300 rounded-lg p-2 pr-10 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none h-[48px]"
               value={contact.phone_number}
               onChange={(e) => handleChange("phone_number", e.target.value)}
@@ -167,7 +170,6 @@ export default function ContactForm() {
               id="message"
               placeholder="متن پیام..."
               required
-              // Added bg-white and text-gray-900 here
               className="w-full bg-white text-gray-900 border border-gray-300 rounded-lg p-2 pr-10 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-400 outline-none h-32 resize-none"
               value={contact.message}
               onChange={(e) => handleChange("message", e.target.value)}
@@ -190,13 +192,22 @@ export default function ContactForm() {
           {loading ? "در حال ارسال..." : "ارسال پیام"}
         </button>
 
+        {/* Feedback Message */}
         {message && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="p-3 rounded-lg text-xs sm:text-sm flex items-center gap-2 bg-green-100 text-green-800"
+            className={`p-3 rounded-lg text-xs sm:text-sm flex items-center gap-2 ${
+              message.startsWith("پیام شما")
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
           >
-            <FaCheckCircle className="flex-shrink-0" />
+            {message.startsWith("پیام شما") ? (
+              <FaCheckCircle className="flex-shrink-0" />
+            ) : (
+              <FaTimesCircle className="flex-shrink-0" />
+            )}
             {message}
           </motion.div>
         )}
