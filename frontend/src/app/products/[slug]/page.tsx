@@ -121,9 +121,11 @@ export default function ProductDetailsPage() {
               {product.name}
             </h1>
 
-            <p className="mt-4 sm:mt-6 text-sm sm:text-base lg:text-lg leading-7 sm:leading-8 text-gray-600">
-              {product.description}
-            </p>
+<div 
+  className="mt-4 sm:mt-6 text-sm sm:text-base lg:text-lg leading-7 sm:leading-8 text-gray-600 product-description"
+  dangerouslySetInnerHTML={{ __html: product.description }}
+/>
+
 
             <div className="mt-6 sm:mt-10 flex items-center gap-3 sm:gap-4">
               {product.stock > 0 ? (
