@@ -83,12 +83,15 @@ class ProductModel(models.Model):
 
     is_active = models.BooleanField(default=True)
     is_featured = models.BooleanField(default=False)
+    priority = models.PositiveIntegerField(default=0, help_text="Higher values appear first")
+    is_favorite = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["-created_at"]
+        # Default fallback sorting: priority first, then newest
+        ordering = ["-priority", "-created_at"]
         verbose_name = "Product"
         verbose_name_plural = "Products"
 

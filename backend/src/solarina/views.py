@@ -12,6 +12,8 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db import connections
+from rest_framework import viewsets, filters
+from django_filters.rest_framework import DjangoFilterBackend
 import os
 import logging
 import threading
@@ -202,30 +204,33 @@ class ProductModelViewSet(viewsets.ReadOnlyModelViewSet):
     """
     Public Products API
     """
-
     serializer_class = ProductModelSerializer
-
     pagination_class = DashboardPagination
-
     permission_classes = [AllowAny]
+    lookup_field = "slug"
 
-    filter_backends = [filters.OrderingFilter]
+    # Added DjangoFilterBackend to support the favorite toggle
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
 
+    # Added 'priority' and 'is_favorite' to allowed filters/ordering
+    filterset_fields = ["is_favorite"] 
+    
     ordering_fields = [
         "price",
-        "created_at"
+        "created_at",
+        "priority"
     ]
 
-    # ✅ available products first
+    # ✅ Default Ordering: 
+    # Products with higher priority first, then available stock, then newest.
     ordering = [
+        "-priority",
         "-stock",
         "-created_at"
     ]
 
-    lookup_field = "slug"
-
     def get_queryset(self):
-
+        # Base queryset with optimization (select_related/prefetch_related)
         queryset = ProductModel.objects.filter(
             is_active=True
         ).select_related(
@@ -234,8 +239,8 @@ class ProductModelViewSet(viewsets.ReadOnlyModelViewSet):
             "images"
         )
 
+        # ✅ Preserving your existing category slug filter logic
         category_slug = self.request.query_params.get("category")
-
         if category_slug:
             queryset = queryset.filter(
                 category__slug=category_slug

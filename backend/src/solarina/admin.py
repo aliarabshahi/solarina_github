@@ -107,13 +107,25 @@ class ProductImageInline(admin.TabularInline):
 class ProductModelAdmin(admin.ModelAdmin):
     """Admin interface for ProductModel."""
 
+    # ✅ Added priority and is_favorite to the display
     list_display = (
         'name',
         'category',
         'price',
         'stock',
+        'priority',      # New
+        'is_favorite',   # New
         'is_active',
         'created_at'
+    )
+
+    # ✅ This allows you to change priority and favorite status 
+    # directly from the list page without opening the product.
+    list_editable = (
+        'priority',
+        'is_favorite',
+        'is_active',
+        'stock',
     )
 
     search_fields = (
@@ -121,9 +133,12 @@ class ProductModelAdmin(admin.ModelAdmin):
         'description'
     )
 
+    # ✅ Added is_favorite to the sidebar filters
     list_filter = (
+        'is_favorite',   # New
         'is_active',
-        'category'
+        'category',
+        'created_at',
     )
 
     readonly_fields = (
@@ -137,6 +152,22 @@ class ProductModelAdmin(admin.ModelAdmin):
 
     list_per_page = 20
 
+    # Optional: Organize the detail page layout
+    fieldsets = (
+        ("General Information", {
+            'fields': ('name', 'slug', 'category', 'short_description', 'description')
+        }),
+        ("Inventory & Pricing", {
+            'fields': ('price', 'stock')
+        }),
+        ("Visibility & Ranking", {
+            'fields': ('priority', 'is_favorite', 'is_active', 'is_featured')
+        }),
+        ("Timestamps", {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
 
 # ---------------------------------------------------------------------
 # Orders Admin Configuration

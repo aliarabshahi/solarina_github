@@ -97,7 +97,8 @@ class ProductModelSerializer(serializers.ModelSerializer):
             "stock",
             "is_active",
             "is_featured",
-
+            "priority",
+            "is_favorite",
             "category",
             "category_name",
             "category_slug",
