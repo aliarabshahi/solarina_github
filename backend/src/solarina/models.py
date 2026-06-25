@@ -54,16 +54,22 @@ class ContactUsModel(models.Model):
 class ProductCategoryModel(models.Model):
     name = models.CharField(max_length=120)
     slug = models.SlugField(unique=True, blank=True)
+    
+    # ✅ Added priority
+    priority = models.IntegerField(default=0, help_text="Higher values appear first")
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        # ✅ Default ordering by priority
+        ordering = ["-priority", "name"]
         verbose_name = "Product Category"
         verbose_name_plural = "Product Categories"
 
     def __str__(self):
         return self.name
+
 
 class ProductModel(models.Model):
     category = models.ForeignKey(

@@ -73,19 +73,18 @@ class ProductCategoryModelAdmin(admin.ModelAdmin):
 
     list_display = (
         'name',
+        'priority', # ✅ Added
         'slug',
         'created_at',
-        'updated_at'
     )
 
+    # ✅ Quickly reorder from the list
+    list_editable = ('priority',)
+
     search_fields = ('name',)
-
     readonly_fields = ('created_at', 'updated_at')
-
     prepopulated_fields = {'slug': ('name',)}
-
     list_per_page = 20
-
 
 # ---------------------------------------------------------------------
 # Product Images Inline

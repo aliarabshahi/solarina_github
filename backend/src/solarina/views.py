@@ -180,16 +180,22 @@ class ContactUsViewSet(viewsets.ModelViewSet):
 # ---------------------------------------------------------------------
 # Product Category ViewSet
 # ---------------------------------------------------------------------
+from rest_framework import filters
+
 class ProductCategoryModelViewSet(viewsets.ModelViewSet):
     """
     Manage Product Categories.
-    Public GET
-    Authenticated write operations
     """
+    # ✅ Use the model's default ordering
     queryset = ProductCategoryModel.objects.all()
     serializer_class = ProductCategoryModelSerializer
     pagination_class = DashboardPagination
     authentication_classes = [SessionAuthentication, TokenAuthentication]
+    
+    # ✅ Add filtering backends
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['priority', 'name']
+    ordering = ['-priority'] # Default sort for the API
 
     def get_permissions(self):
         if self.request.method in ["GET"]:

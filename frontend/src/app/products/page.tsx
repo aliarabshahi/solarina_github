@@ -48,7 +48,7 @@ export default function ProductsPage() {
   // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
-      const res = await getApiData("product-categories");
+      const res = await getApiData("product-categories?ordering=-priority");
       if (!res.error && res.data) {
         setCategories(res.data?.results ? res.data.results : res.data || []);
       }
