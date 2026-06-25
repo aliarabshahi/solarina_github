@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, Star } from "lucide-react"; // Added Star icon for favorites
+import { Search, Star } from "lucide-react";
+import { useSearchParams } from "next/navigation"; // ✅ Added for reading URL parameters
 
 import ProductCard from "./components/ProductCard";
 import { ProductType } from "@/app/types/productType";
@@ -36,14 +37,25 @@ const SkeletonCard = () => (
 );
 
 export default function ProductsPage() {
+  const searchParams = useSearchParams(); // ✅ Get the URL search parameters
+  const categoryParam = searchParams.get("category"); // ✅ Check if 'category' exists in URL
+
   const [products, setProducts] = useState<ProductType[]>([]);
   const [categories, setCategories] = useState<CategoryType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false); // ✅ New State
+  // ✅ Initialize selectedCategory with the value from the URL if it exists
+  const [selectedCategory, setSelectedCategory] = useState(categoryParam || "all");
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // ✅ Watch for URL changes: if user navigates while on this page, update filter
+  useEffect(() => {
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
+  }, [categoryParam]);
 
   // Fetch categories
   useEffect(() => {
@@ -61,7 +73,6 @@ export default function ProductsPage() {
     const fetchProducts = async () => {
       setLoading(true);
 
-      // ✅ Build URL with Priority (Highest First) and Favorite filters
       let endpoint = "products?ordering=-priority";
 
       if (selectedCategory !== "all") {
@@ -84,7 +95,7 @@ export default function ProductsPage() {
     };
 
     fetchProducts();
-  }, [selectedCategory, showFavoritesOnly]); // ✅ Refetch when favorite toggle changes
+  }, [selectedCategory, showFavoritesOnly]);
 
   // Search filter (client-side)
   const filteredProducts = useMemo(() => {
@@ -145,7 +156,6 @@ export default function ProductsPage() {
               </button>
             ))}
 
-            {/* ✅ Favorite Toggle Button */}
             <button
               onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
               className={`flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all ${
@@ -185,7 +195,14 @@ export default function ProductsPage() {
         ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
             {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard 
+                key={product.id} 
+                product={product} 
+                onCategoryClick={(slug) => {
+                  setSelectedCategory(slug);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              />
             ))}
           </div>
         ) : (

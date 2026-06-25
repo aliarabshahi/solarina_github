@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // ✅ Added for redirection
 import { ArrowLeft, Star, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import ProductCard from "@/app/products/components/ProductCard";
@@ -11,6 +12,7 @@ import { getApiData } from "@/app/services/receive_data/apiServerFetch";
 export default function FeaturedProducts() {
   const [products, setProducts] = useState<ProductType[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter(); // ✅ Initialize router
 
   useEffect(() => {
     const fetchFeatured = async () => {
@@ -28,6 +30,11 @@ export default function FeaturedProducts() {
     fetchFeatured();
   }, []);
 
+  // ✅ New handler to redirect to the products page with a filter
+  const handleCategoryClick = (slug: string) => {
+    router.push(`/products?category=${slug}`);
+  };
+
   if (!loading && products.length === 0) return null;
 
   return (
@@ -36,7 +43,7 @@ export default function FeaturedProducts() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.7 }}
-      className="mt-8 space-y-16"
+      className="mt-8 space-y-16 relative"
     >
       {/* Decorative background glow */}
       <div
@@ -115,13 +122,16 @@ export default function FeaturedProducts() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <ProductCard product={product} />
+              <ProductCard 
+                product={product} 
+                onCategoryClick={handleCategoryClick} // ✅ Pass the click handler here
+              />
             </motion.div>
           ))}
         </motion.div>
       )}
 
-      {/* CTA Button - matches HeroCTA style */}
+      {/* CTA Button */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
