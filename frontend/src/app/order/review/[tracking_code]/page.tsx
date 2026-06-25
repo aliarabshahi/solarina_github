@@ -10,6 +10,7 @@ import {
   FaHashtag,
   FaStickyNote,
   FaShoppingBag,
+  FaTruck,
 } from "react-icons/fa";
 import { getApiData } from "@/app/services/receive_data/apiServerFetch";
 import { postApiData } from "@/app/services/receive_data/apiClientPost";
@@ -190,6 +191,26 @@ export default function OrderReviewPage() {
             </div>
           </div>
 
+          {/* Shipping Information - NEW SECTION */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-5 space-y-3">
+            <div className="flex items-center gap-3">
+              <FaTruck className="text-blue-600 w-5 h-5 sm:w-6 sm:h-6" />
+              <h2 className="font-bold text-blue-800 text-base sm:text-lg">
+                نحوه ارسال و هزینه حمل
+              </h2>
+            </div>
+            
+            <div className="text-sm sm:text-base text-gray-700 space-y-2 pr-2 sm:pr-4">
+              <p className="font-medium text-blue-700">
+              </p>
+              <p className="leading-relaxed">
+                سفارش شما از طریق <strong className="text-blue-600">شرکت‌های معتبر حمل و نقل کالا</strong> (مانند تیپاکس، چاپار و ...) ارسال خواهد شد. 
+                مبلغ کرایه حمل بر اساس وزن، ابعاد و مقصد بسته، توسط شرکت حمل‌کننده محاسبه شده و 
+                <strong className="text-blue-700"> مبلغ آن به‌صورت جداگانه و هنگام دریافت کالا از شما دریافت می‌گردد.</strong>
+              </p>
+            </div>
+          </div>
+
           {/* Product List */}
           <div className="border-t pt-6 space-y-4">
             <h2 className="font-semibold text-gray-800 flex items-center gap-2 text-base sm:text-lg">
@@ -224,11 +245,13 @@ export default function OrderReviewPage() {
           <div className="bg-slate-50 border border-slate-200 rounded-lg p-5">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
               <span className="font-semibold text-gray-700 text-base sm:text-lg">
-                مبلغ قابل پرداخت:
+                مبلغ قابل پرداخت (بدون هزینه حمل):
               </span>
               <span className="font-bold text-blue-700 text-xl sm:text-2xl">
                 {formatToman(Number(order?.total_price))} تومان
               </span>
+            </div>
+            <div className="text-xs sm:text-sm text-gray-500 text-center sm:text-left mt-2">
             </div>
           </div>
 

@@ -2,8 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Search, Star } from "lucide-react";
-import { useSearchParams } from "next/navigation"; // ✅ Added for reading URL parameters
-
 import ProductCard from "./components/ProductCard";
 import { ProductType } from "@/app/types/productType";
 import { getApiData } from "@/app/services/receive_data/apiServerFetch";
@@ -37,25 +35,24 @@ const SkeletonCard = () => (
 );
 
 export default function ProductsPage() {
-  const searchParams = useSearchParams(); // ✅ Get the URL search parameters
-  const categoryParam = searchParams.get("category"); // ✅ Check if 'category' exists in URL
-
   const [products, setProducts] = useState<ProductType[]>([]);
   const [categories, setCategories] = useState<CategoryType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // ✅ Initialize selectedCategory with the value from the URL if it exists
-  const [selectedCategory, setSelectedCategory] = useState(categoryParam || "all");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // ✅ Watch for URL changes: if user navigates while on this page, update filter
   useEffect(() => {
-    if (categoryParam) {
-      setSelectedCategory(categoryParam);
+    const params = new URLSearchParams(window.location.search);
+
+    const category = params.get("category");
+
+    if (category) {
+      setSelectedCategory(category);
     }
-  }, [categoryParam]);
+  }, []);
 
   // Fetch categories
   useEffect(() => {

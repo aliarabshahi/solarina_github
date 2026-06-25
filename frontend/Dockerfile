@@ -22,7 +22,7 @@ ENV NEXT_DISABLE_ESLINT=1
 RUN npm run build
 
 # stage: RUN
-FROM node:22-alpine AS runner
+FROM docker.arvancloud.ir/node:22-alpine AS runner
 
 WORKDIR /app
 
