@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Sun, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function HeroCTA() {
@@ -28,21 +27,18 @@ export default function HeroCTA() {
         آماده‌ای از شر سیم و پریز خلاص بشی؟
       </h3>
 
-      {/* Description */}
+      {/* Description with old margin to keep height */}
       <p className="text-base sm:text-lg lg:text-xl text-blue-50 max-w-xl mx-auto mb-8 lg:mb-10 leading-relaxed relative z-10">
-        همین حالا به صفحه محصولات سر بزن و اولین قدم رو برای داشتن انرژی رایگان
+        همین حالا به{" "}
+        <Link 
+          href="/products" 
+          className="font-bold text-white underline decoration-2 underline-offset-8 hover:text-yellow-300 hover:decoration-yellow-300 transition-colors duration-300"
+        >
+          صفحه محصولات
+        </Link>
+        {" "}سر بزن و اولین قدم رو برای داشتن انرژی رایگان
         و بی‌پایان بردار. خورشید منتظره!
       </p>
-
-      {/* Button (طراحی دکمه هماهنگ با دکمه‌های HeroBanner) */}
-      <Link
-        href="/products"
-        className="group inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-white text-blue-700 font-bold text-base sm:text-lg px-8 py-4 rounded-2xl shadow-xl hover:bg-gray-50 hover:-translate-y-1 transition-all duration-300 relative z-10"
-      >
-        <Sun size={20} className="text-yellow-500" />
-        انتخاب محصولات
-        <ArrowLeft size={18} className="mr-1 group-hover:-translate-x-1 transition-transform" />
-      </Link>
     </motion.div>
   );
 }

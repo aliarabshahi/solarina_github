@@ -30,9 +30,19 @@ export default function ProductCard({
         ];
 
   const [current, setCurrent] = useState(0);
+  const [isInteracting, setIsInteracting] = useState(false);
 
-  // autoplay
+  // Swipe states
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  // Minimum distance (in pixels) to trigger swipe
+  const minSwipeDistance = 50;
+
+  // Autoplay
   useEffect(() => {
+    if (isInteracting) return;
+
     const interval = setInterval(() => {
       setCurrent((prev) =>
         prev === productImages.length - 1 ? 0 : prev + 1
@@ -40,14 +50,71 @@ export default function ProductCard({
     }, 3500);
 
     return () => clearInterval(interval);
-  }, [productImages.length]);
+  }, [productImages.length, isInteracting]);
+
+  const goToNext = () => {
+    setCurrent((prev) => (prev === productImages.length - 1 ? 0 : prev + 1));
+  };
+
+  const goToPrev = () => {
+    setCurrent((prev) => (prev === 0 ? productImages.length - 1 : prev - 1));
+  };
+
+  // Drag & Swipe Handlers
+  const onDragStart = (e: React.TouchEvent | React.MouseEvent) => {
+    setIsInteracting(true);
+    setTouchEnd(null);
+    if ("targetTouches" in e) {
+      setTouchStart(e.targetTouches[0].clientX);
+    } else {
+      setTouchStart((e as React.MouseEvent).clientX);
+    }
+  };
+
+  const onDragMove = (e: React.TouchEvent | React.MouseEvent) => {
+    if ("targetTouches" in e) {
+      setTouchEnd(e.targetTouches[0].clientX);
+    } else {
+      setTouchEnd((e as React.MouseEvent).clientX);
+    }
+  };
+
+  const onDragEnd = () => {
+    setIsInteracting(false);
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe || isRightSwipe) {
+      if (isLeftSwipe) {
+        goToNext();
+      } else {
+        goToPrev();
+      }
+    }
+  };
 
   return (
     <div
+      onMouseEnter={() => setIsInteracting(true)}
+      onMouseLeave={() => setIsInteracting(false)}
       className="group bg-white border border-gray-100 rounded-3xl overflow-hidden
       shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1"
     >
-      <div className="relative aspect-square overflow-hidden bg-gray-100">
+      <div 
+        className="relative aspect-square overflow-hidden bg-gray-100 cursor-grab active:cursor-grabbing"
+        onTouchStart={onDragStart}
+        onTouchMove={onDragMove}
+        onTouchEnd={onDragEnd}
+        onMouseDown={onDragStart}
+        onMouseMove={touchStart !== null ? onDragMove : undefined}
+        onMouseUp={onDragEnd}
+        onMouseLeave={() => {
+          if (touchStart !== null) onDragEnd();
+        }}
+      >
         {/* Images */}
         {productImages.map((img, index) => (
           <div
@@ -55,12 +122,14 @@ export default function ProductCard({
             className={`absolute inset-0 transition-opacity duration-700 ${
               index === current ? "opacity-100" : "opacity-0"
             }`}
+            style={{ pointerEvents: 'none' }} // جلوگیری از درگ شدن پیش‌فرض عکس توسط مرورگر
           >
             <Image
               src={img.image_url}
               alt={img.alt_text || product.name}
               fill
               className="object-cover transition-transform duration-700 group-hover:scale-110"
+              draggable={false}
             />
           </div>
         ))}
@@ -81,7 +150,10 @@ export default function ProductCard({
             {productImages.map((_, i) => (
               <button
                 key={i}
-                onClick={() => setCurrent(i)}
+                onClick={(e) => {
+                  e.stopPropagation(); // جلوگیری از تداخل با درگ
+                  setCurrent(i);
+                }}
                 className={`w-2.5 h-2.5 rounded-full transition-all ${
                   current === i
                     ? "bg-white scale-110"
